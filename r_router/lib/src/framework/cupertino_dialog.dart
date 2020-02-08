@@ -24,8 +24,6 @@ const Color _kModalBarrierColor = CupertinoDynamicColor.withBrightness(
 // The duration of the transition used when a modal popup is shown.
 const Duration _kModalPopupTransitionDuration = Duration(milliseconds: 335);
 
-
-
 /// This is the widget side of [_CupertinoBackGestureController].
 ///
 /// This widget provides a gesture recognizer which, when it determines the

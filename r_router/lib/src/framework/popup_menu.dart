@@ -65,7 +65,6 @@ class _RenderMenuItem extends RenderShiftedBox {
   }
 }
 
-
 class _PopupMenu<T> extends StatelessWidget {
   const _PopupMenu({
     Key key,
