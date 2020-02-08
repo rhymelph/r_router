@@ -1,27 +1,39 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:r_router/r_router.dart';
-import 'package:r_router_example/src/page/my_page.dart';
-import 'package:r_router_example/src/page/page_one.dart';
-import 'package:r_router_example/src/page/page_three.dart';
-import 'package:r_router_example/src/page/page_two.dart';
+import 'package:r_router_example/src/page/404_page.dart';
+import 'src/page/my_page.dart';
+import 'src/page/page_one.dart';
+import 'src/page/page_three.dart';
+import 'src/page/page_two.dart';
 
 void main() {
+  initRouter();
+  runApp(MyApp());
+}
+
+void initRouter() {
   // add new
   RRouter.myRouter.addRouter(
     path: '/one',
     routerWidgetBuilder: (params) => PageOne(),
   );
-  RRouter.myRouter.notFountPage =(path) => PageTwo();
+  RRouter.myRouter.addRouter(
+    path: '/two',
+    routerWidgetBuilder: (params) => PageTwo(
+      param: params['param'],
+    ),
+  );
   RRouter.myRouter.addRouter(
       path: '/three',
-      routerWidgetBuilder: (params) => PageThree(
-            pageThree: params['pageThree'],
-          ),
+      routerWidgetBuilder: (params) => PageThree(),
       routerPageBuilder: (RouteSettings setting, WidgetBuilder builder) =>
           CupertinoPageRoute(builder: builder, settings: setting));
+  RRouter.myRouter.notFoundPage = (String path) => NoFoundPage(
+        path: path,
+      );
+
   // add new
-  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

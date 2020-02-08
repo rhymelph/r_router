@@ -1,8 +1,6 @@
-
 import 'package:flutter/material.dart';
 
 class PageOne extends StatefulWidget {
-
   @override
   _PageOneState createState() => _PageOneState();
 }
@@ -12,7 +10,7 @@ class _PageOneState extends State<PageOne> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('one page'),
+        title: Text('普通跳转'),
       ),
     );
   }

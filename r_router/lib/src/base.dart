@@ -22,18 +22,15 @@ Future<dynamic> transResult(
     Map<String, dynamic> arguments,
     bool replace,
     bool clearTrace}) async {
-  assert(RRouter.myRouter.observer.navigator != null,
-      'please add the observer into app');
   dynamic future;
   if (clearTrace == true) {
-    future = await RRouter.myRouter.observer.navigator
+    future = await RRouter.navigator
         .pushNamedAndRemoveUntil(path, (check) => false, arguments: arguments);
   } else {
     future = replace == true
-        ? await RRouter.myRouter.observer.navigator
+        ? await RRouter.navigator
             .pushReplacementNamed(path, arguments: arguments)
-        : await RRouter.myRouter.observer.navigator
-            .pushNamed(path, arguments: arguments);
+        : await RRouter.navigator.pushNamed(path, arguments: arguments);
   }
   return future;
 }
@@ -44,9 +41,21 @@ class RRouter {
   Map<String, RRouterWidgetBuilder> _routeMap = {};
   Map<String, RRouterPageBuilder> _pageMap = {};
 
-  RRouterNotFountPage notFountPage;
+  RRouterNotFountPage notFoundPage;
 
   RRouterObserver observer = RRouterObserver();
+
+  static NavigatorState get navigator {
+    assert(RRouter.myRouter.observer.navigator != null,
+        'please add the observer into app');
+    return myRouter.observer.navigator;
+  }
+
+  static BuildContext get context {
+    assert(RRouter.myRouter.observer.navigator != null,
+        'please add the observer into app');
+    return myRouter.observer.navigator.context;
+  }
 
   /// generate a route ,you must add this to app.
   Route<dynamic> routerGenerate(RouteSettings settings) {
@@ -57,7 +66,7 @@ class RRouter {
     } else {
       try {
         return _pageGenerate(settings,
-            (BuildContext context) => notFountPage?.call(settings.name));
+            (BuildContext context) => notFoundPage?.call(settings.name));
       } catch (_) {
         String error =
             "No registered route was found to handle '${settings.name}'.";
