@@ -24,44 +24,7 @@ const Color _kModalBarrierColor = CupertinoDynamicColor.withBrightness(
 // The duration of the transition used when a modal popup is shown.
 const Duration _kModalPopupTransitionDuration = Duration(milliseconds: 335);
 
-// Offset from offscreen to the right to fully on screen.
-final Animatable<Offset> _kRightMiddleTween = Tween<Offset>(
-  begin: const Offset(1.0, 0.0),
-  end: Offset.zero,
-);
 
-// Offset from fully on screen to 1/3 offscreen to the left.
-final Animatable<Offset> _kMiddleLeftTween = Tween<Offset>(
-  begin: Offset.zero,
-  end: const Offset(-1.0 / 3.0, 0.0),
-);
-
-// Offset from offscreen below to fully on screen.
-final Animatable<Offset> _kBottomUpTween = Tween<Offset>(
-  begin: const Offset(0.0, 1.0),
-  end: Offset.zero,
-);
-
-// Custom decoration from no shadow to page shadow mimicking iOS page
-// transitions using gradients.
-final DecorationTween _kGradientShadowTween = DecorationTween(
-  begin: _CupertinoEdgeShadowDecoration.none, // No decoration initially.
-  end: const _CupertinoEdgeShadowDecoration(
-    edgeGradient: LinearGradient(
-      // Spans 5% of the page.
-      begin: AlignmentDirectional(0.90, 0.0),
-      end: AlignmentDirectional.centerEnd,
-      // Eyeballed gradient used to mimic a drop shadow on the start side only.
-      colors: <Color>[
-        Color(0x00000000),
-        Color(0x04000000),
-        Color(0x12000000),
-        Color(0x38000000),
-      ],
-      stops: <double>[0.0, 0.3, 0.6, 1.0],
-    ),
-  ),
-);
 
 /// This is the widget side of [_CupertinoBackGestureController].
 ///

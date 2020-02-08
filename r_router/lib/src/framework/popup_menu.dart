@@ -12,8 +12,6 @@ part of 'dialog_override.dart';
 
 const Duration _kMenuDuration = Duration(milliseconds: 300);
 const double _kMenuCloseIntervalEnd = 2.0 / 3.0;
-const double _kMenuHorizontalPadding = 16.0;
-const double _kMenuDividerHeight = 16.0;
 const double _kMenuMaxWidth = 5.0 * _kMenuWidthStep;
 const double _kMenuMinWidth = 2.0 * _kMenuWidthStep;
 const double _kMenuVerticalPadding = 8.0;
@@ -67,43 +65,6 @@ class _RenderMenuItem extends RenderShiftedBox {
   }
 }
 
-class _CheckedPopupMenuItemState<T>
-    extends PopupMenuItemState<T, CheckedPopupMenuItem<T>>
-    with SingleTickerProviderStateMixin {
-  static const Duration _fadeDuration = Duration(milliseconds: 150);
-  AnimationController _controller;
-  Animation<double> get _opacity => _controller.view;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(duration: _fadeDuration, vsync: this)
-      ..value = widget.checked ? 1.0 : 0.0
-      ..addListener(() => setState(() {/* animation changed */}));
-  }
-
-  @override
-  void handleTap() {
-    // This fades the checkmark in or out when tapped.
-    if (widget.checked)
-      _controller.reverse();
-    else
-      _controller.forward();
-    super.handleTap();
-  }
-
-  @override
-  Widget buildChild() {
-    return ListTile(
-      enabled: widget.enabled,
-      leading: FadeTransition(
-        opacity: _opacity,
-        child: Icon(_controller.isDismissed ? null : Icons.done),
-      ),
-      title: widget.child,
-    );
-  }
-}
 
 class _PopupMenu<T> extends StatelessWidget {
   const _PopupMenu({

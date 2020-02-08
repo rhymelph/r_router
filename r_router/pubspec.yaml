@@ -1,10 +1,10 @@
 name: r_router
 description: A Flutter router package,you can not need use context to navigate.
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/rhymelph/r_router
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.3.0 <3.0.0"
 
 dependencies:
   flutter:

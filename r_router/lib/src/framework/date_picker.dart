@@ -7,8 +7,6 @@ part of 'dialog_override.dart';
 // Examples can assume:
 // BuildContext context;
 
-const double _kDayPickerRowHeight = 42.0;
-const int _kMaxDayPickerRowCount = 6; // A 31 day month that starts on Saturday.
 // Two extra rows: one for the day-of-week header and one for the month header.
 
 // Shows the selected date in large font and toggles between year and day mode

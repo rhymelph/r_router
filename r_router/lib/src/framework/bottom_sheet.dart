@@ -5,8 +5,6 @@
 part of 'dialog_override.dart';
 
 const Duration _bottomSheetDuration = Duration(milliseconds: 200);
-const double _minFlingVelocity = 700.0;
-const double _closeProgressThreshold = 0.5;
 
 // PERSISTENT BOTTOM SHEETS
 
