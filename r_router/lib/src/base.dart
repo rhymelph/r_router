@@ -10,17 +10,18 @@ import 'package:flutter/material.dart';
 typedef Widget RRouterWidgetBuilder(dynamic params);
 
 /// page builder
-typedef PageRoute<T> RRouterPageBuilder<T>(RouteSettings setting,
-    WidgetBuilder builder);
+typedef PageRoute<T> RRouterPageBuilder<T>(
+    RouteSettings setting, WidgetBuilder builder);
 
 /// not fount page widget
 typedef Widget RRouterNotFountPage(String path);
 
 /// transform result
-Future<dynamic> transResult({String path,
-  Map<String, dynamic> arguments,
-  bool replace,
-  bool clearTrace}) async {
+Future<dynamic> transResult(
+    {String path,
+    Map<String, dynamic> arguments,
+    bool replace,
+    bool clearTrace}) async {
   dynamic future;
   if (clearTrace == true) {
     future = await RRouter.navigator
@@ -28,7 +29,7 @@ Future<dynamic> transResult({String path,
   } else {
     future = replace == true
         ? await RRouter.navigator
-        .pushReplacementNamed(path, arguments: arguments)
+            .pushReplacementNamed(path, arguments: arguments)
         : await RRouter.navigator.pushNamed(path, arguments: arguments);
   }
   return future;
@@ -46,13 +47,13 @@ class RRouter {
 
   static NavigatorState get navigator {
     assert(RRouter.myRouter.observer.navigator != null,
-    'please add the observer into app');
+        'please add the observer into app');
     return myRouter.observer.navigator;
   }
 
   static BuildContext get context {
     assert(RRouter.myRouter.observer.navigator != null,
-    'please add the observer into app');
+        'please add the observer into app');
     return myRouter.observer.navigator.context;
   }
 
@@ -65,7 +66,7 @@ class RRouter {
     } else {
       try {
         return _pageGenerate(settings,
-                (BuildContext context) => notFoundPage?.call(settings.name));
+            (BuildContext context) => notFoundPage?.call(settings.name));
       } catch (_) {
         String error =
             "No registered route was found to handle '${settings.name}'.";
@@ -75,10 +76,11 @@ class RRouter {
   }
 
   /// you want to add a widget in the navigation , can use it.
-  void addRouter({@required String path,
-    @required RRouterWidgetBuilder routerWidgetBuilder,
-    RRouterPageBuilder routerPageBuilder,
-    bool isReplaceRouter}) {
+  void addRouter(
+      {@required String path,
+      @required RRouterWidgetBuilder routerWidgetBuilder,
+      RRouterPageBuilder routerPageBuilder,
+      bool isReplaceRouter}) {
     if (!_routeMap.containsKey(path) || isReplaceRouter == true) {
       _routeMap[path] = routerWidgetBuilder;
       if (routerPageBuilder != null) {
@@ -103,7 +105,8 @@ class RRouter {
   }
 
   /// Push the given route onto the navigator.
-  Future<void> navigateTo(String path, {
+  Future<void> navigateTo(
+    String path, {
     Map<String, dynamic> arguments,
     bool replace,
     bool clearTrace,
@@ -122,10 +125,10 @@ class RRouter {
   /// Pop the current route off the navigator and push a named route in its
   /// place.
   Future<T> popAndPushNamed<T extends Object, TO extends Object>(
-      String routeName, {
-        TO result,
-        Object arguments,
-      }) {
+    String routeName, {
+    TO result,
+    Object arguments,
+  }) {
     return navigator.popAndPushNamed<T, TO>(routeName,
         result: result, arguments: arguments);
   }
@@ -139,10 +142,9 @@ class RRouter {
 
   /// Tries to pop the current route, while honoring the route's [Route.willPop]
   /// state.
-  Future<bool> maybePop<T extends Object>([ T result ]) {
+  Future<bool> maybePop<T extends Object>([T result]) {
     return navigator.maybePop<T>(result);
   }
-
 }
 
 /// route observer
