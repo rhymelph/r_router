@@ -43,6 +43,19 @@ class _MyHomePageState extends State<MyHomePage> {
             ));
   }
 
+  void onShowDatePickerDialog() {
+    showRDatePicker(
+        initialDate: DateTime.now(),
+        firstDate: DateTime(1990, 1, 1),
+        lastDate: DateTime(2050, 12, 31));
+  }
+
+  void onShowDateTimeDialog() {
+    showRTimePicker(
+      initialTime: TimeOfDay.now(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,6 +69,8 @@ class _MyHomePageState extends State<MyHomePage> {
           RaisedButton(onPressed: onNavigateToTree, child: Text('自定义跳转动画')),
           RaisedButton(onPressed: onNavigateToNotFound, child: Text('404')),
           RaisedButton(onPressed: onShowDialog, child: Text('对话框')),
+          RaisedButton(onPressed: onShowDatePickerDialog, child: Text('日历选择')),
+          RaisedButton(onPressed: onShowDateTimeDialog, child: Text('时间选择')),
         ],
       ),
     );

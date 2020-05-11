@@ -262,8 +262,8 @@ class _CupertinoEdgeShadowDecoration extends Decoration {
 
   // An edge shadow decoration where the shadow is null. This is used
   // for interpolating from no shadow.
-  static const _CupertinoEdgeShadowDecoration none =
-      _CupertinoEdgeShadowDecoration();
+//  static const _CupertinoEdgeShadowDecoration none =
+//      _CupertinoEdgeShadowDecoration();
 
   // A gradient to draw to the left of the box being decorated.
   // Alignments are relative to the original box translated one box
@@ -376,14 +376,19 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
     this.barrierColor,
     this.barrierLabel,
     this.builder,
+    bool semanticsDismissible,
     ImageFilter filter,
     RouteSettings settings,
   }) : super(
           filter: filter,
           settings: settings,
-        );
+        ) {
+    _semanticsDismissible = semanticsDismissible;
+  }
 
   final WidgetBuilder builder;
+
+  bool _semanticsDismissible;
 
   @override
   final String barrierLabel;
@@ -395,7 +400,7 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
   bool get barrierDismissible => true;
 
   @override
-  bool get semanticsDismissible => false;
+  bool get semanticsDismissible => _semanticsDismissible ?? false;
 
   @override
   Duration get transitionDuration => _kModalPopupTransitionDuration;

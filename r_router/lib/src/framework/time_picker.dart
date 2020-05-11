@@ -193,10 +193,13 @@ class _DayPeriodControl extends StatelessWidget {
     switch (fragmentContext.targetPlatform) {
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
         _announceToAccessibility(context,
             MaterialLocalizations.of(context).anteMeridiemAbbreviation);
         break;
       case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
         break;
     }
     _togglePeriod();
@@ -209,10 +212,13 @@ class _DayPeriodControl extends StatelessWidget {
     switch (fragmentContext.targetPlatform) {
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
         _announceToAccessibility(context,
             MaterialLocalizations.of(context).postMeridiemAbbreviation);
         break;
       case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
         break;
     }
     _togglePeriod();
@@ -227,9 +233,9 @@ class _DayPeriodControl extends StatelessWidget {
     final Color activeColor = fragmentContext.activeColor;
     final Color inactiveColor = fragmentContext.inactiveColor;
     final bool amSelected = selectedTime.period == DayPeriod.am;
-    final TextStyle amStyle = headerTextTheme.subhead
+    final TextStyle amStyle = headerTextTheme.subtitle1
         .copyWith(color: amSelected ? activeColor : inactiveColor);
-    final TextStyle pmStyle = headerTextTheme.subhead
+    final TextStyle pmStyle = headerTextTheme.subtitle1
         .copyWith(color: !amSelected ? activeColor : inactiveColor);
     final bool layoutPortrait = orientation == Orientation.portrait;
 
@@ -789,9 +795,9 @@ class _TimePickerHeader extends StatelessWidget {
     assert(orientation != null);
     switch (orientation) {
       case Orientation.portrait:
-        return headerTextTheme.display3.copyWith(fontSize: 60.0);
+        return headerTextTheme.headline2.copyWith(fontSize: 60.0);
       case Orientation.landscape:
-        return headerTextTheme.display2.copyWith(fontSize: 50.0);
+        return headerTextTheme.headline2.copyWith(fontSize: 50.0);
     }
     return null;
   }
@@ -1368,7 +1374,7 @@ class _DialState extends State<_Dial> with SingleTickerProviderStateMixin {
 
   _TappableLabel _buildTappableLabel(
       TextTheme textTheme, int value, String label, VoidCallback onTap) {
-    final TextStyle style = textTheme.subhead;
+    final TextStyle style = textTheme.subtitle1;
     // TODO(abarth): Handle textScaleFactor.
     // https://github.com/flutter/flutter/issues/5939
     return _TappableLabel(
@@ -1569,6 +1575,8 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
     switch (Theme.of(context).platform) {
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
         _vibrateTimer?.cancel();
         _vibrateTimer = Timer(_kVibrateCommitDelay, () {
           HapticFeedback.vibrate();
@@ -1576,6 +1584,7 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
         });
         break;
       case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
         break;
     }
   }

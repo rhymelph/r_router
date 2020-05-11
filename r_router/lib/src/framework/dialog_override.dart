@@ -6,7 +6,7 @@ library dialog_override;
 
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,20 +20,29 @@ import 'dart:ui' show lerpDouble, ImageFilter;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/animation.dart' show Curves;
+import 'date_utils.dart' as utils;
 import '../../r_router.dart';
 
 part 'time_picker.dart';
+
 part 'dialog.dart';
+
 part 'cupertino_dialog.dart';
+
 part 'popup_menu.dart';
+
 part 'routes.dart';
+
 part 'date_picker.dart';
+
 part 'search.dart';
+
 part 'bottom_sheet.dart';
 
 Future<T> showRDialog<T>({
   bool barrierDismissible = true,
   WidgetBuilder builder,
+  RouteSettings routeSettings,
 }) {
   BuildContext context = RRouter.context;
   assert(debugCheckHasMaterialLocalizations(context));
@@ -55,11 +64,13 @@ Future<T> showRDialog<T>({
     barrierColor: Colors.black54,
     transitionDuration: const Duration(milliseconds: 150),
     transitionBuilder: _buildMaterialDialogTransitions,
+    routeSettings: routeSettings,
   );
 }
 
 Future<T> showRCupertinoDialog<T>({
   @required WidgetBuilder builder,
+  RouteSettings routeSettings,
 }) {
   BuildContext context = RRouter.context;
   assert(builder != null);
@@ -73,6 +84,7 @@ Future<T> showRCupertinoDialog<T>({
       return builder(context);
     },
     transitionBuilder: _buildCupertinoDialogTransitions,
+    routeSettings: routeSettings,
   );
 }
 
@@ -107,15 +119,16 @@ Future<T> showRCupertinoDialog<T>({
 Future<T> showRCupertinoModalPopup<T>({
   @required WidgetBuilder builder,
   ImageFilter filter,
+  bool semanticsDismissible,
 }) {
   BuildContext context = RRouter.context;
-
   return RRouter.navigator.push(
     _CupertinoModalPopupRoute<T>(
       barrierColor: CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
       barrierLabel: 'Dismiss',
       builder: builder,
       filter: filter,
+      semanticsDismissible: semanticsDismissible,
     ),
   );
 }
@@ -126,6 +139,7 @@ void showRAboutDialog({
   Widget applicationIcon,
   String applicationLegalese,
   List<Widget> children,
+  RouteSettings routeSettings,
 }) {
   showRDialog<void>(
     builder: (BuildContext context) {
@@ -137,6 +151,7 @@ void showRAboutDialog({
         children: children,
       );
     },
+    routeSettings: routeSettings,
   );
 }
 
@@ -210,14 +225,16 @@ Future<T> showRMenu<T>({
   assert(items != null && items.isNotEmpty);
   assert(captureInheritedThemes != null);
   assert(debugCheckHasMaterialLocalizations(context));
-
   String label = semanticLabel;
   switch (Theme.of(context).platform) {
     case TargetPlatform.iOS:
+    case TargetPlatform.macOS:
       label = semanticLabel;
       break;
     case TargetPlatform.android:
     case TargetPlatform.fuchsia:
+    case TargetPlatform.linux:
+    case TargetPlatform.windows:
       label =
           semanticLabel ?? MaterialLocalizations.of(context)?.popupMenuLabel;
   }
@@ -302,6 +319,7 @@ Future<T> showRMenu<T>({
 Future<TimeOfDay> showRTimePicker({
   @required TimeOfDay initialTime,
   TransitionBuilder builder,
+  RouteSettings routeSettings,
 }) async {
   BuildContext context = RRouter.context;
 
@@ -313,6 +331,7 @@ Future<TimeOfDay> showRTimePicker({
     builder: (BuildContext context) {
       return builder == null ? dialog : builder(context, dialog);
     },
+    routeSettings: routeSettings,
   );
 }
 
@@ -323,6 +342,7 @@ Future<T> showRGeneralDialog<T>({
   Color barrierColor,
   Duration transitionDuration,
   RouteTransitionsBuilder transitionBuilder,
+  RouteSettings routeSettings,
 }) {
   assert(pageBuilder != null);
   assert(!barrierDismissible || barrierLabel != null);
@@ -333,120 +353,140 @@ Future<T> showRGeneralDialog<T>({
     barrierColor: barrierColor,
     transitionDuration: transitionDuration,
     transitionBuilder: transitionBuilder,
+    settings: routeSettings,
   ));
 }
 
-/// Shows a dialog containing a material design date picker.
+/// Shows a dialog containing a Material Design date picker.
 ///
 /// The returned [Future] resolves to the date selected by the user when the
-/// user closes the dialog. If the user cancels the dialog, null is returned.
+/// user confirms the dialog. If the user cancels the dialog, null is returned.
 ///
-/// An optional [selectableDayPredicate] function can be passed in to customize
-/// the days to enable for selection. If provided, only the days that
-/// [selectableDayPredicate] returned true for will be selectable.
+/// When the date picker is first displayed, it will show the month of
+/// [initialDate], with [initialDate] selected.
 ///
-/// An optional [initialDatePickerMode] argument can be used to display the
-/// date picker initially in the year or month+day picker mode. It defaults
-/// to month+day, and must not be null.
+/// The [firstDate] is the earliest allowable date. The [lastDate] is the latest
+/// allowable date. [initialDate] must either fall between these dates,
+/// or be equal to one of them. For each of these [DateTime] parameters, only
+/// their dates are considered. Their time fields are ignored. They must all
+/// be non-null.
+///
+/// An optional [initialEntryMode] argument can be used to display the date
+/// picker in the [DatePickerEntryMode.calendar] (a calendar month grid)
+/// or [DatePickerEntryMode.input] (a text input field) mode.
+/// It defaults to [DatePickerEntryMode.calendar] and must be non-null.
+///
+/// An optional [selectableDayPredicate] function can be passed in to only allow
+/// certain days for selection. If provided, only the days that
+/// [selectableDayPredicate] returns true for will be selectable. For example,
+/// this can be used to only allow weekdays for selection. If provided, it must
+/// return true for [initialDate].
+///
+/// Optional strings for the [cancelText], [confirmText], [errorFormatText],
+/// [errorInvalidText], [fieldHintText], [fieldLabelText], and [helpText] allow
+/// you to override the default text used for various parts of the dialog:
+///
+///   * [cancelText], label on the cancel button.
+///   * [confirmText], label on the ok button.
+///   * [errorFormatText], message used when the input text isn't in a proper date format.
+///   * [errorInvalidText], message used when the input text isn't a selectable date.
+///   * [fieldHintText], text used to prompt the user when no text has been entered in the field.
+///   * [fieldLabelText], label for the date text input field.
+///   * [helpText], label on the top of the dialog.
 ///
 /// An optional [locale] argument can be used to set the locale for the date
 /// picker. It defaults to the ambient locale provided by [Localizations].
 ///
 /// An optional [textDirection] argument can be used to set the text direction
-/// (RTL or LTR) for the date picker. It defaults to the ambient text direction
-/// provided by [Directionality]. If both [locale] and [textDirection] are not
-/// null, [textDirection] overrides the direction chosen for the [locale].
+/// ([TextDirection.ltr] or [TextDirection.rtl]) for the date picker. It
+/// defaults to the ambient text direction provided by [Directionality]. If both
+/// [locale] and [textDirection] are non-null, [textDirection] overrides the
+/// direction chosen for the [locale].
 ///
-/// The [context] and [useRootNavigator] arguments are passed to [showDialog],
-/// the documentation for which discusses how it is used.
+/// The [context], [useRootNavigator] and [routeSettings] arguments are passed to
+/// [showDialog], the documentation for which discusses how it is used. [context]
+/// and [useRootNavigator] must be non-null.
 ///
 /// The [builder] parameter can be used to wrap the dialog widget
 /// to add inherited widgets like [Theme].
 ///
-/// {@tool sample}
-/// Show a date picker with the dark theme.
-///
-/// ```dart
-/// Future<DateTime> selectedDate = showDatePicker(
-///   context: context,
-///   initialDate: DateTime.now(),
-///   firstDate: DateTime(2018),
-///   lastDate: DateTime(2030),
-///   builder: (BuildContext context, Widget child) {
-///     return Theme(
-///       data: ThemeData.dark(),
-///       child: child,
-///     );
-///   },
-/// );
-/// ```
-/// {@end-tool}
-///
-/// The [context], [initialDate], [firstDate], and [lastDate] parameters must
-/// not be null.
-///
-/// See also:
-///
-///  * [showTimePicker], which shows a dialog that contains a material design
-///    time picker.
-///  * [DayPicker], which displays the days of a given month and allows
-///    choosing a day.
-///  * [MonthPicker], which displays a scrollable list of months to allow
-///    picking a month.
-///  * [YearPicker], which displays a scrollable list of years to allow picking
-///    a year.
+/// An optional [initialDatePickerMode] argument can be used to have the
+/// calendar date picker initially appear in the [DatePickerMode.year] or
+/// [DatePickerMode.day] mode. It defaults to [DatePickerMode.day], and
+/// must be non-null.
 Future<DateTime> showRDatePicker({
   @required DateTime initialDate,
   @required DateTime firstDate,
   @required DateTime lastDate,
+  DatePickerEntryMode initialEntryMode = DatePickerEntryMode.calendar,
   SelectableDayPredicate selectableDayPredicate,
-  DatePickerMode initialDatePickerMode = DatePickerMode.day,
+  String helpText,
+  String cancelText,
+  String confirmText,
   Locale locale,
+  RouteSettings routeSettings,
   TextDirection textDirection,
   TransitionBuilder builder,
+  DatePickerMode initialDatePickerMode = DatePickerMode.day,
+  String errorFormatText,
+  String errorInvalidText,
+  String fieldHintText,
+  String fieldLabelText,
 }) async {
   BuildContext context = RRouter.context;
-
   assert(initialDate != null);
   assert(firstDate != null);
   assert(lastDate != null);
+  initialDate = utils.dateOnly(initialDate);
+  firstDate = utils.dateOnly(firstDate);
+  lastDate = utils.dateOnly(lastDate);
+  assert(!lastDate.isBefore(firstDate),
+      'lastDate $lastDate must be on or after firstDate $firstDate.');
   assert(!initialDate.isBefore(firstDate),
-      'initialDate must be on or after firstDate');
+      'initialDate $initialDate must be on or after firstDate $firstDate.');
   assert(!initialDate.isAfter(lastDate),
-      'initialDate must be on or before lastDate');
-  assert(
-      !firstDate.isAfter(lastDate), 'lastDate must be on or after firstDate');
+      'initialDate $initialDate must be on or before lastDate $lastDate.');
   assert(selectableDayPredicate == null || selectableDayPredicate(initialDate),
-      'Provided initialDate must satisfy provided selectableDayPredicate');
-  assert(
-      initialDatePickerMode != null, 'initialDatePickerMode must not be null');
+      'Provided initialDate $initialDate must satisfy provided selectableDayPredicate.');
+  assert(initialEntryMode != null);
+  assert(initialDatePickerMode != null);
   assert(debugCheckHasMaterialLocalizations(context));
 
-  Widget child = _DatePickerDialog(
+  Widget dialog = _DatePickerDialog(
     initialDate: initialDate,
     firstDate: firstDate,
     lastDate: lastDate,
+    initialEntryMode: initialEntryMode,
     selectableDayPredicate: selectableDayPredicate,
-    initialDatePickerMode: initialDatePickerMode,
+    helpText: helpText,
+    cancelText: cancelText,
+    confirmText: confirmText,
+    initialCalendarMode: initialDatePickerMode,
+    errorFormatText: errorFormatText,
+    errorInvalidText: errorInvalidText,
+    fieldHintText: fieldHintText,
+    fieldLabelText: fieldLabelText,
   );
 
   if (textDirection != null) {
-    child = Directionality(
+    dialog = Directionality(
       textDirection: textDirection,
-      child: child,
+      child: dialog,
     );
   }
 
   if (locale != null) {
-    child = Localizations.override(
+    dialog = Localizations.override(
       context: context,
       locale: locale,
-      child: child,
+      child: dialog,
     );
   }
-  return await showRDialog<DateTime>(
+
+  return showRDialog<DateTime>(
+    routeSettings: routeSettings,
     builder: (BuildContext context) {
-      return builder == null ? child : builder(context, child);
+      return builder == null ? dialog : builder(context, dialog);
     },
   );
 }

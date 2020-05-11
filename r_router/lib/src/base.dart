@@ -118,7 +118,7 @@ class RRouter {
           clearTrace: clearTrace);
 
   /// Pop the top-most route off the navigator.
-  bool pop<T>([T result]) {
+  pop<T>([T result]) {
     return navigator.pop<T>(result);
   }
 

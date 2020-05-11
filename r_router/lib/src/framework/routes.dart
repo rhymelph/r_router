@@ -198,7 +198,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   /// Creates a route that blocks interaction with previous routes.
   ModalRoute({
     RouteSettings settings,
-    ImageFilter filter,
+    ui.ImageFilter filter,
   })  : _filter = filter,
         super(settings: settings);
 
@@ -206,7 +206,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   ///
   /// If given, this filter will be applied to the modal barrier using
   /// [BackdropFilter]. This allows blur effects, for example.
-  final ImageFilter _filter;
+  final ui.ImageFilter _filter;
 
   // The API for general users of this class
 
@@ -226,7 +226,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   static ModalRoute<T> of<T extends Object>(BuildContext context) {
     final _ModalScopeStatus widget =
         context.dependOnInheritedWidgetOfExactType<_ModalScopeStatus>();
-    return widget?.route;
+    return widget?.route as ModalRoute<T>;
   }
 
   /// Schedule a call to [buildTransitions].
@@ -419,8 +419,8 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   }
 
   @override
-  void install(OverlayEntry insertionPoint) {
-    super.install(insertionPoint);
+  void install() {
+    super.install();
     _animationProxy = ProxyAnimation(super.animation);
     _secondaryAnimationProxy = ProxyAnimation(super.secondaryAnimation);
   }
@@ -432,6 +432,15 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
           .setFirstFocus(_scopeKey.currentState.focusScopeNode);
     }
     return super.didPush();
+  }
+
+  @override
+  void didAdd() {
+    if (_scopeKey.currentState != null) {
+      navigator.focusScopeNode
+          .setFirstFocus(_scopeKey.currentState.focusScopeNode);
+    }
+    super.didAdd();
   }
 
   // The API for subclasses to override - used by this class
@@ -450,7 +459,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   ///
   /// If [barrierDismissible] is false, then tapping the barrier has no effect.
   ///
-  /// If this getter would ever start returning a different color,
+  /// If this getter would ever start returning a different value,
   /// [changedInternalState] should be invoked so that the change can take
   /// effect.
   ///
@@ -514,7 +523,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   /// For example, when a dialog is on the screen, the page below the dialog is
   /// usually darkened by the modal barrier.
   ///
-  /// If this getter would ever start returning a different color,
+  /// If this getter would ever start returning a different label,
   /// [changedInternalState] should be invoked so that the change can take
   /// effect.
   ///
@@ -524,6 +533,32 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   ///    tapped.
   ///  * [ModalBarrier], the widget that implements this feature.
   String get barrierLabel;
+
+  /// The curve that is used for animating the modal barrier in and out.
+  ///
+  /// The modal barrier is the scrim that is rendered behind each route, which
+  /// generally prevents the user from interacting with the route below the
+  /// current route, and normally partially obscures such routes.
+  ///
+  /// For example, when a dialog is on the screen, the page below the dialog is
+  /// usually darkened by the modal barrier.
+  ///
+  /// While the route is animating into position, the color is animated from
+  /// transparent to the specified [barrierColor].
+  ///
+  /// If this getter would ever start returning a different curve,
+  /// [changedInternalState] should be invoked so that the change can take
+  /// effect.
+  ///
+  /// It defaults to [Curves.ease].
+  ///
+  /// See also:
+  ///
+  ///  * [barrierColor], which determines the color that the modal transitions
+  ///    to.
+  ///  * [Curves] for a collection of common curves.
+  ///  * [AnimatedModalBarrier], the widget that implements this feature.
+  Curve get barrierCurve => Curves.ease;
 
   /// Whether the route should remain in memory when it is inactive.
   ///
@@ -596,7 +631,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   Future<RoutePopDisposition> willPop() async {
     final _ModalScopeState<T> scope = _scopeKey.currentState;
     assert(scope != null);
-    for (WillPopCallback callback
+    for (final WillPopCallback callback
         in List<WillPopCallback>.from(_willPopCallbacks)) {
       if (!await callback()) return RoutePopDisposition.doNotPop;
     }
@@ -684,9 +719,10 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
 
   /// True if one or more [WillPopCallback] callbacks exist.
   ///
-  /// This method is used to disable the horizontal swipe pop gesture
-  /// supported by [MaterialPageRoute] for [TargetPlatform.iOS].
-  /// If a pop might be vetoed, then the back gesture is disabled.
+  /// This method is used to disable the horizontal swipe pop gesture supported
+  /// by [MaterialPageRoute] for [TargetPlatform.iOS] and
+  /// [TargetPlatform.macOS]. If a pop might be vetoed, then the back gesture is
+  /// disabled.
   ///
   /// The [buildTransitions] method will not be called again if this changes,
   /// since it can change during the build as descendants of the route add or
@@ -736,36 +772,36 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   final GlobalKey _subtreeKey = GlobalKey();
   final PageStorageBucket _storageBucket = PageStorageBucket();
 
-  static final Animatable<double> _easeCurveTween =
-      CurveTween(curve: Curves.ease);
-
   // one of the builders
   OverlayEntry _modalBarrier;
   Widget _buildModalBarrier(BuildContext context) {
     Widget barrier;
     if (barrierColor != null && !offstage) {
-      // changedInternalState is called if these update
+      // changedInternalState is called if barrierColor or offstage updates
       assert(barrierColor != _kTransparent);
       final Animation<Color> color = animation.drive(
         ColorTween(
           begin: _kTransparent,
-          end: barrierColor, // changedInternalState is called if this updates
-        ).chain(_easeCurveTween),
+          end:
+              barrierColor, // changedInternalState is called if barrierColor updates
+        ).chain(CurveTween(
+            curve:
+                barrierCurve)), // changedInternalState is called if barrierCurve updates
       );
       barrier = AnimatedModalBarrier(
         color: color,
         dismissible:
-            barrierDismissible, // changedInternalState is called if this updates
+            barrierDismissible, // changedInternalState is called if barrierDismissible updates
         semanticsLabel:
-            barrierLabel, // changedInternalState is called if this updates
+            barrierLabel, // changedInternalState is called if barrierLabel updates
         barrierSemanticsDismissible: semanticsDismissible,
       );
     } else {
       barrier = ModalBarrier(
         dismissible:
-            barrierDismissible, // changedInternalState is called if this updates
+            barrierDismissible, // changedInternalState is called if barrierDismissible updates
         semanticsLabel:
-            barrierLabel, // changedInternalState is called if this updates
+            barrierLabel, // changedInternalState is called if barrierLabel updates
         barrierSemanticsDismissible: semanticsDismissible,
       );
     }
@@ -778,7 +814,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
     return IgnorePointer(
       ignoring: animation.status ==
               AnimationStatus
-                  .reverse || // changedInternalState is called when this updates
+                  .reverse || // changedInternalState is called when animation.status updates
           animation.status ==
               AnimationStatus
                   .dismissed, // dismissed is possible when doing a manual pop gesture
@@ -806,7 +842,8 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   }
 
   @override
-  String toString() => '$runtimeType($settings';
+  String toString() =>
+      '${objectRuntimeType(this, 'ModalRoute')}($settings, animation: $animation)';
 }
 
 class _DialogRoute<T> extends PopupRoute<T> {
