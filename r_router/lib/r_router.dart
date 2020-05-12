@@ -3,4 +3,4 @@
 // found in the LICENSE file.library r_router;
 
 export 'src/base.dart';
-export 'src/framework/dialog_override.dart' hide ModalRoute, SearchDelegate;
+export 'src/framework/dialog_override.dart' hide ModalRoute;

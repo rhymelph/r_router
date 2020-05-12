@@ -1,3 +1,5 @@
+## [0.1.4+1] - fix SearchDelegate can not use.
+
 ## [0.1.4] - adapter to flutter v1.17 version.
 
 ## [0.1.3] - add pop 、popAndPushNamed 、popUntil 、canPop 、maybePop method
