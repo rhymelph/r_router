@@ -162,3 +162,13 @@ class RRouterNotFoundException implements Exception {
     return message;
   }
 }
+
+class RRouterProvider {
+  final String paramName;
+  final PageRoute pageBuilder;
+  final String path;
+  final String describe;
+
+  const RRouterProvider(this.paramName,
+      {this.pageBuilder, this.path, this.describe});
+}
