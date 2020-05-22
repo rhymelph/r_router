@@ -1,3 +1,5 @@
+## [0.1.5+1] - add pageBuildType and change meta params type.
+
 ## [0.1.5] - add meta is use to RRouter Plugin.
 
 ## [0.1.4+1] - fix SearchDelegate can not use.

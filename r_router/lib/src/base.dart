@@ -163,12 +163,24 @@ class RRouterNotFoundException implements Exception {
   }
 }
 
+class RRouterPageBuilderType {
+  /// material design
+  static RRouterPageBuilder get material =>
+      (RouteSettings setting, WidgetBuilder builder) =>
+          MaterialPageRoute(builder: builder, settings: setting);
+
+  /// cupertino design
+  static RRouterPageBuilder get cupertino =>
+      (RouteSettings setting, WidgetBuilder builder) =>
+          CupertinoPageRoute(builder: builder, settings: setting);
+}
+
 class RRouterProvider {
   final String paramName;
-  final PageRoute pageBuilder;
+  final RRouterPageBuilder pageBuilder;
   final String path;
   final String describe;
 
-  const RRouterProvider(this.paramName,
-      {this.pageBuilder, this.path, this.describe});
+  const RRouterProvider(
+      {@required this.paramName, this.pageBuilder, this.path, this.describe});
 }
