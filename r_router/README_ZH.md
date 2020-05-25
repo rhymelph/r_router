@@ -93,3 +93,16 @@ you can use
 ```dart
 RRouter.navigator
 ```
+
+## 6.添加拦截器,可重定向到另一个路由
+
+```dart
+  RRouter.myRouter.interceptor =
+      RRouterInterceptorWrapper(onRequest: (settings) {
+    if (settings.name == '/three') {
+      return settings.copyWith(name: '/two');
+    } else {
+      return settings;
+    }
+  });
+```
