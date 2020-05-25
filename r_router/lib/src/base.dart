@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'interceptor.dart';
@@ -106,11 +105,7 @@ class RRouter {
     if (pageBuilder != null) {
       return pageBuilder(settings, builder);
     } else {
-      if (Platform.isAndroid) {
-        return MaterialPageRoute<T>(settings: settings, builder: builder);
-      } else {
-        return CupertinoPageRoute<T>(settings: settings, builder: builder);
-      }
+      return MaterialPageRoute<T>(settings: settings, builder: builder);
     }
   }
 
