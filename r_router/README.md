@@ -95,4 +95,16 @@ you can use
 ```dart
 RRouter.navigator
 ```
-一个无需使用context导航的Flutter路由插件，支持dialog
+
+## 6.Add Interceptor
+
+```dart
+  RRouter.myRouter.interceptor =
+      RRouterInterceptorWrapper(onRequest: (settings) {
+    if (settings.name == '/three') {
+      return settings.copyWith(name: '/two');
+    } else {
+      return settings;
+    }
+  });
+```
