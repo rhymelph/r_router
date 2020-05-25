@@ -1,4 +1,4 @@
-## [0.1.5+1] - add router interceptor.
+## [0.1.6] - add router interceptor.
 
 ## [0.1.5+1] - add pageBuildType and change meta params type.
 
