@@ -33,6 +33,14 @@ void initRouter() {
         path: path,
       );
 
+//  RRouter.myRouter.interceptor =
+//      RRouterInterceptorWrapper(onRequest: (settings) {
+//    if (settings.name == '/three') {
+//      return settings.copyWith(name: '/two');
+//    } else {
+//      return settings;
+//    }
+//  });
   // add new
 }
 

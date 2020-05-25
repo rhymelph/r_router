@@ -5,6 +5,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'interceptor.dart';
+export 'interceptor.dart';
 
 /// widget builder
 typedef Widget RRouterWidgetBuilder(dynamic params);
@@ -43,6 +45,8 @@ class RRouter {
 
   RRouterNotFountPage notFoundPage;
 
+  RRouterInterceptor interceptor;
+
   RRouterObserver observer = RRouterObserver();
 
   static NavigatorState get navigator {
@@ -59,6 +63,12 @@ class RRouter {
 
   /// generate a route ,you must add this to app.
   Route<dynamic> routerGenerate(RouteSettings settings) {
+    if (interceptor != null) {
+      RouteSettings _interceptorSetting = interceptor.onRequest(settings);
+      if (_interceptorSetting != null) {
+        settings = _interceptorSetting;
+      }
+    }
     Object params = settings.arguments;
     RRouterWidgetBuilder builder = _routeMap[settings.name];
     if (builder != null) {
