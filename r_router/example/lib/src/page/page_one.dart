@@ -3,6 +3,7 @@ import 'package:r_router/r_router.dart';
 
 @RRouterProvider(
   pageTransitions: ZoomPageTransitionsBuilder(),
+  pageBuilderType: RRouterPageBuilderType.cupertino
 )
 class PageOne extends StatefulWidget {
   @override

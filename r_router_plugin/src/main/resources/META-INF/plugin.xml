@@ -1,0 +1,32 @@
+<idea-plugin>
+    <id>rhymelph.r_router_plugin</id>
+    <name>RRouterPlugin</name>
+    <vendor email="rhymelph@gmail.com" url="https://github.com/rhymelph">Rhyme.li</vendor>
+
+    <description><![CDATA[
+    help to flutter plugin <a href="http://pub.dev/packages/r_router">r_router</a> generate <br>
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+    <depends>com.intellij.modules.lang</depends>
+    <depends>Dart</depends>
+    <depends>io.flutter</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <projectService serviceInterface="com.rhyme.project.RRouterProject"
+                        serviceImplementation="com.rhyme.project.impl.RRouterProjectImpl"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="BuildRoutersFile" class="com.rhyme.action.BuildRoutersFileAction" text="Build Routers File"
+                description="Build r_router routers file">
+            <add-to-group group-id="BuildMenu" anchor="first"/>
+        </action>
+    </actions>
+</idea-plugin>
