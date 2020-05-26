@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CustomPageRoute<T> extends PageRoute<T> {
-
   CustomPageRoute({
     @required this.pageTransitionsBuilder,
     @required this.builder,
@@ -17,6 +16,7 @@ class CustomPageRoute<T> extends PageRoute<T> {
 
   /// Builds the primary contents of the route.
   final WidgetBuilder builder;
+
   /// page transition builder
   final PageTransitionsBuilder pageTransitionsBuilder;
 

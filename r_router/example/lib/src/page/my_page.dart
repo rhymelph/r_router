@@ -26,6 +26,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void onNavigateToFour() {
     RRouter.myRouter.navigateTo('/four');
   }
+
   void onNavigateToNotFound() {
     RRouter.myRouter.navigateTo('/home', arguments: {'param': '我是参数(支持实体类)'});
   }
