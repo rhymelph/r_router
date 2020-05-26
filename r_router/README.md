@@ -68,15 +68,23 @@ RRouter.myRouter.notFoundPage = (String path) => NoFoundPage(
         path: path,
       );
 
-/// set page build transform ,default platform page transform
+/// set page build transform ,default platform page transitions
 RRouter.myRouter.addRouter(
       path: '/three',
       routerWidgetBuilder: (params) => PageThree(),
-      routerPageBuilder: (RouteSettings setting, WidgetBuilder builder) =>
-          CupertinoPageRoute(builder: builder, settings: setting))
+      routerPageBuilder: RRouterPageBuilderType.cupertino,)
+```
+## 4. Custom Page Transitions
+```dart
+/// set page build transitions
+  RRouter.myRouter.addRouter(
+    path: '/four',
+    routerWidgetBuilder: (params) => PageFour(),
+    routerPageTransitions: ZoomPageTransitionsBuilder(),
+  );
 ```
 
-## 4. Not context show dialog
+## 5. Not context show dialog
 support as follows method
 - showRDialog
 - showRCupertinoDialog
@@ -90,13 +98,13 @@ support as follows method
 - showRModalBottomSheet
 - showRLicensePage
 
-## 5.Default Navigator
+## 6.Default Navigator
 you can use
 ```dart
 RRouter.navigator
 ```
 
-## 6.Add Interceptor
+## 7.Add Interceptor
 
 ```dart
   RRouter.myRouter.interceptor =
@@ -108,3 +116,4 @@ RRouter.navigator
     }
   });
 ```
+

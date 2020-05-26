@@ -4,15 +4,18 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:r_router/r_router.dart';
+import 'custom_page_route.dart';
 import 'interceptor.dart';
 export 'interceptor.dart';
+export 'custom_page_route.dart';
+
+const _kMaterial = 'material';
+const _kCupertino = 'cupertino';
+const _kCustom = 'custom';
 
 /// widget builder
 typedef Widget RRouterWidgetBuilder(dynamic params);
-
-/// page builder
-typedef PageRoute<T> RRouterPageBuilder<T>(
-    RouteSettings setting, WidgetBuilder builder);
 
 /// not fount page widget
 typedef Widget RRouterNotFountPage(String path);
@@ -40,7 +43,8 @@ class RRouter {
   static final RRouter myRouter = RRouter();
 
   Map<String, RRouterWidgetBuilder> _routeMap = {};
-  Map<String, RRouterPageBuilder> _pageMap = {};
+  Map<String, RRouterPageBuilderType> _pageBuilderTypeMap = {};
+  Map<String, PageTransitionsBuilder> _pageTransitionsMap = {};
 
   RRouterNotFountPage notFoundPage;
 
@@ -88,12 +92,16 @@ class RRouter {
   void addRouter(
       {@required String path,
       @required RRouterWidgetBuilder routerWidgetBuilder,
-      RRouterPageBuilder routerPageBuilder,
+      RRouterPageBuilderType routerPageBuilderType,
+      PageTransitionsBuilder routerPageTransitions,
       bool isReplaceRouter}) {
     if (!_routeMap.containsKey(path) || isReplaceRouter == true) {
       _routeMap[path] = routerWidgetBuilder;
-      if (routerPageBuilder != null) {
-        _pageMap[path] = routerPageBuilder;
+      if (routerPageBuilderType != null) {
+        _pageBuilderTypeMap[path] = routerPageBuilderType;
+      }
+      if (routerPageTransitions != null) {
+        _pageTransitionsMap[path] = routerPageTransitions;
       }
     }
   }
@@ -101,9 +109,20 @@ class RRouter {
   /// generate a page route.
   PageRoute<T> _pageGenerate<T>(RouteSettings settings, WidgetBuilder builder) {
     String name = settings.name;
-    RRouterPageBuilder<T> pageBuilder = _pageMap[name];
+    RRouterPageBuilderType pageBuilder = _pageBuilderTypeMap[name];
+    PageTransitionsBuilder pageTransitions = _pageTransitionsMap[name];
+    if (pageTransitions != null) {
+      return CustomPageRoute(
+          pageTransitionsBuilder: pageTransitions,
+          builder: builder,
+          settings: settings);
+    }
     if (pageBuilder != null) {
-      return pageBuilder(settings, builder);
+      if (pageBuilder == RRouterPageBuilderType.cupertino) {
+        return CupertinoPageRoute<T>(settings: settings, builder: builder);
+      } else {
+        return MaterialPageRoute<T>(settings: settings, builder: builder);
+      }
     } else {
       return MaterialPageRoute<T>(settings: settings, builder: builder);
     }
@@ -169,23 +188,43 @@ class RRouterNotFoundException implements Exception {
 }
 
 class RRouterPageBuilderType {
+  final String _pageBuilderType;
+
+  const RRouterPageBuilderType(this._pageBuilderType);
+
   /// material design
-  static RRouterPageBuilder get material =>
-      (RouteSettings setting, WidgetBuilder builder) =>
-          MaterialPageRoute(builder: builder, settings: setting);
+  static const RRouterPageBuilderType material =
+      RRouterPageBuilderType(_kMaterial);
 
   /// cupertino design
-  static RRouterPageBuilder get cupertino =>
-      (RouteSettings setting, WidgetBuilder builder) =>
-          CupertinoPageRoute(builder: builder, settings: setting);
+  static const RRouterPageBuilderType cupertino =
+      RRouterPageBuilderType(_kCupertino);
+
+  /// custom design
+  static const RRouterPageBuilderType custom = RRouterPageBuilderType(_kCustom);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RRouterPageBuilderType &&
+          runtimeType == other.runtimeType &&
+          _pageBuilderType == other._pageBuilderType;
+
+  @override
+  int get hashCode => _pageBuilderType.hashCode;
 }
 
 class RRouterProvider {
   final String paramName;
-  final RRouterPageBuilder pageBuilder;
+  final RRouterPageBuilderType pageBuilderType;
+  final PageTransitionsBuilder pageTransitions;
   final String path;
   final String describe;
 
   const RRouterProvider(
-      {@required this.paramName, this.pageBuilder, this.path, this.describe});
+      {@required this.paramName,
+      this.pageTransitions,
+      this.pageBuilderType,
+      this.path,
+      this.describe});
 }

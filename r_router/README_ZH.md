@@ -70,11 +70,20 @@ RRouter.myRouter.notFoundPage = (String path) => NoFoundPage(
 RRouter.myRouter.addRouter(
       path: '/three',
       routerWidgetBuilder: (params) => PageThree(),
-      routerPageBuilder: (RouteSettings setting, WidgetBuilder builder) =>
-          CupertinoPageRoute(builder: builder, settings: setting))
+      routerPageBuilder: RRouterPageBuilderType.cupertino)
 ```
 
-## 4. 无需context的展示对话框方法
+## 4. 注册带页面转换的路由
+```dart
+/// 注册为自定义的页面转换效果
+  RRouter.myRouter.addRouter(
+    path: '/four',
+    routerWidgetBuilder: (params) => PageFour(),
+    routerPageTransitions: ZoomPageTransitionsBuilder(),
+  );
+```
+
+## 5. 无需context的展示对话框方法
 支持下面的方法
 - showRDialog
 - showRCupertinoDialog
@@ -88,13 +97,13 @@ RRouter.myRouter.addRouter(
 - showRModalBottomSheet
 - showRLicensePage
 
-## 5.默认的路由器
+## 6.默认的路由器
 you can use
 ```dart
 RRouter.navigator
 ```
 
-## 6.添加拦截器,可重定向到另一个路由
+## 7.添加拦截器,可重定向到另一个路由
 
 ```dart
   RRouter.myRouter.interceptor =

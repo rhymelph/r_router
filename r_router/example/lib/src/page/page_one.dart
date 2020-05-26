@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:r_router/r_router.dart';
 
+@RRouterProvider(
+  pageTransitions: ZoomPageTransitionsBuilder(),
+)
 class PageOne extends StatefulWidget {
   @override
   _PageOneState createState() => _PageOneState();

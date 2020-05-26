@@ -1,3 +1,5 @@
+## [0.2.0] - support RRouter Plugin.
+
 ## [0.1.6+1] - fix web bug.
 
 ## [0.1.6] - add router interceptor.

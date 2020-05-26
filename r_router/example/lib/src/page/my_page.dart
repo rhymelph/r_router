@@ -23,6 +23,9 @@ class _MyHomePageState extends State<MyHomePage> {
     RRouter.myRouter.navigateTo('/three', arguments: {'param': '我是参数(支持实体类)'});
   }
 
+  void onNavigateToFour() {
+    RRouter.myRouter.navigateTo('/four');
+  }
   void onNavigateToNotFound() {
     RRouter.myRouter.navigateTo('/home', arguments: {'param': '我是参数(支持实体类)'});
   }
@@ -67,6 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
           RaisedButton(onPressed: onNavigateToOne, child: Text('普通跳转')),
           RaisedButton(onPressed: onNavigateToTwo, child: Text('带参数')),
           RaisedButton(onPressed: onNavigateToTree, child: Text('自定义跳转动画')),
+          RaisedButton(onPressed: onNavigateToFour, child: Text('自定义跳转动画')),
           RaisedButton(onPressed: onNavigateToNotFound, child: Text('404')),
           RaisedButton(onPressed: onShowDialog, child: Text('对话框')),
           RaisedButton(onPressed: onShowDatePickerDialog, child: Text('日历选择')),

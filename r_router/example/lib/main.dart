@@ -25,10 +25,17 @@ void initRouter() {
     ),
   );
   RRouter.myRouter.addRouter(
-      path: '/three',
-      routerWidgetBuilder: (params) => PageThree(),
-      routerPageBuilder: (RouteSettings setting, WidgetBuilder builder) =>
-          CupertinoPageRoute(builder: builder, settings: setting));
+    path: '/three',
+    routerWidgetBuilder: (params) => PageThree(),
+    routerPageBuilderType: RRouterPageBuilderType.cupertino,
+  );
+
+  RRouter.myRouter.addRouter(
+    path: '/four',
+    routerWidgetBuilder: (params) => PageThree(),
+    routerPageTransitions: ZoomPageTransitionsBuilder(),
+  );
+
   RRouter.myRouter.notFoundPage = (String path) => NoFoundPage(
         path: path,
       );
