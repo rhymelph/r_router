@@ -33,5 +33,5 @@ patchPluginXml {
       Add change notes here.<br>
       <em>most HTML tags may be used</em>"""
 }
-intellij.plugins += "Dart:192.5728.98"
+intellij.plugins += "Dart:192.8052"
 intellij.plugins += "io.flutter:45.1.1"

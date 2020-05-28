@@ -79,7 +79,7 @@ class RRouterProjectImpl(val mProject: Project) : RRouterProject {
                                         var currentName: String? = null
                                         while (i < arguments.length) {
                                             val valueParams = metaParam.findElementAt(i)!!.text
-                                            if (valueParams != "(" && valueParams != ")" && valueParams.isNotEmpty()&&!valueParams.contains("\n")&&valueParams!="\'") {
+                                            if (valueParams != "(" && valueParams != ")" && valueParams.isNotEmpty()&&!valueParams.contains("\n")&&valueParams!="\'"&&valueParams.trim().isNotEmpty()) {
                                                 if (currentName == null) {
                                                     val valueLength = valueParams.length
                                                     currentName = valueParams
@@ -87,9 +87,10 @@ class RRouterProjectImpl(val mProject: Project) : RRouterProject {
                                                     i += valueLength
                                                 } else if (valueParams == ",") {
                                                     currentName = null
+                                                    i += valueParams.length
                                                 } else if (valueParams.isNotEmpty() && valueParams != ":") {
                                                     val valueLength = valueParams.length
-                                                    constructorParamMap[currentName] = "${constructorParamMap[currentName]}${valueParams}"
+                                                    constructorParamMap[currentName] = "${constructorParamMap[currentName]}$valueParams"
                                                     i += valueLength
                                                 }else{
                                                     i+=valueParams.length
@@ -115,9 +116,9 @@ class RRouterProjectImpl(val mProject: Project) : RRouterProject {
                         //参数名字
                         val paramsName = "${describe}static const ${constructorParamMap["paramName"]} = '$path';"
                         //transitions
-                        val transitions = if(constructorParamMap["pageTransitions"]!=null){"        routerPageTransitions: ${constructorParamMap["pageTransitions"]},\n"}else{""}
+                        val transitions = if(constructorParamMap["pageTransitions"]!=null){"        routerPageTransitions: ${constructorParamMap["pageTransitions"]}(),\n"}else{""}
                         //type
-                        val type = if(constructorParamMap["pageBuilderType"]!=null){"        routerPageBuildType: ${constructorParamMap["pageBuilderType"]},\n"}else{""}
+                        val type = if(constructorParamMap["pageBuilderType"]!=null){"        routerPageBuilderType: ${constructorParamMap["pageBuilderType"]},\n"}else{""}
 
                         //获取参数
                         val fields: List<DartComponent> = dartClass.fields
