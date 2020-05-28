@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'rhymelph'
-version '1.0-SNAPSHOT'
+version '1.0.0'
 
 sourceCompatibility = 1.8
 
@@ -30,8 +30,8 @@ compileTestKotlin {
 }
 patchPluginXml {
     changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
+      1.0.0<br>
+      <em>init project</em>"""
 }
 intellij.plugins += "Dart:192.8052"
 intellij.plugins += "io.flutter:45.1.1"
