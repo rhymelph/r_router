@@ -169,6 +169,14 @@ class RRouter {
   Future<bool> maybePop<T extends Object>([T result]) {
     return navigator.maybePop<T>(result);
   }
+
+  /// build your router widget
+  /// use in [animations] packages
+  Widget getRouteWidget(String path, [Map<String, dynamic> arguments]) {
+    RRouterWidgetBuilder builder = _routeMap[path];
+    assert(builder != null, "The path get router widget is not null");
+    return builder(arguments);
+  }
 }
 
 /// route observer
