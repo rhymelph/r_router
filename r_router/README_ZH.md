@@ -106,12 +106,12 @@ RRouter.navigator
 ## 7.添加拦截器,可重定向到另一个路由
 
 ```dart
-  RRouter.myRouter.interceptor =
-      RRouterInterceptorWrapper(onRequest: (settings) {
+  RRouter.myRouter.interceptors
+      .add(RRouterInterceptorWrapper(onRequest: (settings) {
     if (settings.name == '/three') {
       return settings.copyWith(name: '/two');
     } else {
       return settings;
     }
-  });
+  }));
 ```

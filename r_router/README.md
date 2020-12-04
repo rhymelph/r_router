@@ -107,13 +107,13 @@ RRouter.navigator
 ## 7.Add Interceptor
 
 ```dart
-  RRouter.myRouter.interceptor =
-      RRouterInterceptorWrapper(onRequest: (settings) {
+  RRouter.myRouter.interceptors
+      .add(RRouterInterceptorWrapper(onRequest: (settings) {
     if (settings.name == '/three') {
       return settings.copyWith(name: '/two');
     } else {
       return settings;
     }
-  });
+  }));
 ```
 

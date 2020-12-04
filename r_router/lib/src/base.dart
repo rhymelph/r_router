@@ -10,6 +10,8 @@ import 'interceptor.dart';
 export 'interceptor.dart';
 export 'custom_page_route.dart';
 
+export 'plugin/r_router_provider.dart';
+
 const _kMaterial = 'material';
 const _kCupertino = 'cupertino';
 const _kCustom = 'custom';
@@ -48,7 +50,9 @@ class RRouter {
 
   RRouterNotFountPage notFoundPage;
 
-  RRouterInterceptor interceptor;
+  RRouterInterceptors _interceptors = RRouterInterceptors();
+
+  RRouterInterceptors get interceptors => _interceptors;
 
   RRouterObserver observer = RRouterObserver();
 
@@ -64,26 +68,39 @@ class RRouter {
     return myRouter.observer.navigator.context;
   }
 
+  void lock() {
+    _interceptors.requestLock.lock();
+  }
+
+  void unLock() {
+    _interceptors.requestLock.unlock();
+  }
+
+  void clear() {
+    _interceptors.requestLock.clear();
+  }
+
   /// generate a route ,you must add this to app.
   Route<dynamic> routerGenerate(RouteSettings settings) {
-    if (interceptor != null) {
-      RouteSettings _interceptorSetting = interceptor.onRequest(settings);
-      if (_interceptorSetting != null) {
-        settings = _interceptorSetting;
-      }
+    RouteSettings routeSettings = settings;
+    if (_interceptors != null) {
+      _interceptors.forEach((interceptor) {
+        routeSettings = interceptor.onRequest(routeSettings);
+      });
     }
-    Object params = settings.arguments;
-    RRouterWidgetBuilder builder = _routeMap[settings.name];
+    Object params = routeSettings.arguments;
+    RRouterWidgetBuilder builder = _routeMap[routeSettings.name];
     if (builder != null) {
-      return _pageGenerate(settings, (BuildContext context) => builder(params));
+      return _pageGenerate(
+          routeSettings, (BuildContext context) => builder(params));
     } else {
       try {
-        return _pageGenerate(settings,
-            (BuildContext context) => notFoundPage?.call(settings.name));
+        return _pageGenerate(routeSettings,
+            (BuildContext context) => notFoundPage?.call(routeSettings.name));
       } catch (_) {
         String error =
-            "No registered route was found to handle '${settings.name}'.";
-        throw RRouterNotFoundException(error, settings.name);
+            "No registered route was found to handle '${routeSettings.name}'.";
+        throw RRouterNotFoundException(error, routeSettings.name);
       }
     }
   }
@@ -142,7 +159,7 @@ class RRouter {
           clearTrace: clearTrace);
 
   /// Pop the top-most route off the navigator.
-  pop<T>([T result]) {
+  pop<T extends Object>([T result]) {
     return navigator.pop<T>(result);
   }
 
@@ -160,6 +177,32 @@ class RRouter {
   /// Calls [pop] repeatedly until the predicate returns true.
   void popUntil(RoutePredicate predicate) {
     navigator.popUntil(predicate);
+  }
+
+  /// Immediately remove `route` from the navigator, and [Route.dispose] it.
+  void removeRoute(Route<dynamic> route) {
+    navigator.removeRoute(route);
+  }
+
+  /// Immediately remove a route from the navigator, and [Route.dispose] it. The
+  /// route to be removed is the one below the given `anchorRoute`.
+  void removeRouteBelow(Route<dynamic> anchorRoute) {
+    navigator.removeRouteBelow(anchorRoute);
+  }
+
+  /// Complete the lifecycle for a route that has been popped off the navigator.
+  ///
+  /// When the navigator pops a route, the navigator retains a reference to the
+  /// route in order to call [Route.dispose] if the navigator itself is removed
+  /// from the tree. When the route is finished with any exit animation, the
+  /// route should call this function to complete its lifecycle (e.g., to
+  /// receive a call to [Route.dispose]).
+  ///
+  /// The given `route` must have already received a call to [Route.didPop].
+  /// This function may be called directly from [Route.didPop] if [Route.didPop]
+  /// will return true.
+  void finalizeRoute(Route<dynamic> route) {
+    navigator.finalizeRoute(route);
   }
 
   bool canPop() => navigator.canPop();
@@ -220,19 +263,4 @@ class RRouterPageBuilderType {
 
   @override
   int get hashCode => _pageBuilderType.hashCode;
-}
-
-class RRouterProvider {
-  final String paramName;
-  final RRouterPageBuilderType pageBuilderType;
-  final PageTransitionsBuilder pageTransitions;
-  final String path;
-  final String describe;
-
-  const RRouterProvider(
-      {@required this.paramName,
-      this.pageTransitions,
-      this.pageBuilderType,
-      this.path,
-      this.describe});
 }
