@@ -1,4 +1,4 @@
-## [0.2.1] - edit RRouterInterceptor to RRouterInterceptor add meta data ['RRouterProvider'].
+## [0.2.2] - edit RRouterInterceptor to RRouterInterceptor add meta data ['RRouterProvider'].
 
 ## [0.2.1] - add [getRouteWidget] method.
 
