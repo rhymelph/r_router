@@ -54,7 +54,7 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
     this.enableDrag = true,
     @required this.isScrollControlled,
     RouteSettings settings,
-  }) : assert(isScrollControlled != null),
+  })  : assert(isScrollControlled != null),
         assert(isDismissible != null),
         assert(enableDrag != null),
         super(settings: settings);
@@ -90,12 +90,14 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
   @override
   AnimationController createAnimationController() {
     assert(_animationController == null);
-    _animationController = BottomSheet.createAnimationController(navigator.overlay);
+    _animationController =
+        BottomSheet.createAnimationController(navigator.overlay);
     return _animationController;
   }
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
     // By definition, the bottom sheet is aligned to the bottom of the page
     // and isn't exposed to the top padding of the MediaQuery.
     Widget bottomSheet = MediaQuery.removePadding(
@@ -103,11 +105,15 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
       removeTop: true,
       child: Builder(
         builder: (BuildContext context) {
-          final BottomSheetThemeData sheetTheme = Theme.of(context).bottomSheetTheme;
+          final BottomSheetThemeData sheetTheme =
+              Theme.of(context).bottomSheetTheme;
           return _ModalBottomSheet<T>(
             route: this,
-            backgroundColor: backgroundColor ?? sheetTheme.modalBackgroundColor ?? sheetTheme.backgroundColor,
-            elevation: elevation ?? sheetTheme.modalElevation ?? sheetTheme.elevation,
+            backgroundColor: backgroundColor ??
+                sheetTheme.modalBackgroundColor ??
+                sheetTheme.backgroundColor,
+            elevation:
+                elevation ?? sheetTheme.modalElevation ?? sheetTheme.elevation,
             shape: shape,
             clipBehavior: clipBehavior,
             isScrollControlled: isScrollControlled,
@@ -119,8 +125,7 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
     if (isScrollControlled)
       bottomSheet = Padding(
           padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          child: bottomSheet
-      );
+          child: bottomSheet);
     return capturedThemes.wrap(bottomSheet);
   }
 }
@@ -135,7 +140,7 @@ class _ModalBottomSheet<T> extends StatefulWidget {
     this.clipBehavior,
     this.isScrollControlled = false,
     this.enableDrag = true,
-  }) : assert(isScrollControlled != null),
+  })  : assert(isScrollControlled != null),
         assert(enableDrag != null),
         super(key: key);
 
@@ -150,8 +155,6 @@ class _ModalBottomSheet<T> extends StatefulWidget {
   @override
   _ModalBottomSheetState<T> createState() => _ModalBottomSheetState<T>();
 }
-
-
 
 class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
   String _getRouteLabel(MaterialLocalizations localizations) {
@@ -214,6 +217,3 @@ class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
     );
   }
 }
-
-
-

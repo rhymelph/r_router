@@ -261,15 +261,15 @@ class _PopupMenuRouteLayout extends SingleChildLayoutDelegate {
 
 class _PopupMenuRoute<T> extends PopupRoute<T> {
   _PopupMenuRoute({
-     this.position,
-     this.items,
+    this.position,
+    this.items,
     this.initialValue,
     this.elevation,
-     this.barrierLabel,
+    this.barrierLabel,
     this.semanticLabel,
     this.shape,
     this.color,
-     this.capturedThemes,
+    this.capturedThemes,
   }) : itemSizes = List<Size>.filled(items.length, null);
 
   final RelativeRect position;
@@ -304,17 +304,19 @@ class _PopupMenuRoute<T> extends PopupRoute<T> {
   final String barrierLabel;
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
     int selectedItemIndex;
     if (initialValue != null) {
-      for (int index = 0; selectedItemIndex == null && index < items.length; index += 1) {
-        if (items[index].represents(initialValue))
-          selectedItemIndex = index;
+      for (int index = 0;
+          selectedItemIndex == null && index < items.length;
+          index += 1) {
+        if (items[index].represents(initialValue)) selectedItemIndex = index;
       }
     }
 
-    final Widget menu = _PopupMenu<T>(route: this, semanticLabel: semanticLabel);
+    final Widget menu =
+        _PopupMenu<T>(route: this, semanticLabel: semanticLabel);
 
     return SafeArea(
       child: Builder(
@@ -523,11 +525,13 @@ class _PopupMenuButtonState<T> extends State<PopupMenuButton<T>> {
   void showButtonMenu() {
     final PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
     final RenderBox button = context.findRenderObject() as RenderBox;
-    final RenderBox overlay = Navigator.of(context).overlay.context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Navigator.of(context).overlay.context.findRenderObject() as RenderBox;
     final RelativeRect position = RelativeRect.fromRect(
       Rect.fromPoints(
         button.localToGlobal(widget.offset, ancestor: overlay),
-        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero),
+            ancestor: overlay),
       ),
       Offset.zero & overlay.size,
     );
@@ -542,17 +546,13 @@ class _PopupMenuButtonState<T> extends State<PopupMenuButton<T>> {
         position: position,
         shape: widget.shape ?? popupMenuTheme.shape,
         color: widget.color ?? popupMenuTheme.color,
-      )
-          .then<void>((T newValue) {
-        if (!mounted)
-          return null;
+      ).then<void>((T newValue) {
+        if (!mounted) return null;
         if (newValue == null) {
-          if (widget.onCanceled != null)
-            widget.onCanceled();
+          if (widget.onCanceled != null) widget.onCanceled();
           return null;
         }
-        if (widget.onSelected != null)
-          widget.onSelected(newValue);
+        if (widget.onSelected != null) widget.onSelected(newValue);
       });
     }
   }

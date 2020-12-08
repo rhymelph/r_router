@@ -61,16 +61,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onShowBottomDialog() {
-    showRModalBottomSheet(builder: (BuildContext context)=>Center(
-      child: RaisedButton(
-        child: Text('按钮A'),
-        onPressed: (){
-          Navigator.pop(context);
-        },
-      ),
-    ));
+    showRModalBottomSheet(
+        builder: (BuildContext context) => Center(
+              child: RaisedButton(
+                child: Text('按钮A'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ));
   }
-
 
   void onShowMenu() {
     //获取点击的button
@@ -86,13 +86,24 @@ class _MyHomePageState extends State<MyHomePage> {
       Offset.zero & overlay.size,
     );
     showRMenu(position: position, items: <PopupMenuEntry>[
-      PopupMenuItem(child: Text('Item 1'),),
-      PopupMenuItem(child: Text('Item 2'),),
+      PopupMenuItem(
+        child: Text('Item 1'),
+      ),
+      PopupMenuItem(
+        child: Text('Item 2'),
+      ),
       PopupMenuDivider(),
-      PopupMenuItem(child: Text('Item 3'),),
-      CheckedPopupMenuItem( child: Text('Item 4'),value: false,checked: true,),
+      PopupMenuItem(
+        child: Text('Item 3'),
+      ),
+      CheckedPopupMenuItem(
+        child: Text('Item 4'),
+        value: false,
+        checked: true,
+      ),
     ]);
   }
+
   GlobalKey _menuKey = GlobalKey();
 
   @override
@@ -114,13 +125,9 @@ class _MyHomePageState extends State<MyHomePage> {
           RaisedButton(onPressed: onShowBottomDialog, child: Text('底部弹出')),
           RaisedButton(onPressed: onShowBottomDialog, child: Text('底部弹出')),
           RaisedButton(
-              key: _menuKey,
-              onPressed: onShowMenu, child: Text('弹出菜单')),
+              key: _menuKey, onPressed: onShowMenu, child: Text('弹出菜单')),
         ],
       ),
     );
   }
-
-
-
 }
