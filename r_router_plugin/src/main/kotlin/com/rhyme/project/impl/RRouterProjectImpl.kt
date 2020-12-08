@@ -8,7 +8,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.jetbrains.lang.dart.psi.*
-import com.jetbrains.lang.dart.psi.impl.DartTypeImpl
 import com.jetbrains.lang.dart.psi.impl.DartVarDeclarationListImpl
 import com.rhyme.utils.CodeUtils
 import com.rhyme.utils.FileUtils
@@ -112,9 +111,9 @@ class RRouterProjectImpl(val mProject: Project) : RRouterProject {
                         // 路径
                         val path =if(constructorParamMap["path"]!=null){"${constructorParamMap["path"]}"}else{namePath}
                         //介绍
-                        val describe = if(constructorParamMap["describe"]!=null){"//${constructorParamMap["describe"]}\n  "}else{""}
+                        val description = if(constructorParamMap["description"]!=null){"//${constructorParamMap["description"]}\n  "}else{""}
                         //参数名字
-                        val paramsName = "${describe}static const ${constructorParamMap["paramName"]} = '$path';"
+                        val paramsName = "${description}static const ${constructorParamMap["paramName"]} = '$path';"
                         //transitions
                         val transitions = if(constructorParamMap["pageTransitions"]!=null){"        routerPageTransitions: ${constructorParamMap["pageTransitions"]}(),\n"}else{""}
                         //type
@@ -132,7 +131,7 @@ class RRouterProjectImpl(val mProject: Project) : RRouterProject {
                             val name = dc_list.varAccessDeclaration.componentName.name
 
                             if (name != null && name != "key" && type != "key") {
-                                paramsString += "\n            $name: p[\"$name\"] as $type,"
+                                paramsString += "\n            $name: p != null && p[\"$name\"] != null\n            ? p[\"$name\"] as $type \n            : null,\n"
                             }
                         }
 

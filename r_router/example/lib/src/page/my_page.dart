@@ -60,6 +60,41 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void onShowBottomDialog() {
+    showRModalBottomSheet(builder: (BuildContext context)=>Center(
+      child: RaisedButton(
+        child: Text('按钮A'),
+        onPressed: (){
+          Navigator.pop(context);
+        },
+      ),
+    ));
+  }
+
+
+  void onShowMenu() {
+    //获取点击的button
+    final RenderBox btnBox = _menuKey.currentContext.findRenderObject();
+    //获取父布局的位置
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        btnBox.localToGlobal(Offset.zero, ancestor: overlay),
+        btnBox.localToGlobal(btnBox.size.bottomRight(Offset.zero),
+            ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+    showRMenu(position: position, items: <PopupMenuEntry>[
+      PopupMenuItem(child: Text('Item 1'),),
+      PopupMenuItem(child: Text('Item 2'),),
+      PopupMenuDivider(),
+      PopupMenuItem(child: Text('Item 3'),),
+      CheckedPopupMenuItem( child: Text('Item 4'),value: false,checked: true,),
+    ]);
+  }
+  GlobalKey _menuKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,8 +111,16 @@ class _MyHomePageState extends State<MyHomePage> {
           RaisedButton(onPressed: onShowDialog, child: Text('对话框')),
           RaisedButton(onPressed: onShowDatePickerDialog, child: Text('日历选择')),
           RaisedButton(onPressed: onShowDateTimeDialog, child: Text('时间选择')),
+          RaisedButton(onPressed: onShowBottomDialog, child: Text('底部弹出')),
+          RaisedButton(onPressed: onShowBottomDialog, child: Text('底部弹出')),
+          RaisedButton(
+              key: _menuKey,
+              onPressed: onShowMenu, child: Text('弹出菜单')),
         ],
       ),
     );
   }
+
+
+
 }

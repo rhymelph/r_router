@@ -261,32 +261,26 @@ class _PopupMenuRouteLayout extends SingleChildLayoutDelegate {
 
 class _PopupMenuRoute<T> extends PopupRoute<T> {
   _PopupMenuRoute({
-    this.position,
-    this.items,
+     this.position,
+     this.items,
     this.initialValue,
     this.elevation,
-    this.theme,
-    this.popupMenuTheme,
-    this.barrierLabel,
+     this.barrierLabel,
     this.semanticLabel,
     this.shape,
     this.color,
-    this.showMenuContext,
-    this.captureInheritedThemes,
-  }) : itemSizes = List<Size>(items.length);
+     this.capturedThemes,
+  }) : itemSizes = List<Size>.filled(items.length, null);
 
   final RelativeRect position;
   final List<PopupMenuEntry<T>> items;
   final List<Size> itemSizes;
-  final dynamic initialValue;
+  final T initialValue;
   final double elevation;
-  final ThemeData theme;
   final String semanticLabel;
   final ShapeBorder shape;
   final Color color;
-  final PopupMenuThemeData popupMenuTheme;
-  final BuildContext showMenuContext;
-  final bool captureInheritedThemes;
+  final CapturedThemes capturedThemes;
 
   @override
   Animation<double> createAnimation() {
@@ -310,33 +304,19 @@ class _PopupMenuRoute<T> extends PopupRoute<T> {
   final String barrierLabel;
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
+  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+
     int selectedItemIndex;
     if (initialValue != null) {
-      for (int index = 0;
-          selectedItemIndex == null && index < items.length;
-          index += 1) {
-        if (items[index].represents(initialValue)) selectedItemIndex = index;
+      for (int index = 0; selectedItemIndex == null && index < items.length; index += 1) {
+        if (items[index].represents(initialValue))
+          selectedItemIndex = index;
       }
     }
 
-    Widget menu = _PopupMenu<T>(route: this, semanticLabel: semanticLabel);
-    if (captureInheritedThemes) {
-      menu = InheritedTheme.captureAll(showMenuContext, menu);
-    } else {
-      // For the sake of backwards compatibility. An (unlikely) app that relied
-      // on having menus only inherit from the material Theme could set
-      // captureInheritedThemes to false and get the original behavior.
-      if (theme != null) menu = Theme(data: theme, child: menu);
-    }
+    final Widget menu = _PopupMenu<T>(route: this, semanticLabel: semanticLabel);
 
-    return MediaQuery.removePadding(
-      context: context,
-      removeTop: true,
-      removeBottom: true,
-      removeLeft: true,
-      removeRight: true,
+    return SafeArea(
       child: Builder(
         builder: (BuildContext context) {
           return CustomSingleChildLayout(
@@ -346,7 +326,7 @@ class _PopupMenuRoute<T> extends PopupRoute<T> {
               selectedItemIndex,
               Directionality.of(context),
             ),
-            child: menu,
+            child: capturedThemes.wrap(menu),
           );
         },
       ),
@@ -542,13 +522,12 @@ class PopupMenuButton<T> extends StatefulWidget {
 class _PopupMenuButtonState<T> extends State<PopupMenuButton<T>> {
   void showButtonMenu() {
     final PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
-    final RenderBox button = context.findRenderObject();
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Navigator.of(context).overlay.context.findRenderObject() as RenderBox;
     final RelativeRect position = RelativeRect.fromRect(
       Rect.fromPoints(
         button.localToGlobal(widget.offset, ancestor: overlay),
-        button.localToGlobal(button.size.bottomRight(Offset.zero),
-            ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
       ),
       Offset.zero & overlay.size,
     );
@@ -563,14 +542,17 @@ class _PopupMenuButtonState<T> extends State<PopupMenuButton<T>> {
         position: position,
         shape: widget.shape ?? popupMenuTheme.shape,
         color: widget.color ?? popupMenuTheme.color,
-        captureInheritedThemes: widget.captureInheritedThemes,
-      ).then<void>((T newValue) {
-        if (!mounted) return null;
+      )
+          .then<void>((T newValue) {
+        if (!mounted)
+          return null;
         if (newValue == null) {
-          if (widget.onCanceled != null) widget.onCanceled();
+          if (widget.onCanceled != null)
+            widget.onCanceled();
           return null;
         }
-        if (widget.onSelected != null) widget.onSelected(newValue);
+        if (widget.onSelected != null)
+          widget.onSelected(newValue);
       });
     }
   }

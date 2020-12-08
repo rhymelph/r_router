@@ -42,22 +42,25 @@ part 'bottom_sheet.dart';
 Future<T> showRDialog<T>({
   bool barrierDismissible = true,
   WidgetBuilder builder,
+  bool useSafeArea = true,
   RouteSettings routeSettings,
 }) {
   BuildContext context = RRouter.context;
   assert(debugCheckHasMaterialLocalizations(context));
-  final ThemeData theme = Theme.of(context, shadowThemeOnly: true);
+  final CapturedThemes themes = InheritedTheme.capture(
+      from: context,
+      to: Navigator.of(
+        context,
+      ).context);
   return showRGeneralDialog(
     pageBuilder: (BuildContext buildContext, Animation<double> animation,
         Animation<double> secondaryAnimation) {
       final Widget pageChild = Builder(builder: builder);
-      return SafeArea(
-        child: Builder(builder: (BuildContext context) {
-          return theme != null
-              ? Theme(data: theme, child: pageChild)
-              : pageChild;
-        }),
-      );
+      Widget dialog = themes.wrap(pageChild);
+      if (useSafeArea) {
+        dialog = SafeArea(child: dialog);
+      }
+      return dialog;
     },
     barrierDismissible: barrierDismissible,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -225,33 +228,30 @@ Future<T> showRMenu<T>({
   assert(items != null && items.isNotEmpty);
   assert(captureInheritedThemes != null);
   assert(debugCheckHasMaterialLocalizations(context));
-  String label = semanticLabel;
   switch (Theme.of(context).platform) {
     case TargetPlatform.iOS:
     case TargetPlatform.macOS:
-      label = semanticLabel;
       break;
     case TargetPlatform.android:
     case TargetPlatform.fuchsia:
     case TargetPlatform.linux:
     case TargetPlatform.windows:
-      label =
-          semanticLabel ?? MaterialLocalizations.of(context)?.popupMenuLabel;
+      semanticLabel ?? MaterialLocalizations.of(context)?.popupMenuLabel;
   }
+
+  final NavigatorState navigator = Navigator.of(context);
 
   return RRouter.navigator.push(_PopupMenuRoute<T>(
     position: position,
     items: items,
     initialValue: initialValue,
     elevation: elevation,
-    semanticLabel: label,
-    theme: Theme.of(context, shadowThemeOnly: true),
-    popupMenuTheme: PopupMenuTheme.of(context),
+    semanticLabel: semanticLabel,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     shape: shape,
     color: color,
-    showMenuContext: context,
-    captureInheritedThemes: captureInheritedThemes,
+    capturedThemes:
+        InheritedTheme.capture(from: context, to: navigator.context),
   ));
 }
 
@@ -588,6 +588,9 @@ Future<T> showRModalBottomSheet<T>({
   Clip clipBehavior,
   bool isScrollControlled = false,
   bool isDismissible = true,
+  Color barrierColor,
+  bool enableDrag = true,
+  RouteSettings routeSettings,
 }) {
   BuildContext context = RRouter.context;
   assert(builder != null);
@@ -596,9 +599,11 @@ Future<T> showRModalBottomSheet<T>({
   assert(debugCheckHasMediaQuery(context));
   assert(debugCheckHasMaterialLocalizations(context));
 
+  final NavigatorState navigator = Navigator.of(context);
+
   return RRouter.navigator.push(_ModalBottomSheetRoute<T>(
     builder: builder,
-    theme: Theme.of(context, shadowThemeOnly: true),
+    capturedThemes: InheritedTheme.capture(from: context, to: navigator.context),
     isScrollControlled: isScrollControlled,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     backgroundColor: backgroundColor,
@@ -606,6 +611,9 @@ Future<T> showRModalBottomSheet<T>({
     shape: shape,
     clipBehavior: clipBehavior,
     isDismissible: isDismissible,
+    modalBarrierColor: barrierColor,
+    enableDrag: enableDrag,
+    settings: routeSettings,
   ));
 }
 

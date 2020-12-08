@@ -4,8 +4,8 @@
 
 part of 'dialog_override.dart';
 
-const Duration _bottomSheetDuration = Duration(milliseconds: 200);
-
+const Duration _bottomSheetEnterDuration = Duration(milliseconds: 250);
+const Duration _bottomSheetExitDuration = Duration(milliseconds: 200);
 // PERSISTENT BOTTOM SHEETS
 
 // See scaffold.dart
@@ -40,6 +40,91 @@ class _ModalBottomSheetLayout extends SingleChildLayoutDelegate {
   }
 }
 
+class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
+  _ModalBottomSheetRoute({
+    this.builder,
+    @required this.capturedThemes,
+    this.barrierLabel,
+    this.backgroundColor,
+    this.elevation,
+    this.shape,
+    this.clipBehavior,
+    this.modalBarrierColor,
+    this.isDismissible = true,
+    this.enableDrag = true,
+    @required this.isScrollControlled,
+    RouteSettings settings,
+  }) : assert(isScrollControlled != null),
+        assert(isDismissible != null),
+        assert(enableDrag != null),
+        super(settings: settings);
+
+  final WidgetBuilder builder;
+  final CapturedThemes capturedThemes;
+  final bool isScrollControlled;
+  final Color backgroundColor;
+  final double elevation;
+  final ShapeBorder shape;
+  final Clip clipBehavior;
+  final Color modalBarrierColor;
+  final bool isDismissible;
+  final bool enableDrag;
+
+  @override
+  Duration get transitionDuration => _bottomSheetEnterDuration;
+
+  @override
+  Duration get reverseTransitionDuration => _bottomSheetExitDuration;
+
+  @override
+  bool get barrierDismissible => isDismissible;
+
+  @override
+  final String barrierLabel;
+
+  @override
+  Color get barrierColor => modalBarrierColor ?? Colors.black54;
+
+  AnimationController _animationController;
+
+  @override
+  AnimationController createAnimationController() {
+    assert(_animationController == null);
+    _animationController = BottomSheet.createAnimationController(navigator.overlay);
+    return _animationController;
+  }
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+    // By definition, the bottom sheet is aligned to the bottom of the page
+    // and isn't exposed to the top padding of the MediaQuery.
+    Widget bottomSheet = MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: Builder(
+        builder: (BuildContext context) {
+          final BottomSheetThemeData sheetTheme = Theme.of(context).bottomSheetTheme;
+          return _ModalBottomSheet<T>(
+            route: this,
+            backgroundColor: backgroundColor ?? sheetTheme.modalBackgroundColor ?? sheetTheme.backgroundColor,
+            elevation: elevation ?? sheetTheme.modalElevation ?? sheetTheme.elevation,
+            shape: shape,
+            clipBehavior: clipBehavior,
+            isScrollControlled: isScrollControlled,
+            enableDrag: enableDrag,
+          );
+        },
+      ),
+    );
+    if (isScrollControlled)
+      bottomSheet = Padding(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          child: bottomSheet
+      );
+    return capturedThemes.wrap(bottomSheet);
+  }
+}
+
 class _ModalBottomSheet<T> extends StatefulWidget {
   const _ModalBottomSheet({
     Key key,
@@ -49,7 +134,9 @@ class _ModalBottomSheet<T> extends StatefulWidget {
     this.shape,
     this.clipBehavior,
     this.isScrollControlled = false,
-  })  : assert(isScrollControlled != null),
+    this.enableDrag = true,
+  }) : assert(isScrollControlled != null),
+        assert(enableDrag != null),
         super(key: key);
 
   final _ModalBottomSheetRoute<T> route;
@@ -58,10 +145,13 @@ class _ModalBottomSheet<T> extends StatefulWidget {
   final double elevation;
   final ShapeBorder shape;
   final Clip clipBehavior;
+  final bool enableDrag;
 
   @override
   _ModalBottomSheetState<T> createState() => _ModalBottomSheetState<T>();
 }
+
+
 
 class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
   String _getRouteLabel(MaterialLocalizations localizations) {
@@ -125,76 +215,5 @@ class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
   }
 }
 
-class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
-  _ModalBottomSheetRoute({
-    this.builder,
-    this.theme,
-    this.barrierLabel,
-    this.backgroundColor,
-    this.elevation,
-    this.shape,
-    this.clipBehavior,
-    this.isDismissible = true,
-    @required this.isScrollControlled,
-    RouteSettings settings,
-  })  : assert(isScrollControlled != null),
-        assert(isDismissible != null),
-        super(settings: settings);
 
-  final WidgetBuilder builder;
-  final ThemeData theme;
-  final bool isScrollControlled;
-  final Color backgroundColor;
-  final double elevation;
-  final ShapeBorder shape;
-  final Clip clipBehavior;
-  final bool isDismissible;
 
-  @override
-  Duration get transitionDuration => _bottomSheetDuration;
-
-  @override
-  bool get barrierDismissible => isDismissible;
-
-  @override
-  final String barrierLabel;
-
-  @override
-  Color get barrierColor => Colors.black54;
-
-  AnimationController _animationController;
-
-  @override
-  AnimationController createAnimationController() {
-    assert(_animationController == null);
-    _animationController =
-        BottomSheet.createAnimationController(navigator.overlay);
-    return _animationController;
-  }
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    final BottomSheetThemeData sheetTheme =
-        theme?.bottomSheetTheme ?? Theme.of(context).bottomSheetTheme;
-    // By definition, the bottom sheet is aligned to the bottom of the page
-    // and isn't exposed to the top padding of the MediaQuery.
-    Widget bottomSheet = MediaQuery.removePadding(
-      context: context,
-      removeTop: true,
-      child: _ModalBottomSheet<T>(
-        route: this,
-        backgroundColor: backgroundColor ??
-            sheetTheme?.modalBackgroundColor ??
-            sheetTheme?.backgroundColor,
-        elevation:
-            elevation ?? sheetTheme?.modalElevation ?? sheetTheme?.elevation,
-        shape: shape,
-        clipBehavior: clipBehavior,
-        isScrollControlled: isScrollControlled,
-      ),
-    );
-    if (theme != null) bottomSheet = Theme(data: theme, child: bottomSheet);
-    return bottomSheet;
-  }
-}
