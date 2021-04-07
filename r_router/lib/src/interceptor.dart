@@ -7,8 +7,8 @@ typedef EnqueueCallback = FutureOr Function();
 typedef RRouterRequestCallback = RouteSettings Function(RouteSettings settings);
 
 class Lock {
-  Future _lock;
-  Completer _completer;
+  Future? _lock;
+  late Completer _completer;
 
   /// Whether this interceptor has been locked.
   bool get locked => _lock != null;
@@ -46,10 +46,10 @@ class Lock {
   ///
   /// [callback] the function  will return a `Future`
   /// @nodoc
-  Future enqueue(EnqueueCallback callback) {
+  Future? enqueue(EnqueueCallback callback) {
     if (locked) {
       // we use a future as a queue
-      return _lock.then((d) => callback());
+      return _lock!.then((d) => callback());
     }
     return null;
   }
@@ -85,15 +85,15 @@ class RRouterInterceptor {
 
 /// interceptor wrapper
 class RRouterInterceptorWrapper extends RRouterInterceptor {
-  final RRouterRequestCallback _onRequest;
+  final RRouterRequestCallback? _onRequest;
 
-  RRouterInterceptorWrapper({RRouterRequestCallback onRequest})
+  RRouterInterceptorWrapper({RRouterRequestCallback? onRequest})
       : _onRequest = onRequest;
 
   @override
   RouteSettings onRequest(RouteSettings settings) {
     if (_onRequest != null) {
-      return _onRequest.call(settings);
+      return _onRequest!.call(settings);
     }
     return super.onRequest(settings);
   }

@@ -39,56 +39,57 @@ part 'search.dart';
 
 part 'bottom_sheet.dart';
 
-Future<T> showRDialog<T>({
+Future<T?> showRDialog<T>({
+  required WidgetBuilder builder,
   bool barrierDismissible = true,
-  WidgetBuilder builder,
+  Color? barrierColor = Colors.black54,
+  String? barrierLabel,
   bool useSafeArea = true,
-  RouteSettings routeSettings,
+  bool useRootNavigator = true,
+  RouteSettings? routeSettings,
 }) {
   BuildContext context = RRouter.context;
   assert(debugCheckHasMaterialLocalizations(context));
+
   final CapturedThemes themes = InheritedTheme.capture(
-      from: context,
-      to: Navigator.of(
-        context,
-      ).context);
-  return showRGeneralDialog(
-    pageBuilder: (BuildContext buildContext, Animation<double> animation,
-        Animation<double> secondaryAnimation) {
-      final Widget pageChild = Builder(builder: builder);
-      Widget dialog = themes.wrap(pageChild);
-      if (useSafeArea) {
-        dialog = SafeArea(child: dialog);
-      }
-      return dialog;
-    },
-    barrierDismissible: barrierDismissible,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black54,
-    transitionDuration: const Duration(milliseconds: 150),
-    transitionBuilder: _buildMaterialDialogTransitions,
-    routeSettings: routeSettings,
+    from: context,
+    to: Navigator.of(
+      context,
+      rootNavigator: useRootNavigator,
+    ).context,
   );
+  return Navigator.of(context, rootNavigator: useRootNavigator)
+      .push<T>(DialogRoute<T>(
+    context: context,
+    builder: builder,
+    barrierColor: barrierColor,
+    barrierDismissible: barrierDismissible,
+    barrierLabel: barrierLabel,
+    useSafeArea: useSafeArea,
+    settings: routeSettings,
+    themes: themes,
+  ));
 }
 
-Future<T> showRCupertinoDialog<T>({
-  @required WidgetBuilder builder,
-  RouteSettings routeSettings,
+Future<T?> showRCupertinoDialog<T>({
+  required WidgetBuilder builder,
+  String? barrierLabel,
+  bool useRootNavigator = true,
+  bool barrierDismissible = false,
+  RouteSettings? routeSettings,
 }) {
   BuildContext context = RRouter.context;
-  assert(builder != null);
-  return showRGeneralDialog(
-    barrierDismissible: false,
-    barrierColor: CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
-    // This transition duration was eyeballed comparing with iOS
-    transitionDuration: const Duration(milliseconds: 250),
-    pageBuilder: (BuildContext context, Animation<double> animation,
-        Animation<double> secondaryAnimation) {
-      return builder(context);
-    },
-    transitionBuilder: _buildCupertinoDialogTransitions,
-    routeSettings: routeSettings,
-  );
+
+  return Navigator.of(context, rootNavigator: useRootNavigator)
+      .push<T>(CupertinoDialogRoute<T>(
+    builder: builder,
+    context: context,
+    barrierDismissible: barrierDismissible,
+    barrierLabel: barrierLabel,
+    barrierColor:
+        CupertinoDynamicColor.resolve(kCupertinoModalBarrierColor, context),
+    settings: routeSettings,
+  ));
 }
 
 /// Shows a modal iOS-style popup that slides up from the bottom of the screen.
@@ -119,32 +120,39 @@ Future<T> showRCupertinoDialog<T>({
 ///  * [ActionSheet], which is the widget usually returned by the `builder`
 ///    argument to [showCupertinoModalPopup].
 ///  * <https://developer.apple.com/design/human-interface-guidelines/ios/views/action-sheets/>
-Future<T> showRCupertinoModalPopup<T>({
-  @required WidgetBuilder builder,
-  ImageFilter filter,
-  bool semanticsDismissible,
+Future<T?> showRCupertinoModalPopup<T>({
+  required WidgetBuilder builder,
+  ImageFilter? filter,
+  Color barrierColor = kCupertinoModalBarrierColor,
+  bool barrierDismissible = true,
+  bool useRootNavigator = true,
+  bool? semanticsDismissible,
+  RouteSettings? routeSettings,
 }) {
   BuildContext context = RRouter.context;
-  return RRouter.navigator.push(
-    _CupertinoModalPopupRoute<T>(
-      barrierColor: CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
-      barrierLabel: 'Dismiss',
+  return Navigator.of(context, rootNavigator: useRootNavigator).push(
+    CupertinoModalPopupRoute<T>(
       builder: builder,
       filter: filter,
+      barrierColor: CupertinoDynamicColor.resolve(barrierColor, context),
+      barrierDismissible: barrierDismissible,
       semanticsDismissible: semanticsDismissible,
+      settings: routeSettings,
     ),
   );
 }
 
 void showRAboutDialog({
-  String applicationName,
-  String applicationVersion,
-  Widget applicationIcon,
-  String applicationLegalese,
-  List<Widget> children,
-  RouteSettings routeSettings,
+  String? applicationName,
+  String? applicationVersion,
+  Widget? applicationIcon,
+  String? applicationLegalese,
+  List<Widget>? children,
+  bool useRootNavigator = true,
+  RouteSettings? routeSettings,
 }) {
   showRDialog<void>(
+    useRootNavigator: useRootNavigator,
     builder: (BuildContext context) {
       return AboutDialog(
         applicationName: applicationName,
@@ -213,21 +221,20 @@ void showRAboutDialog({
 ///    calling this method automatically.
 ///  * [SemanticsConfiguration.namesRoute], for a description of edge triggered
 ///    semantics.
-Future<T> showRMenu<T>({
-  @required RelativeRect position,
-  @required List<PopupMenuEntry<T>> items,
-  T initialValue,
-  double elevation,
-  String semanticLabel,
-  ShapeBorder shape,
-  Color color,
-  bool captureInheritedThemes = true,
+Future<T?> showRMenu<T>({
+  required RelativeRect position,
+  required List<PopupMenuEntry<T>> items,
+  T? initialValue,
+  double? elevation,
+  String? semanticLabel,
+  ShapeBorder? shape,
+  Color? color,
+  bool useRootNavigator = false,
 }) {
   BuildContext context = RRouter.context;
-  assert(position != null);
   assert(items != null && items.isNotEmpty);
-  assert(captureInheritedThemes != null);
   assert(debugCheckHasMaterialLocalizations(context));
+
   switch (Theme.of(context).platform) {
     case TargetPlatform.iOS:
     case TargetPlatform.macOS:
@@ -236,12 +243,12 @@ Future<T> showRMenu<T>({
     case TargetPlatform.fuchsia:
     case TargetPlatform.linux:
     case TargetPlatform.windows:
-      semanticLabel ?? MaterialLocalizations.of(context)?.popupMenuLabel;
+      semanticLabel ??= MaterialLocalizations.of(context).popupMenuLabel;
   }
 
-  final NavigatorState navigator = Navigator.of(context);
-
-  return RRouter.navigator.push(_PopupMenuRoute<T>(
+  final NavigatorState navigator =
+      Navigator.of(context, rootNavigator: useRootNavigator);
+  return navigator.push(_PopupMenuRoute<T>(
     position: position,
     items: items,
     initialValue: initialValue,
@@ -264,9 +271,8 @@ Future<T> showRMenu<T>({
 /// Show a dialog with [initialTime] equal to the current time.
 ///
 /// ```dart
-/// Future<TimeOfDay> selectedTime = showTimePicker(
+/// Future<TimeOfDay> selectedTime = showRTimePicker(
 ///   initialTime: TimeOfDay.now(),
-///   context: context,
 /// );
 /// ```
 /// {@end-tool}
@@ -282,8 +288,7 @@ Future<T> showRMenu<T>({
 /// Show a dialog with the text direction overridden to be [TextDirection.rtl].
 ///
 /// ```dart
-/// Future<TimeOfDay> selectedTimeRTL = showTimePicker(
-///   context: context,
+/// Future<TimeOfDay> selectedTimeRTL = showRTimePicker(
 ///   initialTime: TimeOfDay.now(),
 ///   builder: (BuildContext context, Widget child) {
 ///     return Directionality(
@@ -299,8 +304,7 @@ Future<T> showRMenu<T>({
 /// Show a dialog with time unconditionally displayed in 24 hour format.
 ///
 /// ```dart
-/// Future<TimeOfDay> selectedTime24Hour = showTimePicker(
-///   context: context,
+/// Future<TimeOfDay> selectedTime24Hour = showRTimePicker(
 ///   initialTime: TimeOfDay(hour: 10, minute: 47),
 ///   builder: (BuildContext context, Widget child) {
 ///     return MediaQuery(
@@ -314,20 +318,34 @@ Future<T> showRMenu<T>({
 ///
 /// See also:
 ///
-///  * [showDatePicker], which shows a dialog that contains a material design
+///  * [showRDatePicker], which shows a dialog that contains a material design
 ///    date picker.
-Future<TimeOfDay> showRTimePicker({
-  @required TimeOfDay initialTime,
-  TransitionBuilder builder,
-  RouteSettings routeSettings,
+Future<TimeOfDay?> showRTimePicker({
+  required TimeOfDay initialTime,
+  TransitionBuilder? builder,
+  bool useRootNavigator = true,
+  TimePickerEntryMode initialEntryMode = TimePickerEntryMode.dial,
+  String? cancelText,
+  String? confirmText,
+  String? helpText,
+  RouteSettings? routeSettings,
 }) async {
   BuildContext context = RRouter.context;
-
   assert(initialTime != null);
+  assert(useRootNavigator != null);
+  assert(initialEntryMode != null);
   assert(debugCheckHasMaterialLocalizations(context));
 
-  final Widget dialog = _TimePickerDialog(initialTime: initialTime);
-  return await showRDialog<TimeOfDay>(
+  final Widget dialog = _TimePickerDialog(
+    initialTime: initialTime,
+    initialEntryMode: initialEntryMode,
+    cancelText: cancelText,
+    confirmText: confirmText,
+    helpText: helpText,
+  );
+
+  return showRDialog<TimeOfDay>(
+    useRootNavigator: useRootNavigator,
     builder: (BuildContext context) {
       return builder == null ? dialog : builder(context, dialog);
     },
@@ -335,18 +353,22 @@ Future<TimeOfDay> showRTimePicker({
   );
 }
 
-Future<T> showRGeneralDialog<T>({
-  @required RoutePageBuilder pageBuilder,
-  bool barrierDismissible,
-  String barrierLabel,
-  Color barrierColor,
-  Duration transitionDuration,
-  RouteTransitionsBuilder transitionBuilder,
-  RouteSettings routeSettings,
+Future<T?> showRGeneralDialog<T extends Object?>({
+  required RoutePageBuilder pageBuilder,
+  bool barrierDismissible = false,
+  String? barrierLabel,
+  Color barrierColor = const Color(0x80000000),
+  Duration transitionDuration = const Duration(milliseconds: 200),
+  RouteTransitionsBuilder? transitionBuilder,
+  bool useRootNavigator = true,
+  RouteSettings? routeSettings,
 }) {
+  BuildContext context = RRouter.context;
   assert(pageBuilder != null);
+  assert(useRootNavigator != null);
   assert(!barrierDismissible || barrierLabel != null);
-  return RRouter.navigator.push<T>(_DialogRoute<T>(
+  return Navigator.of(context, rootNavigator: useRootNavigator)
+      .push<T>(RawDialogRoute<T>(
     pageBuilder: pageBuilder,
     barrierDismissible: barrierDismissible,
     barrierLabel: barrierLabel,
@@ -414,32 +436,34 @@ Future<T> showRGeneralDialog<T>({
 /// calendar date picker initially appear in the [DatePickerMode.year] or
 /// [DatePickerMode.day] mode. It defaults to [DatePickerMode.day], and
 /// must be non-null.
-Future<DateTime> showRDatePicker({
-  @required DateTime initialDate,
-  @required DateTime firstDate,
-  @required DateTime lastDate,
+Future<DateTime?> showRDatePicker({
+  required DateTime initialDate,
+  required DateTime firstDate,
+  required DateTime lastDate,
+  DateTime? currentDate,
   DatePickerEntryMode initialEntryMode = DatePickerEntryMode.calendar,
-  SelectableDayPredicate selectableDayPredicate,
-  String helpText,
-  String cancelText,
-  String confirmText,
-  Locale locale,
-  RouteSettings routeSettings,
-  TextDirection textDirection,
-  TransitionBuilder builder,
+  SelectableDayPredicate? selectableDayPredicate,
+  String? helpText,
+  String? cancelText,
+  String? confirmText,
+  Locale? locale,
+  bool useRootNavigator = true,
+  RouteSettings? routeSettings,
+  TextDirection? textDirection,
+  TransitionBuilder? builder,
   DatePickerMode initialDatePickerMode = DatePickerMode.day,
-  String errorFormatText,
-  String errorInvalidText,
-  String fieldHintText,
-  String fieldLabelText,
+  String? errorFormatText,
+  String? errorInvalidText,
+  String? fieldHintText,
+  String? fieldLabelText,
 }) async {
   BuildContext context = RRouter.context;
   assert(initialDate != null);
   assert(firstDate != null);
   assert(lastDate != null);
-  initialDate = utils.dateOnly(initialDate);
-  firstDate = utils.dateOnly(firstDate);
-  lastDate = utils.dateOnly(lastDate);
+  initialDate = DateUtils.dateOnly(initialDate);
+  firstDate = DateUtils.dateOnly(firstDate);
+  lastDate = DateUtils.dateOnly(lastDate);
   assert(!lastDate.isBefore(firstDate),
       'lastDate $lastDate must be on or after firstDate $firstDate.');
   assert(!initialDate.isBefore(firstDate),
@@ -449,6 +473,7 @@ Future<DateTime> showRDatePicker({
   assert(selectableDayPredicate == null || selectableDayPredicate(initialDate),
       'Provided initialDate $initialDate must satisfy provided selectableDayPredicate.');
   assert(initialEntryMode != null);
+  assert(useRootNavigator != null);
   assert(initialDatePickerMode != null);
   assert(debugCheckHasMaterialLocalizations(context));
 
@@ -456,6 +481,7 @@ Future<DateTime> showRDatePicker({
     initialDate: initialDate,
     firstDate: firstDate,
     lastDate: lastDate,
+    currentDate: currentDate,
     initialEntryMode: initialEntryMode,
     selectableDayPredicate: selectableDayPredicate,
     helpText: helpText,
@@ -482,9 +508,106 @@ Future<DateTime> showRDatePicker({
       child: dialog,
     );
   }
-
   return showRDialog<DateTime>(
+    useRootNavigator: useRootNavigator,
     routeSettings: routeSettings,
+    builder: (BuildContext context) {
+      return builder == null ? dialog : builder(context, dialog);
+    },
+  );
+}
+
+Future<DateTimeRange?> showRDateRangePicker({
+  DateTimeRange? initialDateRange,
+  required DateTime firstDate,
+  required DateTime lastDate,
+  DateTime? currentDate,
+  DatePickerEntryMode initialEntryMode = DatePickerEntryMode.calendar,
+  String? helpText,
+  String? cancelText,
+  String? confirmText,
+  String? saveText,
+  String? errorFormatText,
+  String? errorInvalidText,
+  String? errorInvalidRangeText,
+  String? fieldStartHintText,
+  String? fieldEndHintText,
+  String? fieldStartLabelText,
+  String? fieldEndLabelText,
+  Locale? locale,
+  bool useRootNavigator = true,
+  RouteSettings? routeSettings,
+  TextDirection? textDirection,
+  TransitionBuilder? builder,
+}) async {
+  BuildContext context = RRouter.context;
+  assert(
+      initialDateRange == null ||
+          (initialDateRange.start != null && initialDateRange.end != null),
+      'initialDateRange must be null or have non-null start and end dates.');
+  assert(
+      initialDateRange == null ||
+          !initialDateRange.start.isAfter(initialDateRange.end),
+      'initialDateRange\'s start date must not be after it\'s end date.');
+  initialDateRange =
+      initialDateRange == null ? null : DateUtils.datesOnly(initialDateRange);
+  assert(firstDate != null);
+  firstDate = DateUtils.dateOnly(firstDate);
+  assert(lastDate != null);
+  lastDate = DateUtils.dateOnly(lastDate);
+  assert(!lastDate.isBefore(firstDate),
+      'lastDate $lastDate must be on or after firstDate $firstDate.');
+  assert(
+      initialDateRange == null || !initialDateRange.start.isBefore(firstDate),
+      'initialDateRange\'s start date must be on or after firstDate $firstDate.');
+  assert(initialDateRange == null || !initialDateRange.end.isBefore(firstDate),
+      'initialDateRange\'s end date must be on or after firstDate $firstDate.');
+  assert(initialDateRange == null || !initialDateRange.start.isAfter(lastDate),
+      'initialDateRange\'s start date must be on or before lastDate $lastDate.');
+  assert(initialDateRange == null || !initialDateRange.end.isAfter(lastDate),
+      'initialDateRange\'s end date must be on or before lastDate $lastDate.');
+  currentDate = DateUtils.dateOnly(currentDate ?? DateTime.now());
+  assert(initialEntryMode != null);
+  assert(useRootNavigator != null);
+  assert(debugCheckHasMaterialLocalizations(context));
+
+  Widget dialog = _DateRangePickerDialog(
+    initialDateRange: initialDateRange,
+    firstDate: firstDate,
+    lastDate: lastDate,
+    currentDate: currentDate,
+    initialEntryMode: initialEntryMode,
+    helpText: helpText,
+    cancelText: cancelText,
+    confirmText: confirmText,
+    saveText: saveText,
+    errorFormatText: errorFormatText,
+    errorInvalidText: errorInvalidText,
+    errorInvalidRangeText: errorInvalidRangeText,
+    fieldStartHintText: fieldStartHintText,
+    fieldEndHintText: fieldEndHintText,
+    fieldStartLabelText: fieldStartLabelText,
+    fieldEndLabelText: fieldEndLabelText,
+  );
+
+  if (textDirection != null) {
+    dialog = Directionality(
+      textDirection: textDirection,
+      child: dialog,
+    );
+  }
+
+  if (locale != null) {
+    dialog = Localizations.override(
+      context: context,
+      locale: locale,
+      child: dialog,
+    );
+  }
+  return showRDialog<DateTimeRange>(
+    useRootNavigator: useRootNavigator,
+    routeSettings: routeSettings,
+    useSafeArea: false,
     builder: (BuildContext context) {
       return builder == null ? dialog : builder(context, dialog);
     },
@@ -522,14 +645,14 @@ Future<DateTime> showRDatePicker({
 /// See also:
 ///
 ///  * [SearchDelegate] to define the content of the search page.
-Future<T> showRSearch<T>({
-  @required SearchDelegate<T> delegate,
+Future<T?> showRSearch<T>({
+  required SearchDelegate<T> delegate,
   String query = '',
 }) {
   assert(delegate != null);
-  delegate.query = query ?? delegate.query;
+  delegate.query = query;
   delegate._currentBody = _SearchBody.suggestions;
-  return RRouter.navigator.push(_SearchPageRoute<T>(
+  return RRouter.navigator!.push(_SearchPageRoute<T>(
     delegate: delegate,
   ));
 }
@@ -580,28 +703,32 @@ Future<T> showRSearch<T>({
 ///  * [DraggableScrollableSheet], which allows you to create a bottom sheet
 ///    that grows and then becomes scrollable once it reaches its maximum size.
 ///  * <https://material.io/design/components/sheets-bottom.html#modal-bottom-sheet>
-Future<T> showRModalBottomSheet<T>({
-  @required WidgetBuilder builder,
-  Color backgroundColor,
-  double elevation,
-  ShapeBorder shape,
-  Clip clipBehavior,
+Future<T?> showRModalBottomSheet<T>({
+  required WidgetBuilder builder,
+  Color? backgroundColor,
+  double? elevation,
+  ShapeBorder? shape,
+  Clip? clipBehavior,
+  Color? barrierColor,
   bool isScrollControlled = false,
+  bool useRootNavigator = false,
   bool isDismissible = true,
-  Color barrierColor,
   bool enableDrag = true,
-  RouteSettings routeSettings,
+  RouteSettings? routeSettings,
+  AnimationController? transitionAnimationController,
 }) {
   BuildContext context = RRouter.context;
   assert(builder != null);
   assert(isScrollControlled != null);
+  assert(useRootNavigator != null);
   assert(isDismissible != null);
+  assert(enableDrag != null);
   assert(debugCheckHasMediaQuery(context));
   assert(debugCheckHasMaterialLocalizations(context));
 
-  final NavigatorState navigator = Navigator.of(context);
-
-  return RRouter.navigator.push(_ModalBottomSheetRoute<T>(
+  final NavigatorState navigator =
+      Navigator.of(context, rootNavigator: useRootNavigator);
+  return navigator.push(_ModalBottomSheetRoute<T>(
     builder: builder,
     capturedThemes:
         InheritedTheme.capture(from: context, to: navigator.context),
@@ -615,6 +742,7 @@ Future<T> showRModalBottomSheet<T>({
     modalBarrierColor: barrierColor,
     enableDrag: enableDrag,
     settings: routeSettings,
+    transitionAnimationController: transitionAnimationController,
   ));
 }
 
@@ -638,12 +766,17 @@ Future<T> showRModalBottomSheet<T>({
 /// The licenses shown on the [LicensePage] are those returned by the
 /// [LicenseRegistry] API, which can be used to add more licenses to the list.
 void showRLicensePage({
-  String applicationName,
-  String applicationVersion,
-  Widget applicationIcon,
-  String applicationLegalese,
+  String? applicationName,
+  String? applicationVersion,
+  Widget? applicationIcon,
+  String? applicationLegalese,
+  bool useRootNavigator = false,
 }) {
-  RRouter.navigator.push(MaterialPageRoute<void>(
+  BuildContext context = RRouter.context;
+  assert(context != null);
+  assert(useRootNavigator != null);
+  Navigator.of(context, rootNavigator: useRootNavigator)
+      .push(MaterialPageRoute<void>(
     builder: (BuildContext context) => LicensePage(
       applicationName: applicationName,
       applicationVersion: applicationVersion,

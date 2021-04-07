@@ -10,7 +10,7 @@ class _PageFourState extends State<PageFour> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('自定义跳转动画'),
+        title: Text('自定义跳转动画（Zoom）'),
       ),
     );
   }

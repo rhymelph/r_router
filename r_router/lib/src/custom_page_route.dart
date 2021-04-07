@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 class CustomPageRoute<T> extends PageRoute<T> {
   CustomPageRoute({
-    @required this.pageTransitionsBuilder,
-    @required this.builder,
-    RouteSettings settings,
+    required this.pageTransitionsBuilder,
+    required this.builder,
+    RouteSettings? settings,
     this.maintainState = true,
     bool fullscreenDialog = false,
   })  : assert(builder != null),
@@ -26,10 +26,10 @@ class CustomPageRoute<T> extends PageRoute<T> {
   Duration get transitionDuration => const Duration(milliseconds: 300);
 
   @override
-  Color get barrierColor => null;
+  Color? get barrierColor => null;
 
   @override
-  String get barrierLabel => null;
+  String? get barrierLabel => null;
 
   @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {

@@ -11,12 +11,12 @@ const Color _kTransparent = Color(0x00000000);
 
 class _ModalScopeStatus extends InheritedWidget {
   const _ModalScopeStatus({
-    Key key,
-    @required this.isCurrent,
-    @required this.canPop,
-    @required this.route,
-    @required Widget child,
-  })  : assert(isCurrent != null),
+    Key? key,
+    required this.isCurrent,
+    required this.canPop,
+    required this.route,
+    required Widget child,
+  })   : assert(isCurrent != null),
         assert(canPop != null),
         assert(route != null),
         assert(child != null),
@@ -44,11 +44,11 @@ class _ModalScopeStatus extends InheritedWidget {
 
 class _ModalScope<T> extends StatefulWidget {
   const _ModalScope({
-    Key key,
+    Key? key,
     this.route,
   }) : super(key: key);
 
-  final ModalRoute<T> route;
+  final ModalRoute<T>? route;
 
   @override
   _ModalScopeState<T> createState() => _ModalScopeState<T>();
@@ -59,10 +59,10 @@ class _ModalScopeState<T> extends State<_ModalScope<T>> {
   // whenever the dependencies change. This implements the contract described in
   // the documentation for buildPage, namely that it gets called once, unless
   // something like a ModalRoute.of() dependency triggers an update.
-  Widget _page;
+  Widget? _page;
 
   // This is the combination of the two animations for the route.
-  Listenable _listenable;
+  late Listenable _listenable;
 
   /// The node this scope will use for its root [FocusScope] widget.
   final FocusScopeNode focusScopeNode =
@@ -71,14 +71,14 @@ class _ModalScopeState<T> extends State<_ModalScope<T>> {
   @override
   void initState() {
     super.initState();
-    final List<Listenable> animations = <Listenable>[
-      if (widget.route.animation != null) widget.route.animation,
-      if (widget.route.secondaryAnimation != null)
-        widget.route.secondaryAnimation,
+    final List<Listenable?> animations = <Listenable?>[
+      if (widget.route!.animation != null) widget.route!.animation,
+      if (widget.route!.secondaryAnimation != null)
+        widget.route!.secondaryAnimation,
     ];
     _listenable = Listenable.merge(animations);
-    if (widget.route.isCurrent) {
-      widget.route.navigator.focusScopeNode.setFirstFocus(focusScopeNode);
+    if (widget.route!.isCurrent) {
+      widget.route!.navigator!.focusScopeNode.setFirstFocus(focusScopeNode);
     }
   }
 
@@ -86,8 +86,8 @@ class _ModalScopeState<T> extends State<_ModalScope<T>> {
   void didUpdateWidget(_ModalScope<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     assert(widget.route == oldWidget.route);
-    if (widget.route.isCurrent) {
-      widget.route.navigator.focusScopeNode.setFirstFocus(focusScopeNode);
+    if (widget.route!.isCurrent) {
+      widget.route!.navigator!.focusScopeNode.setFirstFocus(focusScopeNode);
     }
   }
 
@@ -112,8 +112,8 @@ class _ModalScopeState<T> extends State<_ModalScope<T>> {
   // This should be called to wrap any changes to route.isCurrent, route.canPop,
   // and route.offstage.
   void _routeSetState(VoidCallback fn) {
-    if (widget.route.isCurrent) {
-      widget.route.navigator.focusScopeNode.setFirstFocus(focusScopeNode);
+    if (widget.route!.isCurrent) {
+      widget.route!.navigator!.focusScopeNode.setFirstFocus(focusScopeNode);
     }
     setState(fn);
   }
@@ -121,38 +121,38 @@ class _ModalScopeState<T> extends State<_ModalScope<T>> {
   @override
   Widget build(BuildContext context) {
     return _ModalScopeStatus(
-      route: widget.route,
+      route: widget.route!,
       isCurrent:
-          widget.route.isCurrent, // _routeSetState is called if this updates
-      canPop: widget.route.canPop, // _routeSetState is called if this updates
+          widget.route!.isCurrent, // _routeSetState is called if this updates
+      canPop: widget.route!.canPop, // _routeSetState is called if this updates
       child: Offstage(
         offstage:
-            widget.route.offstage, // _routeSetState is called if this updates
+            widget.route!.offstage, // _routeSetState is called if this updates
         child: PageStorage(
-          bucket: widget.route._storageBucket, // immutable
+          bucket: widget.route!._storageBucket, // immutable
           child: FocusScope(
             node: focusScopeNode, // immutable
             child: RepaintBoundary(
               child: AnimatedBuilder(
                 animation: _listenable, // immutable
-                builder: (BuildContext context, Widget child) {
-                  return widget.route.buildTransitions(
+                builder: (BuildContext context, Widget? child) {
+                  return widget.route!.buildTransitions(
                     context,
-                    widget.route.animation,
-                    widget.route.secondaryAnimation,
+                    widget.route!.animation,
+                    widget.route!.secondaryAnimation,
                     // This additional AnimatedBuilder is include because if the
                     // value of the userGestureInProgressNotifier changes, it's
                     // only necessary to rebuild the IgnorePointer widget and set
                     // the focus node's ability to focus.
                     AnimatedBuilder(
-                      animation: widget
-                              .route.navigator?.userGestureInProgressNotifier ??
+                      animation: widget.route!.navigator
+                              ?.userGestureInProgressNotifier ??
                           ValueNotifier<bool>(false),
-                      builder: (BuildContext context, Widget child) {
+                      builder: (BuildContext context, Widget? child) {
                         final bool ignoreEvents = widget
-                                    .route.animation?.status ==
+                                    .route!.animation?.status ==
                                 AnimationStatus.reverse ||
-                            (widget.route.navigator?.userGestureInProgress ??
+                            (widget.route!.navigator?.userGestureInProgress ??
                                 false);
                         focusScopeNode.canRequestFocus = !ignoreEvents;
                         return IgnorePointer(
@@ -165,13 +165,13 @@ class _ModalScopeState<T> extends State<_ModalScope<T>> {
                   );
                 },
                 child: _page ??= RepaintBoundary(
-                  key: widget.route._subtreeKey, // immutable
+                  key: widget.route!._subtreeKey, // immutable
                   child: Builder(
                     builder: (BuildContext context) {
-                      return widget.route.buildPage(
+                      return widget.route!.buildPage(
                         context,
-                        widget.route.animation,
-                        widget.route.secondaryAnimation,
+                        widget.route!.animation,
+                        widget.route!.secondaryAnimation,
                       );
                     },
                   ),
@@ -197,8 +197,8 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
     with LocalHistoryRoute<T> {
   /// Creates a route that blocks interaction with previous routes.
   ModalRoute({
-    RouteSettings settings,
-    ui.ImageFilter filter,
+    RouteSettings? settings,
+    ui.ImageFilter? filter,
   })  : _filter = filter,
         super(settings: settings);
 
@@ -206,7 +206,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   ///
   /// If given, this filter will be applied to the modal barrier using
   /// [BackdropFilter]. This allows blur effects, for example.
-  final ui.ImageFilter _filter;
+  final ui.ImageFilter? _filter;
 
   // The API for general users of this class
 
@@ -223,10 +223,10 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   /// The given [BuildContext] will be rebuilt if the state of the route changes
   /// (specifically, if [isCurrent] or [canPop] change value).
   @optionalTypeArgs
-  static ModalRoute<T> of<T extends Object>(BuildContext context) {
-    final _ModalScopeStatus widget =
+  static ModalRoute<T?>? of<T extends Object>(BuildContext context) {
+    final _ModalScopeStatus? widget =
         context.dependOnInheritedWidgetOfExactType<_ModalScopeStatus>();
-    return widget?.route as ModalRoute<T>;
+    return widget?.route as ModalRoute<T?>?;
   }
 
   /// Schedule a call to [buildTransitions].
@@ -244,7 +244,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   @protected
   void setState(VoidCallback fn) {
     if (_scopeKey.currentState != null) {
-      _scopeKey.currentState._routeSetState(fn);
+      _scopeKey.currentState!._routeSetState(fn);
     } else {
       // The route isn't currently visible, so we don't have to call its setState
       // method, but we do still need to call the fn callback, otherwise the state
@@ -293,8 +293,8 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   /// [buildTransitions] for the widgets that change as the page is brought in
   /// and out of view. Avoid using [buildTransitions] for content that never
   /// changes; building such content once from [buildPage] is more efficient.
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation);
+  Widget buildPage(BuildContext context, Animation<double>? animation,
+      Animation<double>? secondaryAnimation);
 
   /// Override this method to wrap the [child] with one or more transition
   /// widgets that define how the route arrives on and leaves the screen.
@@ -411,8 +411,8 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   ///    and whose result is passed to the `child` argument of this method.
   Widget buildTransitions(
     BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
+    Animation<double>? animation,
+    Animation<double>? secondaryAnimation,
     Widget child,
   ) {
     return child;
@@ -428,8 +428,8 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   @override
   TickerFuture didPush() {
     if (_scopeKey.currentState != null) {
-      navigator.focusScopeNode
-          .setFirstFocus(_scopeKey.currentState.focusScopeNode);
+      navigator!.focusScopeNode
+          .setFirstFocus(_scopeKey.currentState!.focusScopeNode);
     }
     return super.didPush();
   }
@@ -437,8 +437,8 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   @override
   void didAdd() {
     if (_scopeKey.currentState != null) {
-      navigator.focusScopeNode
-          .setFirstFocus(_scopeKey.currentState.focusScopeNode);
+      navigator!.focusScopeNode
+          .setFirstFocus(_scopeKey.currentState!.focusScopeNode);
     }
     super.didAdd();
   }
@@ -592,22 +592,22 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
     setState(() {
       _offstage = value;
     });
-    _animationProxy.parent =
+    _animationProxy!.parent =
         _offstage ? kAlwaysCompleteAnimation : super.animation;
-    _secondaryAnimationProxy.parent =
+    _secondaryAnimationProxy!.parent =
         _offstage ? kAlwaysDismissedAnimation : super.secondaryAnimation;
   }
 
   /// The build context for the subtree containing the primary content of this route.
-  BuildContext get subtreeContext => _subtreeKey.currentContext;
+  BuildContext? get subtreeContext => _subtreeKey.currentContext;
 
   @override
-  Animation<double> get animation => _animationProxy;
-  ProxyAnimation _animationProxy;
+  Animation<double>? get animation => _animationProxy;
+  ProxyAnimation? _animationProxy;
 
   @override
-  Animation<double> get secondaryAnimation => _secondaryAnimationProxy;
-  ProxyAnimation _secondaryAnimationProxy;
+  Animation<double>? get secondaryAnimation => _secondaryAnimationProxy;
+  ProxyAnimation? _secondaryAnimationProxy;
 
   final List<WillPopCallback> _willPopCallbacks = <WillPopCallback>[];
 
@@ -629,7 +629,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   ///    this method checks.
   @override
   Future<RoutePopDisposition> willPop() async {
-    final _ModalScopeState<T> scope = _scopeKey.currentState;
+    final _ModalScopeState<T> scope = _scopeKey.currentState!;
     assert(scope != null);
     for (final WillPopCallback callback
         in List<WillPopCallback>.from(_willPopCallbacks)) {
@@ -740,7 +740,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   }
 
   @override
-  void didChangePrevious(Route<dynamic> previousRoute) {
+  void didChangePrevious(Route<dynamic>? previousRoute) {
     super.didChangePrevious(previousRoute);
     changedInternalState();
   }
@@ -756,7 +756,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   void changedExternalState() {
     super.changedExternalState();
     if (_scopeKey.currentState != null)
-      _scopeKey.currentState._forceRebuildPage();
+      _scopeKey.currentState!._forceRebuildPage();
   }
 
   /// Whether this route can be popped.
@@ -773,13 +773,13 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
   final PageStorageBucket _storageBucket = PageStorageBucket();
 
   // one of the builders
-  OverlayEntry _modalBarrier;
+  late OverlayEntry _modalBarrier;
   Widget _buildModalBarrier(BuildContext context) {
     Widget barrier;
     if (barrierColor != null && !offstage) {
       // changedInternalState is called if barrierColor or offstage updates
       assert(barrierColor != _kTransparent);
-      final Animation<Color> color = animation.drive(
+      final Animation<Color?> color = animation!.drive(
         ColorTween(
           begin: _kTransparent,
           end:
@@ -807,15 +807,15 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
     }
     if (_filter != null) {
       barrier = BackdropFilter(
-        filter: _filter,
+        filter: _filter!,
         child: barrier,
       );
     }
     return IgnorePointer(
-      ignoring: animation.status ==
+      ignoring: animation!.status ==
               AnimationStatus
                   .reverse || // changedInternalState is called when animation.status updates
-          animation.status ==
+          animation!.status ==
               AnimationStatus
                   .dismissed, // dismissed is possible when doing a manual pop gesture
       child: barrier,
@@ -824,7 +824,7 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
 
   // We cache the part of the modal scope that doesn't change from frame to
   // frame so that we minimize the amount of building that happens.
-  Widget _modalScopeCache;
+  Widget? _modalScopeCache;
 
   // one of the builders
   Widget _buildModalScope(BuildContext context) {
@@ -848,13 +848,13 @@ abstract class ModalRoute<T> extends TransitionRoute<T>
 
 class _DialogRoute<T> extends PopupRoute<T> {
   _DialogRoute({
-    @required RoutePageBuilder pageBuilder,
+    required RoutePageBuilder pageBuilder,
     bool barrierDismissible = true,
-    String barrierLabel,
-    Color barrierColor = const Color(0x80000000),
-    Duration transitionDuration = const Duration(milliseconds: 200),
-    RouteTransitionsBuilder transitionBuilder,
-    RouteSettings settings,
+    String? barrierLabel,
+    Color? barrierColor = const Color(0x80000000),
+    Duration? transitionDuration = const Duration(milliseconds: 200),
+    RouteTransitionsBuilder? transitionBuilder,
+    RouteSettings? settings,
   })  : assert(barrierDismissible != null),
         _pageBuilder = pageBuilder,
         _barrierDismissible = barrierDismissible,
@@ -871,18 +871,18 @@ class _DialogRoute<T> extends PopupRoute<T> {
   final bool _barrierDismissible;
 
   @override
-  String get barrierLabel => _barrierLabel;
-  final String _barrierLabel;
+  String? get barrierLabel => _barrierLabel;
+  final String? _barrierLabel;
 
   @override
-  Color get barrierColor => _barrierColor;
-  final Color _barrierColor;
+  Color? get barrierColor => _barrierColor;
+  final Color? _barrierColor;
 
   @override
-  Duration get transitionDuration => _transitionDuration;
-  final Duration _transitionDuration;
+  Duration get transitionDuration => _transitionDuration!;
+  final Duration? _transitionDuration;
 
-  final RouteTransitionsBuilder _transitionBuilder;
+  final RouteTransitionsBuilder? _transitionBuilder;
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
@@ -905,6 +905,6 @@ class _DialogRoute<T> extends PopupRoute<T> {
           ),
           child: child);
     } // Some default transition
-    return _transitionBuilder(context, animation, secondaryAnimation, child);
+    return _transitionBuilder!(context, animation, secondaryAnimation, child);
   }
 }

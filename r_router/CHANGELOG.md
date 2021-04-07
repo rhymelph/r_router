@@ -1,3 +1,5 @@
+## [0.3.1] - adapter null safety, add navigator single top.
+
 ## [0.3.0] - adapter Flutter new version(1.24).
 
 ## [0.2.2] - edit RRouterInterceptor to RRouterInterceptor add meta data ['RRouterProvider'].

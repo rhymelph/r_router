@@ -57,6 +57,11 @@ class MyApp extends StatelessWidget {
 ```
 - navigate to it.
 ```dart
+    /// [path] you register path.
+    /// [arguments] you want to give [path] arguments.
+    /// [replace] will replace route
+    /// [clearTrace] will clear all route and push [path].
+    /// [isSingleTop] if [path] is top,There was no response.
     RRouter.myRouter.navigateTo('/one', arguments: {'title': 'hello world!'});
 ```
 
@@ -94,6 +99,7 @@ support as follows method
 - showRTimePicker
 - showRGeneralDialog
 - showRDatePicker
+- showRDateRangePicker
 - showRSearch
 - showRModalBottomSheet
 - showRLicensePage

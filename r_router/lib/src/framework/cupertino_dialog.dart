@@ -37,11 +37,11 @@ const Duration _kModalPopupTransitionDuration = Duration(milliseconds: 335);
 /// detector is associated.
 class _CupertinoBackGestureDetector<T> extends StatefulWidget {
   const _CupertinoBackGestureDetector({
-    Key key,
-    @required this.enabledCallback,
-    @required this.onStartPopGesture,
-    @required this.child,
-  })  : assert(enabledCallback != null),
+    Key? key,
+    required this.enabledCallback,
+    required this.onStartPopGesture,
+    required this.child,
+  })   : assert(enabledCallback != null),
         assert(onStartPopGesture != null),
         assert(child != null),
         super(key: key);
@@ -59,9 +59,9 @@ class _CupertinoBackGestureDetector<T> extends StatefulWidget {
 
 class _CupertinoBackGestureDetectorState<T>
     extends State<_CupertinoBackGestureDetector<T>> {
-  _CupertinoBackGestureController<T> _backGestureController;
+  _CupertinoBackGestureController<T>? _backGestureController;
 
-  HorizontalDragGestureRecognizer _recognizer;
+  late HorizontalDragGestureRecognizer _recognizer;
 
   @override
   void initState() {
@@ -88,15 +88,15 @@ class _CupertinoBackGestureDetectorState<T>
   void _handleDragUpdate(DragUpdateDetails details) {
     assert(mounted);
     assert(_backGestureController != null);
-    _backGestureController.dragUpdate(
-        _convertToLogical(details.primaryDelta / context.size.width));
+    _backGestureController!.dragUpdate(
+        _convertToLogical(details.primaryDelta! / context.size!.width)!);
   }
 
   void _handleDragEnd(DragEndDetails details) {
     assert(mounted);
     assert(_backGestureController != null);
-    _backGestureController.dragEnd(_convertToLogical(
-        details.velocity.pixelsPerSecond.dx / context.size.width));
+    _backGestureController!.dragEnd(_convertToLogical(
+        details.velocity.pixelsPerSecond.dx / context.size!.width)!);
     _backGestureController = null;
   }
 
@@ -112,7 +112,7 @@ class _CupertinoBackGestureDetectorState<T>
     if (widget.enabledCallback()) _recognizer.addPointer(event);
   }
 
-  double _convertToLogical(double value) {
+  double? _convertToLogical(double value) {
     switch (Directionality.of(context)) {
       case TextDirection.rtl:
         return -value;
@@ -167,9 +167,9 @@ class _CupertinoBackGestureController<T> {
   ///
   /// The [navigator] and [controller] arguments must not be null.
   _CupertinoBackGestureController({
-    @required this.navigator,
-    @required this.controller,
-  })  : assert(navigator != null),
+    required this.navigator,
+    required this.controller,
+  })   : assert(navigator != null),
         assert(controller != null) {
     navigator.didStartUserGesture();
   }
@@ -209,7 +209,7 @@ class _CupertinoBackGestureController<T> {
       // to determine it.
       final int droppedPageForwardAnimationTime = min(
         lerpDouble(
-                _kMaxDroppedSwipePageForwardAnimationTime, 0, controller.value)
+                _kMaxDroppedSwipePageForwardAnimationTime, 0, controller.value)!
             .floor(),
         _kMaxPageBackAnimationTime,
       );
@@ -224,7 +224,7 @@ class _CupertinoBackGestureController<T> {
       if (controller.isAnimating) {
         // Otherwise, use a custom popping animation duration and curve.
         final int droppedPageBackAnimationTime = lerpDouble(
-                0, _kMaxDroppedSwipePageForwardAnimationTime, controller.value)
+                0, _kMaxDroppedSwipePageForwardAnimationTime, controller.value)!
             .floor();
         controller.animateBack(0.0,
             duration: Duration(milliseconds: droppedPageBackAnimationTime),
@@ -236,7 +236,7 @@ class _CupertinoBackGestureController<T> {
       // Keep the userGestureInProgress in true state so we don't change the
       // curve of the page transition mid-flight since CupertinoPageTransition
       // depends on userGestureInProgress.
-      AnimationStatusListener animationStatusCallback;
+      late AnimationStatusListener animationStatusCallback;
       animationStatusCallback = (AnimationStatus status) {
         navigator.didStopUserGesture();
         controller.removeStatusListener(animationStatusCallback);
@@ -268,7 +268,7 @@ class _CupertinoEdgeShadowDecoration extends Decoration {
   // A gradient to draw to the left of the box being decorated.
   // Alignments are relative to the original box translated one box
   // width to the left.
-  final LinearGradient edgeGradient;
+  final LinearGradient? edgeGradient;
 
   // Linearly interpolate between two edge shadow decorations decorations.
   //
@@ -287,9 +287,9 @@ class _CupertinoEdgeShadowDecoration extends Decoration {
   // See also:
   //
   //  * [Decoration.lerp].
-  static _CupertinoEdgeShadowDecoration lerp(
-    _CupertinoEdgeShadowDecoration a,
-    _CupertinoEdgeShadowDecoration b,
+  static _CupertinoEdgeShadowDecoration? lerp(
+    _CupertinoEdgeShadowDecoration? a,
+    _CupertinoEdgeShadowDecoration? b,
     double t,
   ) {
     assert(t != null);
@@ -300,21 +300,21 @@ class _CupertinoEdgeShadowDecoration extends Decoration {
   }
 
   @override
-  _CupertinoEdgeShadowDecoration lerpFrom(Decoration a, double t) {
+  _CupertinoEdgeShadowDecoration? lerpFrom(Decoration? a, double t) {
     if (a is! _CupertinoEdgeShadowDecoration)
       return _CupertinoEdgeShadowDecoration.lerp(null, this, t);
     return _CupertinoEdgeShadowDecoration.lerp(a, this, t);
   }
 
   @override
-  _CupertinoEdgeShadowDecoration lerpTo(Decoration b, double t) {
+  _CupertinoEdgeShadowDecoration? lerpTo(Decoration? b, double t) {
     if (b is! _CupertinoEdgeShadowDecoration)
       return _CupertinoEdgeShadowDecoration.lerp(this, null, t);
     return _CupertinoEdgeShadowDecoration.lerp(this, b, t);
   }
 
   @override
-  _CupertinoEdgeShadowPainter createBoxPainter([VoidCallback onChanged]) {
+  _CupertinoEdgeShadowPainter createBoxPainter([VoidCallback? onChanged]) {
     return _CupertinoEdgeShadowPainter(this, onChanged);
   }
 
@@ -340,7 +340,7 @@ class _CupertinoEdgeShadowDecoration extends Decoration {
 class _CupertinoEdgeShadowPainter extends BoxPainter {
   _CupertinoEdgeShadowPainter(
     this._decoration,
-    VoidCallback onChange,
+    VoidCallback? onChange,
   )   : assert(_decoration != null),
         super(onChange);
 
@@ -348,22 +348,22 @@ class _CupertinoEdgeShadowPainter extends BoxPainter {
 
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    final LinearGradient gradient = _decoration.edgeGradient;
+    final LinearGradient? gradient = _decoration.edgeGradient;
     if (gradient == null) return;
     // The drawable space for the gradient is a rect with the same size as
     // its parent box one box width on the start side of the box.
-    final TextDirection textDirection = configuration.textDirection;
+    final TextDirection textDirection = configuration.textDirection!;
     assert(textDirection != null);
-    double deltaX;
+    late double deltaX;
     switch (textDirection) {
       case TextDirection.rtl:
-        deltaX = configuration.size.width;
+        deltaX = configuration.size!.width;
         break;
       case TextDirection.ltr:
-        deltaX = -configuration.size.width;
+        deltaX = -configuration.size!.width;
         break;
     }
-    final Rect rect = (offset & configuration.size).translate(deltaX, 0.0);
+    final Rect rect = (offset & configuration.size!).translate(deltaX, 0.0);
     final Paint paint = Paint()
       ..shader = gradient.createShader(rect, textDirection: textDirection);
 
@@ -376,9 +376,9 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
     this.barrierColor,
     this.barrierLabel,
     this.builder,
-    bool semanticsDismissible,
-    ImageFilter filter,
-    RouteSettings settings,
+    bool? semanticsDismissible,
+    ImageFilter? filter,
+    RouteSettings? settings,
   }) : super(
           filter: filter,
           settings: settings,
@@ -386,15 +386,15 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
     _semanticsDismissible = semanticsDismissible;
   }
 
-  final WidgetBuilder builder;
+  final WidgetBuilder? builder;
 
-  bool _semanticsDismissible;
-
-  @override
-  final String barrierLabel;
+  bool? _semanticsDismissible;
 
   @override
-  final Color barrierColor;
+  final String? barrierLabel;
+
+  @override
+  final Color? barrierColor;
 
   @override
   bool get barrierDismissible => true;
@@ -405,9 +405,9 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
   @override
   Duration get transitionDuration => _kModalPopupTransitionDuration;
 
-  Animation<double> _animation;
+  Animation<double>? _animation;
 
-  Tween<Offset> _offsetTween;
+  late Tween<Offset> _offsetTween;
 
   @override
   Animation<double> createAnimation() {
@@ -424,7 +424,7 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
       begin: const Offset(0.0, 1.0),
       end: const Offset(0.0, 0.0),
     );
-    return _animation;
+    return _animation!;
   }
 
   @override
@@ -432,7 +432,7 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
       Animation<double> secondaryAnimation) {
     return CupertinoUserInterfaceLevel(
       data: CupertinoUserInterfaceLevelData.elevated,
-      child: Builder(builder: builder),
+      child: Builder(builder: builder!),
     );
   }
 
@@ -442,7 +442,7 @@ class _CupertinoModalPopupRoute<T> extends PopupRoute<T> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionalTranslation(
-        translation: _offsetTween.evaluate(_animation),
+        translation: _offsetTween.evaluate(_animation!),
         child: child,
       ),
     );

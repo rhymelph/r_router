@@ -10,7 +10,7 @@ class _PageThreeState extends State<PageThree> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('自定义跳转动画Three'),
+        title: Text('自定义跳转动画（Cupertino）'),
       ),
     );
   }

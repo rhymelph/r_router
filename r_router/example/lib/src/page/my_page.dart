@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:r_router/r_router.dart';
 
@@ -31,9 +32,29 @@ class _MyHomePageState extends State<MyHomePage> {
     RRouter.myRouter.navigateTo('/home', arguments: {'param': '我是参数(支持实体类)'});
   }
 
+  void onNavigateToInterceptor() {
+    RRouter.myRouter.navigateTo('/other');
+  }
+
   void onShowDialog() {
     showRDialog(
         builder: (BuildContext context) => AlertDialog(
+              title: Text('标题'),
+              content: Text('内容'),
+              actions: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('确定'),
+                ),
+              ],
+            ));
+  }
+
+  void onShowCupertinoDialog() {
+    showRCupertinoDialog(
+        builder: (BuildContext context) => CupertinoAlertDialog(
               title: Text('标题'),
               content: Text('内容'),
               actions: <Widget>[
@@ -60,6 +81,13 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void onShowDateTimeRangeDialog() {
+    showRDateRangePicker(
+        firstDate: DateTime(1990, 1, 1),
+        lastDate: DateTime(2050, 12, 31),
+        initialEntryMode: DatePickerEntryMode.calendarOnly);
+  }
+
   void onShowBottomDialog() {
     showRModalBottomSheet(
         builder: (BuildContext context) => Center(
@@ -70,6 +98,34 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ));
+  }
+
+  void onShowCupertinoBottomDialog() {
+    showRCupertinoModalPopup(
+        builder: (BuildContext context) => CupertinoActionSheet(
+              title: Text('标题'),
+              message: Text('内容'),
+              actions: [
+                CupertinoButton(
+                    child: Text('按钮1'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    }),
+              ],
+              cancelButton: CupertinoButton(
+                  child: Text('取消'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }),
+            ));
+  }
+
+  void onShowLicensePage() {
+    showRLicensePage();
+  }
+
+  void onShowAboutPage() {
+    showRAboutDialog();
   }
 
   void onShowMenu() {
@@ -116,14 +172,25 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           RaisedButton(onPressed: onNavigateToOne, child: Text('普通跳转')),
           RaisedButton(onPressed: onNavigateToTwo, child: Text('带参数')),
-          RaisedButton(onPressed: onNavigateToTree, child: Text('自定义跳转动画')),
-          RaisedButton(onPressed: onNavigateToFour, child: Text('自定义跳转动画')),
+          RaisedButton(
+              onPressed: onNavigateToTree, child: Text('自定义跳转动画（Cupertino）')),
+          RaisedButton(
+              onPressed: onNavigateToFour, child: Text('自定义跳转动画（Zoom）')),
           RaisedButton(onPressed: onNavigateToNotFound, child: Text('404')),
+          RaisedButton(onPressed: onNavigateToInterceptor, child: Text('拦截跳转')),
           RaisedButton(onPressed: onShowDialog, child: Text('对话框')),
+          RaisedButton(
+              onPressed: onShowCupertinoDialog, child: Text('Cupertino对话框')),
           RaisedButton(onPressed: onShowDatePickerDialog, child: Text('日历选择')),
           RaisedButton(onPressed: onShowDateTimeDialog, child: Text('时间选择')),
+          RaisedButton(
+              onPressed: onShowDateTimeRangeDialog, child: Text('时间范围选择')),
           RaisedButton(onPressed: onShowBottomDialog, child: Text('底部弹出')),
-          RaisedButton(onPressed: onShowBottomDialog, child: Text('底部弹出')),
+          RaisedButton(
+              onPressed: onShowCupertinoBottomDialog,
+              child: Text('Cupertino底部弹出')),
+          RaisedButton(onPressed: onShowLicensePage, child: Text('显示开源库')),
+          RaisedButton(onPressed: onShowAboutPage, child: Text('显示关于页面')),
           RaisedButton(
               key: _menuKey, onPressed: onShowMenu, child: Text('弹出菜单')),
         ],

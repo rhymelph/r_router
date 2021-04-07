@@ -43,7 +43,7 @@ class _ModalBottomSheetLayout extends SingleChildLayoutDelegate {
 class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
   _ModalBottomSheetRoute({
     this.builder,
-    @required this.capturedThemes,
+    required this.capturedThemes,
     this.barrierLabel,
     this.backgroundColor,
     this.elevation,
@@ -52,23 +52,25 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
     this.modalBarrierColor,
     this.isDismissible = true,
     this.enableDrag = true,
-    @required this.isScrollControlled,
-    RouteSettings settings,
+    required this.isScrollControlled,
+    RouteSettings? settings,
+    this.transitionAnimationController,
   })  : assert(isScrollControlled != null),
         assert(isDismissible != null),
         assert(enableDrag != null),
         super(settings: settings);
 
-  final WidgetBuilder builder;
+  final WidgetBuilder? builder;
   final CapturedThemes capturedThemes;
   final bool isScrollControlled;
-  final Color backgroundColor;
-  final double elevation;
-  final ShapeBorder shape;
-  final Clip clipBehavior;
-  final Color modalBarrierColor;
+  final Color? backgroundColor;
+  final double? elevation;
+  final ShapeBorder? shape;
+  final Clip? clipBehavior;
+  final Color? modalBarrierColor;
   final bool isDismissible;
   final bool enableDrag;
+  final AnimationController? transitionAnimationController;
 
   @override
   Duration get transitionDuration => _bottomSheetEnterDuration;
@@ -80,19 +82,19 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
   bool get barrierDismissible => isDismissible;
 
   @override
-  final String barrierLabel;
+  final String? barrierLabel;
 
   @override
   Color get barrierColor => modalBarrierColor ?? Colors.black54;
 
-  AnimationController _animationController;
+  AnimationController? _animationController;
 
   @override
   AnimationController createAnimationController() {
     assert(_animationController == null);
-    _animationController =
-        BottomSheet.createAnimationController(navigator.overlay);
-    return _animationController;
+    _animationController = transitionAnimationController ??
+        BottomSheet.createAnimationController(navigator!.overlay!);
+    return _animationController!;
   }
 
   @override
@@ -100,7 +102,7 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
       Animation<double> secondaryAnimation) {
     // By definition, the bottom sheet is aligned to the bottom of the page
     // and isn't exposed to the top padding of the MediaQuery.
-    Widget bottomSheet = MediaQuery.removePadding(
+    final Widget bottomSheet = MediaQuery.removePadding(
       context: context,
       removeTop: true,
       child: Builder(
@@ -122,17 +124,13 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
         },
       ),
     );
-    if (isScrollControlled)
-      bottomSheet = Padding(
-          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          child: bottomSheet);
     return capturedThemes.wrap(bottomSheet);
   }
 }
 
 class _ModalBottomSheet<T> extends StatefulWidget {
   const _ModalBottomSheet({
-    Key key,
+    Key? key,
     this.route,
     this.backgroundColor,
     this.elevation,
@@ -144,12 +142,12 @@ class _ModalBottomSheet<T> extends StatefulWidget {
         assert(enableDrag != null),
         super(key: key);
 
-  final _ModalBottomSheetRoute<T> route;
+  final _ModalBottomSheetRoute<T>? route;
   final bool isScrollControlled;
-  final Color backgroundColor;
-  final double elevation;
-  final ShapeBorder shape;
-  final Clip clipBehavior;
+  final Color? backgroundColor;
+  final double? elevation;
+  final ShapeBorder? shape;
+  final Clip? clipBehavior;
   final bool enableDrag;
 
   @override
@@ -157,7 +155,7 @@ class _ModalBottomSheet<T> extends StatefulWidget {
 }
 
 class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
-  String _getRouteLabel(MaterialLocalizations localizations) {
+  String? _getRouteLabel(MaterialLocalizations localizations) {
     switch (Theme.of(context).platform) {
       case TargetPlatform.iOS:
       case TargetPlatform.macOS:
@@ -178,16 +176,16 @@ class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
     final MaterialLocalizations localizations =
         MaterialLocalizations.of(context);
-    final String routeLabel = _getRouteLabel(localizations);
+    final String? routeLabel = _getRouteLabel(localizations);
 
     return AnimatedBuilder(
-      animation: widget.route.animation,
-      builder: (BuildContext context, Widget child) {
+      animation: widget.route!.animation!,
+      builder: (BuildContext context, Widget? child) {
         // Disable the initial animation when accessible navigation is on so
         // that the semantics are added to the tree at the correct time.
         final double animationValue = mediaQuery.accessibleNavigation
             ? 1.0
-            : widget.route.animation.value;
+            : widget.route!.animation!.value;
         return Semantics(
           scopesRoute: true,
           namesRoute: true,
@@ -198,13 +196,13 @@ class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
               delegate: _ModalBottomSheetLayout(
                   animationValue, widget.isScrollControlled),
               child: BottomSheet(
-                animationController: widget.route._animationController,
+                animationController: widget.route!._animationController,
                 onClosing: () {
-                  if (widget.route.isCurrent) {
+                  if (widget.route!.isCurrent) {
                     Navigator.pop(context);
                   }
                 },
-                builder: widget.route.builder,
+                builder: widget.route!.builder!,
                 backgroundColor: widget.backgroundColor,
                 elevation: widget.elevation,
                 shape: widget.shape,

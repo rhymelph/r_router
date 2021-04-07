@@ -55,6 +55,11 @@ class MyApp extends StatelessWidget {
 ```
 - 导航到注册的页面
 ```dart
+    /// [path] 你注册的页面
+    /// [arguments] 需要传递的参数
+    /// [replace]  是否替换当前route
+    /// [clearTrace] 跳转前是否清除所有route
+    /// [isSingleTop] 当为true时，当前页面为需要路由的页面，无反应(避免重复跳转页面)
     RRouter.myRouter.navigateTo('/one', arguments: {'title': 'hello world!'});
 ```
 
@@ -93,6 +98,7 @@ RRouter.myRouter.addRouter(
 - showRTimePicker
 - showRGeneralDialog
 - showRDatePicker
+- showRDateRangePicker
 - showRSearch
 - showRModalBottomSheet
 - showRLicensePage
@@ -115,3 +121,5 @@ RRouter.navigator
     }
   }));
 ```
+
+##
