@@ -1,3 +1,5 @@
+## [0.3.1+1] - fix analysis.
+
 ## [0.3.1] - adapter null safety, add navigator single top.
 
 ## [0.3.0] - adapter Flutter new version(1.24).

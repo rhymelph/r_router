@@ -27,7 +27,6 @@ part 'time_picker.dart';
 
 part 'dialog.dart';
 
-part 'cupertino_dialog.dart';
 
 part 'popup_menu.dart';
 

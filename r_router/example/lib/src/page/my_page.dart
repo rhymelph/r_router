@@ -42,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('标题'),
               content: Text('内容'),
               actions: <Widget>[
-                FlatButton(
+                TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text('标题'),
               content: Text('内容'),
               actions: <Widget>[
-                FlatButton(
+                TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -91,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void onShowBottomDialog() {
     showRModalBottomSheet(
         builder: (BuildContext context) => Center(
-              child: RaisedButton(
+              child: ElevatedButton(
                 child: Text('按钮A'),
                 onPressed: () {
                   Navigator.pop(context);
@@ -170,28 +170,28 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ListView(
         children: <Widget>[
-          RaisedButton(onPressed: onNavigateToOne, child: Text('普通跳转')),
-          RaisedButton(onPressed: onNavigateToTwo, child: Text('带参数')),
-          RaisedButton(
+          ElevatedButton(onPressed: onNavigateToOne, child: Text('普通跳转')),
+          ElevatedButton(onPressed: onNavigateToTwo, child: Text('带参数')),
+          ElevatedButton(
               onPressed: onNavigateToTree, child: Text('自定义跳转动画（Cupertino）')),
-          RaisedButton(
+          ElevatedButton(
               onPressed: onNavigateToFour, child: Text('自定义跳转动画（Zoom）')),
-          RaisedButton(onPressed: onNavigateToNotFound, child: Text('404')),
-          RaisedButton(onPressed: onNavigateToInterceptor, child: Text('拦截跳转')),
-          RaisedButton(onPressed: onShowDialog, child: Text('对话框')),
-          RaisedButton(
+          ElevatedButton(onPressed: onNavigateToNotFound, child: Text('404')),
+          ElevatedButton(onPressed: onNavigateToInterceptor, child: Text('拦截跳转')),
+          ElevatedButton(onPressed: onShowDialog, child: Text('对话框')),
+          ElevatedButton(
               onPressed: onShowCupertinoDialog, child: Text('Cupertino对话框')),
-          RaisedButton(onPressed: onShowDatePickerDialog, child: Text('日历选择')),
-          RaisedButton(onPressed: onShowDateTimeDialog, child: Text('时间选择')),
-          RaisedButton(
+          ElevatedButton(onPressed: onShowDatePickerDialog, child: Text('日历选择')),
+          ElevatedButton(onPressed: onShowDateTimeDialog, child: Text('时间选择')),
+          ElevatedButton(
               onPressed: onShowDateTimeRangeDialog, child: Text('时间范围选择')),
-          RaisedButton(onPressed: onShowBottomDialog, child: Text('底部弹出')),
-          RaisedButton(
+          ElevatedButton(onPressed: onShowBottomDialog, child: Text('底部弹出')),
+          ElevatedButton(
               onPressed: onShowCupertinoBottomDialog,
               child: Text('Cupertino底部弹出')),
-          RaisedButton(onPressed: onShowLicensePage, child: Text('显示开源库')),
-          RaisedButton(onPressed: onShowAboutPage, child: Text('显示关于页面')),
-          RaisedButton(
+          ElevatedButton(onPressed: onShowLicensePage, child: Text('显示开源库')),
+          ElevatedButton(onPressed: onShowAboutPage, child: Text('显示关于页面')),
+          ElevatedButton(
               key: _menuKey, onPressed: onShowMenu, child: Text('弹出菜单')),
         ],
       ),

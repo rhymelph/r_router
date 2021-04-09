@@ -137,8 +137,10 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
           _formKey.currentState!.save();
           _entryMode = DatePickerEntryMode.calendar;
           break;
-        case DatePickerEntryMode.calendarOnly:
         case DatePickerEntryMode.inputOnly:
+          assert(false, 'Can not change entry mode from _entryMode');
+          break;
+        default:
           assert(false, 'Can not change entry mode from _entryMode');
           break;
       }

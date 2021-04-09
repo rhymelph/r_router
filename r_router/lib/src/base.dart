@@ -170,7 +170,7 @@ class RRouter {
   /// [replace] will replace route
   /// [clearTrace] will clear all route and push [path].
   /// [isSingleTop] if [path] is top,There was no response.
-  Future<void> navigateTo(
+  Future<dynamic> navigateTo(
     String path, {
     Map<String, dynamic>? arguments,
     bool? replace,
