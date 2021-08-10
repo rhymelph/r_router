@@ -17,6 +17,10 @@ void main() {
 void initRouter() {
   // add new
   RRouter.myRouter.addRouter(
+    path: '/',
+    routerWidgetBuilder: (params) => MyHomePage(title: 'Flutter Demo Home Page'),
+  );
+  RRouter.myRouter.addRouter(
     path: '/one',
     routerWidgetBuilder: (params) => PageOne(),
   );
@@ -70,18 +74,20 @@ void initRouter() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      routerDelegate: RRouterDelegate(),
+      routeInformationParser: RRouterInformationParser(),
       // add new
-      onGenerateRoute: RRouter.myRouter.routerGenerate,
-      navigatorObservers: [
-        RRouter.myRouter.observer,
-      ],
+      // onGenerateRoute: RRouter.myRouter.routerGenerate,
+      // navigatorObservers: [
+      //   RRouter.myRouter.observer,
+      // ],
       // add new
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      // home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }

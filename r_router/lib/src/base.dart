@@ -5,22 +5,20 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide DatePickerEntryMode;
 import 'package:r_router/r_router.dart';
-import 'custom_page_route.dart';
+import 'screens/custom_page_route.dart';
 import 'interceptor.dart';
 export 'interceptor.dart';
-export 'custom_page_route.dart';
+export 'screens/custom_page_route.dart';
 
 export 'plugin/r_router_provider.dart';
 
-const _kMaterial = 'material';
-const _kCupertino = 'cupertino';
-const _kCustom = 'custom';
+part 'base2.0.dart';
 
 /// widget builder
 typedef Widget RRouterWidgetBuilder(dynamic params);
 
-/// not fount page widget
-typedef Widget RRouterNotFountPage(String? path);
+/// not found page widget
+typedef Widget RRouterNotFoundWidgetBuilder(String? path);
 
 /// transform result
 Future<dynamic> transResult(
@@ -47,12 +45,17 @@ Future<dynamic> transResult(
 
 class RRouter {
   static final RRouter myRouter = RRouter();
+  static bool isNavigator2 = false;
+
+  RRouter();
+
+  factory RRouter._() => myRouter;
 
   Map<String, RRouterWidgetBuilder> _routeMap = {};
   Map<String, RRouterPageBuilderType> _pageBuilderTypeMap = {};
   Map<String, PageTransitionsBuilder> _pageTransitionsMap = {};
 
-  RRouterNotFountPage? notFoundPage;
+  RRouterNotFoundWidgetBuilder? notFoundPage;
 
   RRouterInterceptors _interceptors = RRouterInterceptors();
 
@@ -131,6 +134,7 @@ class RRouter {
       RRouterPageBuilderType? routerPageBuilderType,
       PageTransitionsBuilder? routerPageTransitions,
       bool? isReplaceRouter}) {
+
     if (!_routeMap.containsKey(path) || isReplaceRouter == true) {
       _routeMap[path] = routerWidgetBuilder;
       if (routerPageBuilderType != null) {
@@ -334,6 +338,10 @@ class RRouterNotFoundException implements Exception {
     return message;
   }
 }
+
+const _kMaterial = 'material';
+const _kCupertino = 'cupertino';
+const _kCustom = 'custom';
 
 class RRouterPageBuilderType {
   final String _pageBuilderType;
