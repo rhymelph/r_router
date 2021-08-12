@@ -13,27 +13,28 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   void onNavigateToOne() {
-    RRouter.myRouter.navigateTo('/one');
+    RRouter.navigateTo('/one');
   }
 
   void onNavigateToTwo() {
-    RRouter.myRouter.navigateTo('/two', arguments: {'param': '我是参数(支持实体类)'});
+    RRouter.navigateTo('/two', body: {'param': '我是参数(支持实体类)'});
   }
 
   void onNavigateToTree() {
-    RRouter.myRouter.navigateTo('/three', arguments: {'param': '我是参数(支持实体类)'});
+    RRouter.navigateTo('/three', body: {'param': '我是参数(支持实体类)'});
   }
 
   void onNavigateToFour() {
-    RRouter.myRouter.navigateTo('/four');
+    RRouter.navigateTo('/four');
   }
 
   void onNavigateToNotFound() {
-    RRouter.myRouter.navigateTo('/home', arguments: {'param': '我是参数(支持实体类)'});
+    RRouter.navigateTo('/home', body: {'param': '我是参数(支持实体类)'});
   }
 
-  void onNavigateToInterceptor() {
-    RRouter.myRouter.navigateTo('/other');
+  void onNavigateToInterceptor() async{
+    final result = await RRouter.navigateTo('/five/123');
+    print('finish: $result');
   }
 
   void onShowDialog() {
@@ -177,11 +178,13 @@ class _MyHomePageState extends State<MyHomePage> {
           ElevatedButton(
               onPressed: onNavigateToFour, child: Text('自定义跳转动画（Zoom）')),
           ElevatedButton(onPressed: onNavigateToNotFound, child: Text('404')),
-          ElevatedButton(onPressed: onNavigateToInterceptor, child: Text('拦截跳转')),
+          ElevatedButton(
+              onPressed: onNavigateToInterceptor, child: Text('拦截跳转')),
           ElevatedButton(onPressed: onShowDialog, child: Text('对话框')),
           ElevatedButton(
               onPressed: onShowCupertinoDialog, child: Text('Cupertino对话框')),
-          ElevatedButton(onPressed: onShowDatePickerDialog, child: Text('日历选择')),
+          ElevatedButton(
+              onPressed: onShowDatePickerDialog, child: Text('日历选择')),
           ElevatedButton(onPressed: onShowDateTimeDialog, child: Text('时间选择')),
           ElevatedButton(
               onPressed: onShowDateTimeRangeDialog, child: Text('时间范围选择')),

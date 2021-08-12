@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:r_router/r_router.dart';
-import 'package:r_router_example/src/page/404_page.dart';
 import 'package:r_router_example/src/page/page_five.dart';
 import 'package:r_router_example/src/page/page_four.dart';
 import 'src/page/my_page.dart';
@@ -16,49 +15,31 @@ void main() {
 
 void initRouter() {
   // add new
-  RRouter.myRouter.addRouter(
-    path: '/',
-    routerWidgetBuilder: (params) => MyHomePage(title: 'Flutter Demo Home Page'),
-  );
-  RRouter.myRouter.addRouter(
-    path: '/one',
-    routerWidgetBuilder: (params) => PageOne(),
-  );
-  RRouter.myRouter.addRouter(
-    path: '/two',
-    routerWidgetBuilder: (params) => PageTwo(
-      param: params['param'],
-    ),
-  );
-  RRouter.myRouter.addRouter(
-    path: '/three',
-    routerWidgetBuilder: (params) => PageThree(),
-    routerPageBuilderType: RRouterPageBuilderType.cupertino,
-  );
-
-  RRouter.myRouter.addRouter(
-    path: '/four',
-    routerWidgetBuilder: (params) => PageFour(),
-    routerPageTransitions: ZoomPageTransitionsBuilder(),
-  );
-
-  RRouter.myRouter.addRouter(
-    path: '/five',
-    routerWidgetBuilder: (params) => PageFive(),
-  );
-
-  RRouter.myRouter.notFoundPage = (String path) => NoFoundPage(
-        path: path,
-      );
-
-  RRouter.myRouter.interceptors
-      .add(RRouterInterceptorWrapper(onRequest: (settings) {
-    if (settings.name == '/other') {
-      return settings.copyWith(name: '/five');
-    } else {
-      return settings;
-    }
-  }));
+  RRouter.addRoute(NavigatorRoute(
+          '/', (ctx) => MyHomePage(title: 'Flutter Demo Home Page')))
+      .addRoute(NavigatorRoute('/one', (ctx) => PageOne()))
+      .addRoute(NavigatorRoute(
+          '/two',
+          (ctx) => PageTwo(
+                param: ctx?.body != null ? ctx.body['param'] : '',
+              )))
+      .addRoute(NavigatorRoute('/three', (ctx) => PageThree(),
+          defaultPageTransaction: CupertinoPageTransitionsBuilder()))
+      .addRoute(NavigatorRoute('/four', (ctx) => PageFour(),
+          defaultPageTransaction: ZoomPageTransitionsBuilder()))
+      .addRoute(NavigatorRoute('/five', (ctx) => PageFive()))
+      .addRoute(NavigatorRoute('/five/:id', (ctx) => PageFive()))
+      .setNavigator2()
+      // .setDebugMode(true)
+      .addComplete();
+  // RRouter.myRouter.interceptors
+  //     .add(RRouterInterceptorWrapper(onRequest: (settings) {
+  //   if (settings.name == '/other') {
+  //     return settings.copyWith(name: '/five');
+  //   } else {
+  //     return settings;
+  //   }
+  // }));
   // RRouter.myRouter.interceptors
   //     .add(RRouterInterceptorWrapper(onRequest: (settings) {
   //   if (settings.name == '/two') {
@@ -74,22 +55,27 @@ void initRouter() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    //Navigator1.0
+    // return MaterialApp(
+    //   title: 'Flutter Demo',
+    //   theme: ThemeData(
+    //     primarySwatch: Colors.blue,
+    //   ),
+    //   navigatorObservers: [
+    //     RRouter.observer,
+    //   ],
+    //   home: MyHomePage(title: 'Flutter Demo Home Page'),
+    // );
+    //Navigator2.0
     return MaterialApp.router(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      routerDelegate: RRouterDelegate(),
-      routeInformationParser: RRouterInformationParser(),
-      // add new
-      // onGenerateRoute: RRouter.myRouter.routerGenerate,
-      // navigatorObservers: [
-      //   RRouter.myRouter.observer,
-      // ],
-      // add new
-      // home: MyHomePage(title: 'Flutter Demo Home Page'),
+      routerDelegate: RRouter.delegate,
+      routeInformationParser: RRouter.informationParser,
     );
   }
 }
 // use navigate
-// RRouter.myRouter.navigateTo('/three', arguments: {'pageThree': 'hello world!'});
+// RRouter.navigateTo('/three', arguments: {'pageThree': 'hello world!'});

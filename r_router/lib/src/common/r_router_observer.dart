@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+part of 'r_router.dart';
+
 
 /// route observer
 class RRouterObserver extends NavigatorObserver {
@@ -9,14 +10,14 @@ class RRouterObserver extends NavigatorObserver {
   @override
   void didPush(Route<dynamic>? route, Route<dynamic>? previousRoute) {
     String? path = route?.settings.name;
-    // String? previousPath = previousRoute?.settings.name;
+    String? previousPath = previousRoute?.settings.name;
     if (path != null && path != '') {
       if (!_routeList.contains(path)) {
         _routeList.add(path);
       }
     }
-    // RRouter.myRouter._routePrint(
-    //     'RRoute --> did push $path , previous $previousPath , current top $topPath');
+    RRouter._print(
+        'RRoute --> did push $path , previous $previousPath , current top $topPath');
   }
 
   @override
@@ -25,7 +26,8 @@ class RRouterObserver extends NavigatorObserver {
     String? previousPath = previousRoute?.settings.name;
     if (path != null && path != '') {
       if (_routeList.contains(path)) {
-        _routeList.remove(path);
+        int index = _routeList.lastIndexOf(path);
+        if (index > 0) _routeList.removeAt(index);
       }
     }
     if (previousPath != null && previousPath != '') {
@@ -33,8 +35,8 @@ class RRouterObserver extends NavigatorObserver {
         _routeList.add(previousPath);
       }
     }
-    // RRouter.myRouter._routePrint(
-    //     'RRoute --> did pop $path , previous $previousPath , current top $topPath');
+    RRouter._print(
+        'RRoute --> did pop $path , previous $previousPath , current top $topPath');
   }
 
   @override
@@ -43,7 +45,8 @@ class RRouterObserver extends NavigatorObserver {
     String? previousPath = previousRoute?.settings.name;
     if (path != null && path != '') {
       if (_routeList.contains(path)) {
-        _routeList.remove(path);
+        int index = _routeList.lastIndexOf(path);
+        if (index > 0) _routeList.removeAt(index);
       }
     }
     if (previousPath != null && previousPath != '') {
@@ -51,8 +54,8 @@ class RRouterObserver extends NavigatorObserver {
         _routeList.add(previousPath);
       }
     }
-    // RRouter.myRouter._routePrint(
-    //     'RRoute --> did remove $path , previous $previousPath , current top $topPath');
+    RRouter._print(
+        'RRoute --> did remove $path , previous $previousPath , current top $topPath');
   }
 
   @override
@@ -61,7 +64,8 @@ class RRouterObserver extends NavigatorObserver {
     String? oldPath = oldRoute?.settings.name;
     if (oldPath != null && oldPath != '') {
       if (_routeList.contains(oldPath)) {
-        _routeList.remove(oldPath);
+        int index = _routeList.lastIndexOf(oldPath);
+        if (index > 0) _routeList.removeAt(index);
       }
     }
     if (path != null && path != '') {
@@ -69,7 +73,7 @@ class RRouterObserver extends NavigatorObserver {
         _routeList.add(path);
       }
     }
-    // RRouter.myRouter._routePrint(
-    //     'RRoute --> did replace $path , old $oldPath , current top $topPath');
+    RRouter._print(
+        'RRoute --> did replace $path , old $oldPath , current top $topPath');
   }
 }

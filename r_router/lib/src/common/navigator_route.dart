@@ -1,11 +1,6 @@
-import 'dart:async';
+part of 'r_router.dart';
 
-import 'package:flutter/material.dart';
-import 'package:path_tree/path_tree.dart';
-
-import 'context.dart';
-
-typedef FutureOr<void> RouteInterceptor<Result>(Context ctx);
+typedef FutureOr<bool> RouteInterceptor(Context ctx);
 
 /// Function that modifies [context]
 typedef FutureOr<void> ResponseProcessor(Context context, dynamic result);
@@ -37,10 +32,10 @@ class NavigatorRoute {
 
   PageTransitionsBuilder? defaultPageTransaction;
 
-  NavigatorRoute.fromInfo(this.path, this.handler,
+  NavigatorRoute(this.path, this.handler,
       {this.pathRegEx,
       this.responseProcessor,
-      this.defaultPageTransaction = const OpenUpwardsPageTransitionsBuilder(),
+      this.defaultPageTransaction,
       List<RouteInterceptor>? after,
       List<RouteInterceptor>? before})
       : pathSegments = pathToSegments(path),
@@ -60,12 +55,7 @@ class NavigatorRoute {
     }
   }
 
-  Future<void> call(Context ctx) {
-    ctx.route = this;
-
-    ctx.before.addAll(_before);
-    ctx.after.addAll(_after);
-
+  Future<WidgetBuilder?> call(Context ctx) async {
     for (String pathParam in _pathVarMapping.keys) {
       ctx.pathParams[pathParam] = ctx.pathSegments[_pathVarMapping[pathParam]!];
     }
@@ -73,7 +63,7 @@ class NavigatorRoute {
       ctx.pathParams[_pathGlobVarName!] =
           ctx.pathSegments.skip(_pathGlobVarMapping!).join('/');
     }
-    return ctx.execute();
+    return await ctx.execute(this);
   }
 
   List<RouteInterceptor> getBefore() => _before.toList();

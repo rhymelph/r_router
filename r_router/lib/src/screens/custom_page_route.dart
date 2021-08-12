@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// navigate1.0
-class CustomPageRoute<T> extends PageRoute<T> {
+class CustomPageRoute<T extends Object?> extends PageRoute<T> {
   CustomPageRoute({
     required this.pageTransitionsBuilder,
     required this.builder,
@@ -62,9 +64,9 @@ class CustomPageRoute<T> extends PageRoute<T> {
 }
 
 /// navigator2.0
-class CustomPage<T> extends Page<T> {
+class CustomPage<T extends Object?> extends Page<T> {
   /// Creates a material page.
-  const CustomPage({
+  CustomPage({
     required this.child,
     required this.pageTransitionsBuilder,
     this.maintainState = true,
@@ -73,7 +75,8 @@ class CustomPage<T> extends Page<T> {
     String? name,
     Object? arguments,
     String? restorationId,
-  })  : assert(child != null),
+  })  : completerResult = Completer(),
+        assert(child != null),
         assert(maintainState != null),
         assert(fullscreenDialog != null),
         super(
@@ -92,6 +95,8 @@ class CustomPage<T> extends Page<T> {
   final bool fullscreenDialog;
 
   final PageTransitionsBuilder pageTransitionsBuilder;
+
+  final Completer completerResult;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -181,5 +186,19 @@ mixin CustomRouteTransitionMixin<T> on PageRoute<T> {
       Animation<double> secondaryAnimation, Widget child) {
     return pageTransitionsBuilder.buildTransitions<T>(
         this, context, animation, secondaryAnimation, child);
+  }
+}
+
+class NoTransitionBuilder extends PageTransitionsBuilder {
+  const NoTransitionBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+      PageRoute<T> route,
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child) {
+    return child;
   }
 }

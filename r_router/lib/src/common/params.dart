@@ -1,4 +1,4 @@
-import 'package:r_router/src/utils/string.dart';
+part of 'r_router.dart';
 
 /// A [Map] that delegates all operations to a base map.
 ///

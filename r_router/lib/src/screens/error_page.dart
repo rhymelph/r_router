@@ -1,13 +1,30 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:r_router/src/common/context.dart';
+import '../common/r_router.dart';
 
 abstract class ErrorPage {
   Widget notFoundPage(BuildContext context, Context ctx);
 
   Widget errorPage(
       BuildContext context, FlutterErrorDetails flutterErrorDetails);
+}
+
+class ErrorPageWrapper implements ErrorPage {
+  final Widget Function(BuildContext context, Context ctx) notFound;
+  final Widget Function(
+      BuildContext context, FlutterErrorDetails flutterErrorDetails) error;
+
+  ErrorPageWrapper({required this.notFound, required this.error});
+
+  @override
+  Widget errorPage(
+      BuildContext context, FlutterErrorDetails flutterErrorDetails) {
+    return error(context, flutterErrorDetails);
+  }
+
+  @override
+  Widget notFoundPage(BuildContext context, Context ctx) {
+    return notFound(context, ctx);
+  }
 }
 
 class DefaultErrorPage implements ErrorPage {
@@ -26,12 +43,9 @@ class DefaultErrorPage implements ErrorPage {
   @override
   Widget errorPage(
       BuildContext context, FlutterErrorDetails flutterErrorDetails) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          'Exception Page (${flutterErrorDetails.exceptionAsString()})',
-          style: Theme.of(context).textTheme.headline3,
-        ),
+    return Center(
+      child: Text(
+        'Exception Page (${flutterErrorDetails.exceptionAsString()})',
       ),
     );
   }
