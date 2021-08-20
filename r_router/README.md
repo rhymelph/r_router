@@ -1,7 +1,7 @@
 # r_router
 [![pub package](https://img.shields.io/pub/v/r_router.svg)](https://pub.dartlang.org/packages/r_router)
 
-A Flutter router package,you can not need use context to navigate,and support dialog.
+A Flutter router package,you can not need use context to navigate, support dialog/Path RegEx/navigate custom transaction/Navigator 2.0
 
 ## [中文点此](README_ZH.md)
 
@@ -23,17 +23,13 @@ import 'package:r_router/r_router.dart';
 - register router
 ```dart
 /// [path] your router path.
-/// [routerWidgetBuilder] build your widget.
-/// [params] your params , support all value.
+/// [handler] handler Widget((ctx) => PageOne()))
 /// [PageOne] your page.
-RRouter.myRouter.addRouter(
-    path: '/one',
-    routerWidgetBuilder: (params) => PageOne(title:params["title"]),
-  );
-
+/// [ctx] request data.
+RRouter.addRoute(NavigatorRoute('/one', (ctx) => PageOne()));
 ```
 
-- add the router in app.
+- Navigator 1.0: add the route in app.
 ```dart
 class MyApp extends StatelessWidget {
   @override
@@ -44,49 +40,63 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       // add new
-      onGenerateRoute: RRouter.myRouter.routerGenerate,
       navigatorObservers: [
-        RRouter.myRouter.observer,
+        RRouter.observer,
       ],
       // add new
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
+```
 
+- Navigator 2.0: add the route in app.
+```dart
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      routerDelegate: RRouter.delegate,
+      routeInformationParser: RRouter.informationParser,
+    );
+  }
+}
 ```
 - navigate to it.
 ```dart
     /// [path] you register path.
-    /// [arguments] you want to give [path] arguments.
+    /// [body] you want to give [path] arguments.
     /// [replace] will replace route
     /// [clearTrace] will clear all route and push [path].
     /// [isSingleTop] if [path] is top,There was no response.
-    RRouter.myRouter.navigateTo('/one', arguments: {'title': 'hello world!'});
+    /// [pageTransitions] you navigate transition , if null will use default page transitions builder.
+     RRouter.navigateTo('/one');
 ```
 
 ## 3.Register router
 ```dart
 
-/// register not found page
-RRouter.myRouter.notFoundPage = (String path) => NoFoundPage(
-        path: path,
-      );
+/// set error page.
+  RRouter.setErrorPage(ErrorPageWrapper(
+      error: (BuildContext context, FlutterErrorDetails flutterErrorDetails) =>
+          Center(
+            child: Text(
+              'Exception Page (${flutterErrorDetails.exceptionAsString()})',
+            ),
+          ),
+      notFound: (BuildContext context, Context ctx) => Material(
+            child: Center(
+              child: Text('Page Not found:${ctx.path}'),
+            ),
+          )));
 
 /// set page build transform ,default platform page transitions
-RRouter.myRouter.addRouter(
-      path: '/three',
-      routerWidgetBuilder: (params) => PageThree(),
-      routerPageBuilder: RRouterPageBuilderType.cupertino,)
-```
-## 4. Custom Page Transitions
-```dart
-/// set page build transitions
-  RRouter.myRouter.addRouter(
-    path: '/four',
-    routerWidgetBuilder: (params) => PageFour(),
-    routerPageTransitions: ZoomPageTransitionsBuilder(),
-  );
+RRouter.addRoute(NavigatorRoute('/three', (ctx) => PageThree(),
+    defaultPageTransaction: CupertinoPageTransitionsBuilder()))
 ```
 
 ## 5. Not context show dialog
@@ -111,15 +121,23 @@ RRouter.navigator
 ```
 
 ## 7.Add Interceptor
-
 ```dart
-  RRouter.myRouter.interceptors
-      .add(RRouterInterceptorWrapper(onRequest: (settings) {
-    if (settings.name == '/three') {
-      return settings.copyWith(name: '/two');
-    } else {
-      return settings;
+  RRouter.addInterceptor((ctx) async {
+    if (ctx.path == '/other') {
+      RRouter.navigateTo('/five', body: ctx.body);
+      return true;
     }
-  }));
+    return false;
+  });
 ```
 
+## 8. you can use (/user/:id) or (/user/*) registe route path.
+```dart
+  RRouter.addRoute(NavigatorRoute('/five/:id', (ctx) => PageFive(id:ctx.pathParams.getInt('id'))));
+  RRouter.addRoute(NavigatorRoute('/five/*', (ctx) => PageFive()));
+```
+
+## 9. BuildContext get ctx
+```dart
+    Context ctx = context.readCtx;
+```

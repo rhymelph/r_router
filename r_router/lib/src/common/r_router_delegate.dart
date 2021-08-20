@@ -14,6 +14,14 @@ class RRouterDelegate extends RouterDelegate<Page<dynamic>>
     return delegate as RRouterDelegate;
   }
 
+  void addObserver(NavigatorObserver observer) {
+    this.observers.add(observer);
+  }
+
+  void addObservers(Iterable<NavigatorObserver> observers) {
+    this.observers.addAll(observers);
+  }
+
   bool _isDisposed = false;
 
   @override
@@ -25,7 +33,7 @@ class RRouterDelegate extends RouterDelegate<Page<dynamic>>
             pages: List.from(_routerStack),
             onPopPage: _onPopPage,
             observers: [
-              RRouter.observer,
+              RRouter._observer,
               ...observers,
             ],
           );

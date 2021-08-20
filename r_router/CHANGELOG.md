@@ -1,3 +1,5 @@
+## [1.0.0] - adapter navigator 2.0 、path params 、query params and body.
+
 ## [0.3.1+1] - fix analysis.
 
 ## [0.3.1] - adapter null safety, add navigator single top.

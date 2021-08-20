@@ -1,6 +1,5 @@
 part of 'r_router.dart';
 
-
 /// route observer
 class RRouterObserver extends NavigatorObserver {
   List<String> _routeList = [];

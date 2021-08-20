@@ -1,5 +1,13 @@
 part of 'r_router.dart';
 
+/// Request New Route with use this Context
+///
+/// [at] navigate to time.
+/// [path] navigate path.
+/// [body] navigate request params.
+/// [pathParams] if has path params, use it view get value
+///   such as /user/:id  pathParams.getInt('id',0)
+/// [queryParams] if has query params,
 class Context {
   final DateTime at;
   final String path;
@@ -29,9 +37,10 @@ class Context {
 
   final pathParams = PathParams();
 
-  QueryParams? _query;
+  QueryParams? _queryParams;
 
-  QueryParams get query => _query ??= QueryParams(uri.queryParameters);
+  QueryParams get queryParams =>
+      _queryParams ??= QueryParams(uri.queryParameters);
 
   Future<WidgetBuilder?> execute(NavigatorRoute route) async {
     WidgetBuilder? builder;

@@ -1,7 +1,7 @@
 # r_router
 [![pub package](https://img.shields.io/pub/v/r_router.svg)](https://pub.dartlang.org/packages/r_router)
 
-一个无需使用context导航的Flutter路由插件，支持dialog
+一个无需使用context导航的Flutter路由插件，支持dialog、正则匹配、路由时自定义跳转动画、Navigator2.0
 
 
 ## 1.开始使用.
@@ -21,17 +21,14 @@ import 'package:r_router/r_router.dart';
 - 注册路由
 ```dart
 /// [path] 你的路由路径
-/// [routerWidgetBuilder] 构建你的页面
-/// [params] 你的参数，支持所有类型的值，类型为dynamic
+/// [handler] 构建你的页面((ctx) => PageOne()))
+/// [ctx] 使用RRouter.navigateTo 时传递过来的参数
 /// [PageOne] 你的部件
-RRouter.myRouter.addRouter(
-    path: '/one',
-    routerWidgetBuilder: (params) => PageOne(title:params["title"]),
-  );
+RRouter.addRoute(NavigatorRoute('/one', (ctx) => PageOne()));
 
 ```
 
-- 添加你的路由到app
+- Navigator1.0方式添加你的路由到app
 ```dart
 class MyApp extends StatelessWidget {
   @override
@@ -42,9 +39,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       // add new
-      onGenerateRoute: RRouter.myRouter.routerGenerate,
       navigatorObservers: [
-        RRouter.myRouter.observer,
+        RRouter.observer,
       ],
       // add new
       home: MyHomePage(title: 'Flutter Demo Home Page'),
@@ -53,42 +49,57 @@ class MyApp extends StatelessWidget {
 }
 
 ```
+
+- Navigator 2.0方式添加你的路由到app
+```dart
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      routerDelegate: RRouter.delegate,
+      routeInformationParser: RRouter.informationParser,
+    );
+  }
+}
+```
 - 导航到注册的页面
 ```dart
-    /// [path] 你注册的页面
-    /// [arguments] 需要传递的参数
+    /// [path] 你注册的页面，可以带查询参数和路径参数，例如：/user/1 , /user?id = 1
+    /// [body] 需要传递的参数
     /// [replace]  是否替换当前route
     /// [clearTrace] 跳转前是否清除所有route
     /// [isSingleTop] 当为true时，当前页面为需要路由的页面，无反应(避免重复跳转页面)
-    RRouter.myRouter.navigateTo('/one', arguments: {'title': 'hello world!'});
+    /// [pageTransitions] 跳转效果，如果不传，会默认使用注册时的跳转效果，如果没有设置注册的跳转效果，将会使用[RRouter.setDefaultTransitionBuilder]的
+     RRouter.navigateTo('/one');
 ```
 
 ## 3.注册路由
 ```dart
 
-/// 注册未找到页面的路由
-RRouter.myRouter.notFoundPage = (String path) => NoFoundPage(
-        path: path,
-      );
+/// 注册未找到页面和异常的路由
+  RRouter.setErrorPage(ErrorPageWrapper(
+      error: (BuildContext context, FlutterErrorDetails flutterErrorDetails) =>
+          Center(
+            child: Text(
+              'Exception Page (${flutterErrorDetails.exceptionAsString()})',
+            ),
+          ),
+      notFound: (BuildContext context, Context ctx) => Material(
+            child: Center(
+              child: Text('Page Not found:${ctx.path}'),
+            ),
+          )));
 
-/// 注册带过渡动画的路由，默认为根据对应平台的过渡动画,ios:CupertinoPageRoute,android:MaterialPageRoute
-RRouter.myRouter.addRouter(
-      path: '/three',
-      routerWidgetBuilder: (params) => PageThree(),
-      routerPageBuilder: RRouterPageBuilderType.cupertino)
+/// 注册带过渡动画的路由
+RRouter.addRoute(NavigatorRoute('/three', (ctx) => PageThree(),
+    defaultPageTransaction: CupertinoPageTransitionsBuilder()))
 ```
 
-## 4. 注册带页面转换的路由
-```dart
-/// 注册为自定义的页面转换效果
-  RRouter.myRouter.addRouter(
-    path: '/four',
-    routerWidgetBuilder: (params) => PageFour(),
-    routerPageTransitions: ZoomPageTransitionsBuilder(),
-  );
-```
-
-## 5. 无需context的展示对话框方法
+## 4. 无需context的展示对话框方法
 支持下面的方法
 - showRDialog
 - showRCupertinoDialog
@@ -103,23 +114,32 @@ RRouter.myRouter.addRouter(
 - showRModalBottomSheet
 - showRLicensePage
 
-## 6.默认的路由器
+## 5.默认的路由器
 you can use
 ```dart
 RRouter.navigator
 ```
 
-## 7.添加拦截器,可重定向到另一个路由
-
+## 6.添加拦截器,可重定向到另一个路由，返回true为拦截
 ```dart
-  RRouter.myRouter.interceptors
-      .add(RRouterInterceptorWrapper(onRequest: (settings) {
-    if (settings.name == '/three') {
-      return settings.copyWith(name: '/two');
-    } else {
-      return settings;
+  RRouter.addInterceptor((ctx) async {
+    if (ctx.path == '/other') {
+      RRouter.navigateTo('/five', body: ctx.body);
+      return true;
     }
-  }));
+    return false;
+  });
 ```
 
-##
+## 7. 你可以使用 (/user/:id) 或者 (/user/*) 匹配跳转的路由
+```dart
+  RRouter.addRoute(NavigatorRoute('/five/:id', (ctx) => PageFive(id:ctx.pathParams.getInt('id'))));
+  RRouter.addRoute(NavigatorRoute('/five?id=1', (ctx) => PageFive(id:ctx.queryParams.getInt('id'))));
+  RRouter.addRoute(NavigatorRoute('/five/*', (ctx) => PageFive()));
+```
+
+## 8. 你可以使用 (/user/:id) 加 `pathRegEx` 正则匹配跳转的路由
+```dart
+  // 当请求的id 为数值时才会跳转到该页面
+  RRouter.addRoute(NavigatorRoute('/five/:id', (ctx) => PageFive(id:ctx.pathParams.getInt('id')))，pathRegEx:{'id':r'^[0-9]*$'});
+```

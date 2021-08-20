@@ -14,8 +14,21 @@ void main() {
 }
 
 void initRouter() {
-  // add new
-  RRouter.addRoute(NavigatorRoute(
+  // first setting
+  RRouter.setErrorPage(ErrorPageWrapper(
+          error:
+              (BuildContext context, FlutterErrorDetails flutterErrorDetails) =>
+                  Center(
+                    child: Text(
+                      'Exception Page (${flutterErrorDetails.exceptionAsString()})',
+                    ),
+                  ),
+          notFound: (BuildContext context, Context ctx) => Material(
+                child: Center(
+                  child: Text('Page Not found:${ctx.path}'),
+                ),
+              )))
+      .addRoute(NavigatorRoute(
           '/', (ctx) => MyHomePage(title: 'Flutter Demo Home Page')))
       .addRoute(NavigatorRoute('/one', (ctx) => PageOne()))
       .addRoute(NavigatorRoute(
@@ -28,28 +41,35 @@ void initRouter() {
       .addRoute(NavigatorRoute('/four', (ctx) => PageFour(),
           defaultPageTransaction: ZoomPageTransitionsBuilder()))
       .addRoute(NavigatorRoute('/five', (ctx) => PageFive()))
-      .addRoute(NavigatorRoute('/five/:id', (ctx) => PageFive()))
-      .setNavigator2()
-      // .setDebugMode(true)
-      .addComplete();
-  // RRouter.myRouter.interceptors
-  //     .add(RRouterInterceptorWrapper(onRequest: (settings) {
-  //   if (settings.name == '/other') {
-  //     return settings.copyWith(name: '/five');
-  //   } else {
-  //     return settings;
+      .addRoute(NavigatorRoute('/five/:id', (ctx) => PageFive()));
+  // or
+  // RRouter.addRoutes([
+  //   NavigatorRoute('/', (ctx) => MyHomePage(title: 'Flutter Demo Home Page')),
+  //   NavigatorRoute('/one', (ctx) => PageOne()),
+  //   NavigatorRoute(
+  //       '/two',
+  //       (ctx) => PageTwo(
+  //             param: ctx?.body != null ? ctx.body['param'] : '',
+  //           )),
+  //   NavigatorRoute('/three', (ctx) => PageThree(),
+  //       defaultPageTransaction: CupertinoPageTransitionsBuilder()),
+  //   NavigatorRoute('/four', (ctx) => PageFour(),
+  //       defaultPageTransaction: ZoomPageTransitionsBuilder()),
+  //   NavigatorRoute('/five', (ctx) => PageFive()),
+  //   NavigatorRoute('/five/:id', (ctx) => PageFive()),
+  // ]).addInterceptor((ctx) async {
+  //   if (ctx.path == '/other') {
+  //     RRouter.navigateTo('/five', body: ctx.body);
+  //     return true;
   //   }
-  // }));
-  // RRouter.myRouter.interceptors
-  //     .add(RRouterInterceptorWrapper(onRequest: (settings) {
-  //   if (settings.name == '/two') {
-  //     return settings.copyWith(name: '/one');
-  //   } else {
-  //     return settings;
+  //   return false;
+  // }).addInterceptor((ctx) async {
+  //   if (ctx.path == '/two') {
+  //     RRouter.navigateTo('/one', body: ctx.body);
+  //     return true;
   //   }
-  // }));
-
-  // add new
+  //   return false;
+  // });
 }
 
 class MyApp extends StatelessWidget {

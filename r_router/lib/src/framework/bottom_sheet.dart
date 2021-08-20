@@ -55,7 +55,7 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
     required this.isScrollControlled,
     RouteSettings? settings,
     this.transitionAnimationController,
-  })  :super(settings: settings);
+  }) : super(settings: settings);
 
   final WidgetBuilder? builder;
   final CapturedThemes capturedThemes;
@@ -135,7 +135,7 @@ class _ModalBottomSheet<T> extends StatefulWidget {
     this.clipBehavior,
     this.isScrollControlled = false,
     this.enableDrag = true,
-  })  : super(key: key);
+  }) : super(key: key);
 
   final _ModalBottomSheetRoute<T>? route;
   final bool isScrollControlled;

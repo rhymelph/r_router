@@ -7,6 +7,13 @@ typedef FutureOr<void> ResponseProcessor(Context context, dynamic result);
 
 typedef FutureOr<RespType> RouteHandler<RespType>(Context context);
 
+/// Registe this Navigator Route
+///
+/// [path] you want registe path, such as: /user/:id   or /user/*
+/// [pathRegEx] Map of regular expression matchers for specific path segment
+///     such as  path = /:id/name   pathRegEx = {'id':r'^[0-9]*$'}
+/// [handler] you want to return Widget
+/// [defaultPageTransaction] page transaction.
 class NavigatorRoute {
   /// Path of the route
   final String path;
@@ -16,9 +23,7 @@ class NavigatorRoute {
 
   RouteHandler handler;
 
-  final List<RouteInterceptor> _before;
-
-  final List<RouteInterceptor> _after;
+  final List<RouteInterceptor> _interceptor;
 
   final _pathVarMapping = <String, int>{};
 
@@ -36,11 +41,9 @@ class NavigatorRoute {
       {this.pathRegEx,
       this.responseProcessor,
       this.defaultPageTransaction,
-      List<RouteInterceptor>? after,
-      List<RouteInterceptor>? before})
+      List<RouteInterceptor>? interceptor})
       : pathSegments = pathToSegments(path),
-        _before = before ?? [],
-        _after = after ?? [] {
+        _interceptor = interceptor ?? [] {
     for (int i = 0; i < pathSegments.length; i++) {
       String seg = pathSegments.elementAt(i);
       if (seg.startsWith(':')) {
@@ -66,28 +69,12 @@ class NavigatorRoute {
     return await ctx.execute(this);
   }
 
-  List<RouteInterceptor> getBefore() => _before.toList();
+  List<RouteInterceptor> getInterceptor() => _interceptor.toList();
 
-  List<RouteInterceptor> getAfter() => _after.toList();
-
-  /// Add [interceptor] and optionally [interceptors] to be executed before
+  /// Add [interceptor] and optionally
   /// [handler] in the route chain.
-  void before(RouteInterceptor interceptor,
-      [List<RouteInterceptor>? interceptors]) {
-    _before.add(interceptor);
-    if (interceptors != null) {
-      _before.addAll(interceptors);
-    }
-  }
-
-  /// Add [interceptor] and optionally [interceptors] to be executed after
-  /// [handler] in the route chain.
-  void after(RouteInterceptor interceptor,
-      [List<RouteInterceptor>? interceptors]) {
-    _after.add(interceptor);
-    if (interceptors != null) {
-      _after.addAll(interceptors);
-    }
+  void addInterceptor(RouteInterceptor interceptor) {
+    _interceptor.add(interceptor);
   }
 
   String toString() => '$path';

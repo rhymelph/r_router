@@ -32,8 +32,8 @@ class _MyHomePageState extends State<MyHomePage> {
     RRouter.navigateTo('/home', body: {'param': '我是参数(支持实体类)'});
   }
 
-  void onNavigateToInterceptor() async{
-    final result = await RRouter.navigateTo('/five/123');
+  void onNavigateToInterceptor() async {
+    final result = await RRouter.navigateTo('/other');
     print('finish: $result');
   }
 

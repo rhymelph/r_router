@@ -1,6 +1,5 @@
 part of 'r_router.dart';
 
-
 class RRouterRegister {
   final List<NavigatorRoute> _routes = [];
   PathTree<NavigatorRoute> _routeTree = PathTree<NavigatorRoute>();
@@ -15,14 +14,14 @@ class RRouterRegister {
   /// [route] You want to registe route.
   void addRoute(NavigatorRoute route, {bool? isReplaceRouter}) {
     if (isReplaceRouter == true) {
-      build();
+      _build();
       NavigatorRoute? handler = _routeTree.match(route.pathSegments, 'GET');
       _routes.remove(handler);
     }
     _routes.add(route);
   }
 
-  void build() {
+  void _build() {
     _routeTree = PathTree<NavigatorRoute>();
     for (NavigatorRoute route in _routes) {
       _routeTree.addPathAsSegments(route.pathSegments, route,
