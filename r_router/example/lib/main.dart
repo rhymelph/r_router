@@ -41,7 +41,31 @@ void initRouter() {
       .addRoute(NavigatorRoute('/four', (ctx) => PageFour(),
           defaultPageTransaction: ZoomPageTransitionsBuilder()))
       .addRoute(NavigatorRoute('/five', (ctx) => PageFive()))
-      .addRoute(NavigatorRoute('/five/:id', (ctx) => PageFive()));
+      .addRoute(NavigatorRoute('/five/:id', (ctx) => PageFive()))
+      .addRoute(NavigatorRoute('/print', (ctx) async {
+        return Future.value('调用函数');
+      }, responseProcessor: (c, p) async {
+        print(p);
+        return 'hello';
+      }))
+      .addRoute(NavigatorRoute('/showDialog', (ctx) async {
+        return null;
+      }, responseProcessor: (c, p) async {
+        await showRDialog(
+            routeSettings: RouteSettings(name: c.path, arguments: c.body),
+            builder: (context) => AlertDialog(
+                  title: Text('title'),
+                  content: Text('content'),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('确定')),
+                  ],
+                ));
+        return c.isDirectly == true ? Redirect(path: '/') : null;
+      }));
   // or
   // RRouter.addRoutes([
   //   NavigatorRoute('/', (ctx) => MyHomePage(title: 'Flutter Demo Home Page')),

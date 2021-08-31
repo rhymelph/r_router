@@ -24,9 +24,11 @@ part 'r_router_observer.dart';
 
 part 'r_router_register.dart';
 
-_RRouter RRouter = _RRouter();
+part 'redirect.dart';
 
-class _RRouter {
+RRouterBasic RRouter = RRouterBasic();
+
+class RRouterBasic {
   final RRouterRegister _register = RRouterRegister();
   final RRouterObserver _observer = RRouterObserver();
   final RRouterDelegate _delegate = RRouterDelegate();
@@ -68,7 +70,7 @@ class _RRouter {
 
   bool isDebugMode;
 
-  _RRouter({
+  RRouterBasic({
     ErrorPage? errorPage,
     this.isUseNavigator2 = false,
     List<RouteInterceptor>? interceptor,
@@ -80,7 +82,7 @@ class _RRouter {
   /// Debug Mode
   ///
   /// [isDebug] will print debug data.
-  _RRouter setDebugMode(bool isDebug) {
+  RRouterBasic setDebugMode(bool isDebug) {
     this.isDebugMode = isDebug;
     return this;
   }
@@ -88,7 +90,7 @@ class _RRouter {
   /// default transition builder
   ///
   /// [pageTransitionsBuilder] default page Transition builder
-  _RRouter setDefaultTransitionBuilder(
+  RRouterBasic setDefaultTransitionBuilder(
       PageTransitionsBuilder pageTransitionsBuilder) {
     this._defaultTransitionBuilder = pageTransitionsBuilder;
     return this;
@@ -106,7 +108,7 @@ class _RRouter {
   /// set Error Page
   ///
   /// [errorPage] found in ErrorPage Class
-  _RRouter setErrorPage(ErrorPage errorPage) {
+  RRouterBasic setErrorPage(ErrorPage errorPage) {
     this._errorPage = errorPage;
     return this;
   }
@@ -114,7 +116,7 @@ class _RRouter {
   /// add Routes
   ///
   /// [routes] You want to registe routes.
-  _RRouter addRoutes(Iterable<NavigatorRoute> routes) {
+  RRouterBasic addRoutes(Iterable<NavigatorRoute> routes) {
     _register.add(routes);
     return this;
   }
@@ -123,7 +125,7 @@ class _RRouter {
   ///
   /// [route] You want to add route
   /// [isReplaceRouter] if ture will replace route
-  _RRouter addRoute(NavigatorRoute route, {bool? isReplaceRouter}) {
+  RRouterBasic addRoute(NavigatorRoute route, {bool? isReplaceRouter}) {
     _register.addRoute(route, isReplaceRouter: isReplaceRouter);
     return this;
   }
@@ -131,7 +133,7 @@ class _RRouter {
   /// add route observer
   ///
   /// [observer] Navigator Observer
-  _RRouter addObserver(NavigatorObserver observer) {
+  RRouterBasic addObserver(NavigatorObserver observer) {
     _delegate.addObserver(observer);
     return this;
   }
@@ -139,7 +141,7 @@ class _RRouter {
   /// add route observers
   ///
   /// [observers] Navigator Observer List
-  _RRouter addObservers(Iterable<NavigatorObserver> observers) {
+  RRouterBasic addObservers(Iterable<NavigatorObserver> observers) {
     _delegate.addObservers(observers);
     return this;
   }
@@ -147,7 +149,7 @@ class _RRouter {
   /// add interceptor
   ///
   /// [interceptor]  add interceptor.
-  _RRouter addInterceptor(RouteInterceptor interceptor) {
+  RRouterBasic addInterceptor(RouteInterceptor interceptor) {
     _interceptor.add(interceptor);
     return this;
   }
@@ -155,7 +157,7 @@ class _RRouter {
   /// add interceptors
   ///
   /// [interceptors]  add interceptor list.
-  _RRouter addInterceptors(List<RouteInterceptor> interceptors) {
+  RRouterBasic addInterceptors(List<RouteInterceptor> interceptors) {
     _interceptor.addAll(interceptors);
     return this;
   }
@@ -204,8 +206,6 @@ class _RRouter {
     }
     NavigatorRoute? handler = _register.match(ctx.uri);
     if (handler != null) {
-      builder = await handler(ctx);
-      _pageTransitions = pageTransitions ?? handler.defaultPageTransaction;
       final interceptor = handler.getInterceptor();
       if (interceptor.length > 0) {
         dynamic result;
@@ -216,11 +216,23 @@ class _RRouter {
           }
         }
       }
+      final result = await handler(ctx);
+      if (result is WidgetBuilder) {
+        builder = result;
+        _pageTransitions = pageTransitions ?? handler.defaultPageTransaction;
+      } else if (result is Redirect) {
+        return await navigateTo(result.path,
+            body: body,
+            replace: replace,
+            clearTrace: clearTrace,
+            isSingleTop: isSingleTop,
+            result: result,
+            pageTransitions: pageTransitions);
+      } else {
+        return SynchronousFuture(result);
+      }
     } else {
       builder = (BuildContext context) => _errorPage.notFoundPage(context, ctx);
-    }
-    if (builder == null) {
-      return;
     }
 
     _pageTransitions ??= _defaultTransitionBuilder;
@@ -272,7 +284,7 @@ class _RRouter {
         child:
             Builder(builder: (BuildContext context) => builder.call(context)),
         pageTransitionsBuilder: pageTransitionsBuilder,
-        key: ValueKey(ctx.path),
+        key: ValueKey(ctx.at.microsecondsSinceEpoch),
         name: ctx.path,
         arguments: ctx.toJson(),
         restorationId: ctx.path);
@@ -323,6 +335,23 @@ class _RRouter {
     } else {
       return navigator!.maybePop<T>(result);
     }
+  }
+
+  Future<WidgetBuilder?> runRoute(String path, dynamic body) async {
+    final ctx = Context(
+      path,
+      body: body,
+    );
+    NavigatorRoute? handler = _register.match(ctx.uri);
+    if (handler != null) {
+      final result = await handler(ctx);
+      if (result is WidgetBuilder) {
+        return result;
+      } else if (result is Redirect) {
+        return runRoute(result.path, body);
+      }
+    }
+    return null;
   }
 }
 

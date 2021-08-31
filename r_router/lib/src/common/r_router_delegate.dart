@@ -27,16 +27,16 @@ class RRouterDelegate extends RouterDelegate<Page<dynamic>>
   @override
   Widget build(BuildContext context) {
     assert(!_isDisposed);
-    return _routerStack.isEmpty
-        ? Container()
-        : Navigator(
-            pages: List.from(_routerStack),
-            onPopPage: _onPopPage,
-            observers: [
-              RRouter._observer,
-              ...observers,
-            ],
-          );
+    return Navigator(
+      pages: List.from(_routerStack.isEmpty
+          ? <Page<dynamic>>[MaterialPage(child: Container())]
+          : _routerStack),
+      onPopPage: _onPopPage,
+      observers: [
+        RRouter._observer,
+        ...observers,
+      ],
+    );
   }
 
   @override

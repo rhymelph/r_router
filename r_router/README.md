@@ -141,3 +141,30 @@ RRouter.navigator
 ```dart
     Context ctx = context.readCtx;
 ```
+
+$$ 10.redirect
+```dart
+RRouter.addRoute(NavigatorRoute('/showDialog', (ctx) async {
+        return null;
+      }, responseProcessor: (c, p) async {
+        await showRDialog(
+            routeSettings: RouteSettings(name: c.path, arguments: c.body),
+            builder: (context) => AlertDialog(
+                  title: Text('title'),
+                  content: Text('content'),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('确定')),
+                  ],
+                ));
+        return c.isDirectly == true ? Redirect(path: '/') : null;
+      }));
+
+// or
+RRouter.addRoute(NavigatorRoute('/showDialog', (ctx) async {
+        return Redirect(path: '/');
+      }));
+```

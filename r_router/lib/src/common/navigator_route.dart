@@ -58,7 +58,7 @@ class NavigatorRoute {
     }
   }
 
-  Future<WidgetBuilder?> call(Context ctx) async {
+  Future<dynamic> call(Context ctx) async {
     for (String pathParam in _pathVarMapping.keys) {
       ctx.pathParams[pathParam] = ctx.pathSegments[_pathVarMapping[pathParam]!];
     }

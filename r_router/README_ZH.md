@@ -143,3 +143,35 @@ RRouter.navigator
   // 当请求的id 为数值时才会跳转到该页面
   RRouter.addRoute(NavigatorRoute('/five/:id', (ctx) => PageFive(id:ctx.pathParams.getInt('id')))，pathRegEx:{'id':r'^[0-9]*$'});
 ```
+
+## 9.通过Context 获取参数
+```dart
+    Context ctx = context.readCtx;
+```
+
+## 10.重定向
+```dart
+RRouter.addRoute(NavigatorRoute('/showDialog', (ctx) async {
+        return null;
+      }, responseProcessor: (c, p) async {
+        await showRDialog(
+            routeSettings: RouteSettings(name: c.path, arguments: c.body),
+            builder: (context) => AlertDialog(
+                  title: Text('title'),
+                  content: Text('content'),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('确定')),
+                  ],
+                ));
+        return c.isDirectly == true ? Redirect(path: '/') : null;
+      }));
+
+// or
+RRouter.addRoute(NavigatorRoute('/showDialog', (ctx) async {
+        return Redirect(path: '/');
+      }));
+```

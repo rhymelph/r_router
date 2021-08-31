@@ -12,8 +12,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  void onNavigateToOne() {
-    RRouter.navigateTo('/one');
+  void onNavigateToOne() async {
+    final result = await RRouter.navigateTo('/one');
+    if (result != null) {
+      ScaffoldMessenger.of(context).showMaterialBanner(
+          MaterialBanner(content: Text('我的返回值:$result'), actions: [
+        TextButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+            },
+            child: Text('确定')),
+      ]));
+    }
   }
 
   void onNavigateToTwo() {
@@ -129,6 +139,16 @@ class _MyHomePageState extends State<MyHomePage> {
     showRAboutDialog();
   }
 
+  void onUsePrint() async {
+    final result = await RRouter.navigateTo('/print');
+    print(result);
+  }
+  void onShowNavigatorDialog() async{
+    final result = await RRouter.navigateTo('/showDialog');
+    print(result);
+  }
+
+
   void onShowMenu() {
     //获取点击的button
     final RenderBox btnBox = _menuKey.currentContext.findRenderObject();
@@ -196,8 +216,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ElevatedButton(onPressed: onShowAboutPage, child: Text('显示关于页面')),
           ElevatedButton(
               key: _menuKey, onPressed: onShowMenu, child: Text('弹出菜单')),
+          ElevatedButton(onPressed: onUsePrint, child: Text('调用打印')),
+          ElevatedButton(onPressed: onShowNavigatorDialog, child: Text('弹窗路由')),
         ],
       ),
     );
   }
+
+
 }
