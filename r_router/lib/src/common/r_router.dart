@@ -353,6 +353,13 @@ class RRouterBasic {
     }
     return null;
   }
+
+  bool isMatchPath(String registerPath, String path) {
+    PathTree<String> tree = PathTree<String>();
+    tree.addPathAsSegments(pathToSegments(registerPath), registerPath);
+    String? result = tree.match(pathToSegments(path), 'GET');
+    return result == registerPath;
+  }
 }
 
 extension RRouterBuildContextExtension on BuildContext {

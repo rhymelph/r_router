@@ -59,7 +59,7 @@ class Context {
       if (res is Future) res = await res;
       if (res is Widget) {
         result = ((BuildContext context) => res as Widget);
-      } else if (res is WidgetBuilder) {
+      } else if (res is WidgetBuilder || res is Redirect) {
         result = res;
       } else {
         if (result == null) {

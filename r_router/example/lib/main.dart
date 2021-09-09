@@ -29,7 +29,7 @@ void initRouter() {
                 ),
               )))
       .addRoute(NavigatorRoute(
-          '/', (ctx) => MyHomePage(title: 'Flutter Demo Home Page')))
+          '/', (ctx) => Redirect(path: '/one')))
       .addRoute(NavigatorRoute('/one', (ctx) => PageOne()))
       .addRoute(NavigatorRoute(
           '/two',
