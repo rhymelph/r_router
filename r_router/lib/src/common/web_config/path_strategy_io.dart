@@ -1,0 +1,1 @@
+void setUrlPathStrategy(bool isUsePath) {}

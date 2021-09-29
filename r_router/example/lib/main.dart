@@ -15,7 +15,9 @@ void main() {
 
 void initRouter() {
   // first setting
-  RRouter.setErrorPage(ErrorPageWrapper(
+  RRouter
+      .setPathStrategy(true)
+      .setErrorPage(ErrorPageWrapper(
           error:
               (BuildContext context, FlutterErrorDetails flutterErrorDetails) =>
                   Center(

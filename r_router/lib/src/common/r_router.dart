@@ -5,9 +5,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_tree/path_tree.dart';
+import 'package:r_router/r_router.dart';
 import 'package:r_router/src/screens/error_page.dart';
 import 'package:r_router/src/utils/string.dart';
 
+import 'web_config/path_strategy_io.dart'
+    if (dart.library.html) 'web_config/path_strategy_web.dart';
 import '../screens/custom_page_route.dart';
 
 part 'context.dart';
@@ -84,6 +87,15 @@ class RRouterBasic {
   /// [isDebug] will print debug data.
   RRouterBasic setDebugMode(bool isDebug) {
     this.isDebugMode = isDebug;
+    return this;
+  }
+
+  /// path strategy mode
+  ///
+  /// if true ? will use http://localhost:8080/index.html
+  /// if false ? will use http://localhost:8080/#/index.html
+  RRouterBasic setPathStrategy(bool isUsePath) {
+    setUrlPathStrategy(isUsePath);
     return this;
   }
 
