@@ -143,11 +143,11 @@ class _MyHomePageState extends State<MyHomePage> {
     final result = await RRouter.navigateTo('/print');
     print(result);
   }
-  void onShowNavigatorDialog() async{
+
+  void onShowNavigatorDialog() async {
     final result = await RRouter.navigateTo('/showDialog');
     print(result);
   }
-
 
   void onShowMenu() {
     //获取点击的button
@@ -222,6 +222,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-
 }

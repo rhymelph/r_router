@@ -17,7 +17,8 @@ class _PageOneState extends State<PageOne> {
         onPressed: () {
           RRouter.pop('result');
         },
-      child: Text('返回值'),),
+        child: Text('返回值'),
+      ),
     );
   }
 }

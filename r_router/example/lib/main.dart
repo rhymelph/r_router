@@ -15,8 +15,7 @@ void main() {
 
 void initRouter() {
   // first setting
-  RRouter
-      .setPathStrategy(true)
+  RRouter.setPathStrategy(true)
       .setErrorPage(ErrorPageWrapper(
           error:
               (BuildContext context, FlutterErrorDetails flutterErrorDetails) =>
@@ -30,8 +29,7 @@ void initRouter() {
                   child: Text('Page Not found:${ctx.path}'),
                 ),
               )))
-      .addRoute(NavigatorRoute(
-          '/', (ctx) => Redirect(path: '/one')))
+      .addRoute(NavigatorRoute('/', (ctx) => Redirect(path: '/one')))
       .addRoute(NavigatorRoute('/one', (ctx) => PageOne()))
       .addRoute(NavigatorRoute(
           '/two',
