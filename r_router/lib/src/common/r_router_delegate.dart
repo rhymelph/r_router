@@ -104,9 +104,11 @@ class RRouterDelegate extends RouterDelegate<Page<dynamic>>
   }
 
   void pop<T extends Object?>([T? result]) {
-    final finder = _routerStack.removeLast();
+    final finder = (_routerStack.removeLast() as CustomPage);
     _markNeedsUpdate();
-    (finder as CustomPage).completerResult.complete(result);
+    Future.delayed(finder.transitionDuration, () {
+      finder.completerResult.complete(result);
+    });
   }
 
   Future<bool> maybePop<T extends Object?>([T? result]) {

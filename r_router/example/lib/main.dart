@@ -17,19 +17,23 @@ void initRouter() {
   // first setting
   RRouter.setPathStrategy(true)
       .setErrorPage(ErrorPageWrapper(
-          error:
-              (BuildContext context, FlutterErrorDetails flutterErrorDetails) =>
-                  Center(
-                    child: Text(
-                      'Exception Page (${flutterErrorDetails.exceptionAsString()})',
-                    ),
-                  ),
+          error: (BuildContext context,
+                  FlutterErrorDetails flutterErrorDetails) =>
+              Center(
+                child: Text(
+                  'Exception Page (${flutterErrorDetails.exceptionAsString()})',
+                ),
+              ),
           notFound: (BuildContext context, Context ctx) => Material(
                 child: Center(
                   child: Text('Page Not found:${ctx.path}'),
                 ),
               )))
-      .addRoute(NavigatorRoute('/', (ctx) => Redirect(path: '/one')))
+      .addRoute(NavigatorRoute(
+          '/',
+          (ctx) => MyHomePage(
+                title: 'My Home',
+              )))
       .addRoute(NavigatorRoute('/one', (ctx) => PageOne()))
       .addRoute(NavigatorRoute(
           '/two',
@@ -65,7 +69,17 @@ void initRouter() {
                   ],
                 ));
         return c.isDirectly == true ? Redirect(path: '/') : null;
-      }));
+      }))
+      .setPageBuilder((ctx, builder, pageTransitionsBuilder) =>
+          CustomPage<dynamic>(
+              child: Builder(
+                  builder: (BuildContext context) => builder.call(context)),
+              pageTransitionsBuilder: pageTransitionsBuilder,
+              key: ValueKey(ctx.at.microsecondsSinceEpoch),
+              name: ctx.path,
+              arguments: ctx.toJson(),
+              transitionDuration: Duration(milliseconds: 100),
+              restorationId: ctx.path));
   // or
   // RRouter.addRoutes([
   //   NavigatorRoute('/', (ctx) => MyHomePage(title: 'Flutter Demo Home Page')),

@@ -1,3 +1,5 @@
+## [1.0.4] - add fix pop error,add pageBuilder method.
+
 ## [1.0.3] - add setPathStrategy method.
 
 ## [1.0.2] - fixed redirect error, add isMatchPath method.

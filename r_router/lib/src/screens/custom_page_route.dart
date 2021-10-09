@@ -9,8 +9,11 @@ class CustomPageRoute<T extends Object?> extends PageRoute<T> {
     required this.pageTransitionsBuilder,
     required this.builder,
     RouteSettings? settings,
+    this.barrierColor,
+    this.barrierLabel,
     this.maintainState = true,
     bool fullscreenDialog = false,
+    this.transitionDuration = const Duration(milliseconds: 300),
   }) : super(settings: settings, fullscreenDialog: fullscreenDialog);
 
   /// Builds the primary contents of the route.
@@ -19,17 +22,15 @@ class CustomPageRoute<T extends Object?> extends PageRoute<T> {
   /// page transition builder
   final PageTransitionsBuilder pageTransitionsBuilder;
 
-  @override
+  /// barrier color
+  final Color? barrierColor;
+
+  /// barrier label
+  final String? barrierLabel;
+
   final bool maintainState;
 
-  @override
-  Duration get transitionDuration => const Duration(milliseconds: 300);
-
-  @override
-  Color? get barrierColor => null;
-
-  @override
-  String? get barrierLabel => null;
+  final Duration transitionDuration;
 
   @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
@@ -71,6 +72,9 @@ class CustomPage<T extends Object?> extends Page<T> {
     required this.pageTransitionsBuilder,
     this.maintainState = true,
     this.fullscreenDialog = false,
+    this.transitionDuration = const Duration(milliseconds: 300),
+    this.barrierColor,
+    this.barrierLabel,
     LocalKey? key,
     String? name,
     Object? arguments,
@@ -98,6 +102,12 @@ class CustomPage<T extends Object?> extends Page<T> {
 
   final Completer completerResult;
 
+  final Duration transitionDuration;
+
+  final Color? barrierColor;
+
+  final String? barrierLabel;
+
   @override
   Route<T> createRoute(BuildContext context) {
     return _PageBasedCustomPageRoute<T>(page: this);
@@ -121,6 +131,12 @@ class _PageBasedCustomPageRoute<T> extends PageRoute<T>
   }
 
   @override
+  Color? get barrierColor => _page.barrierColor;
+
+  @override
+  String? get barrierLabel => _page.barrierLabel;
+
+  @override
   bool get maintainState => _page.maintainState;
 
   @override
@@ -132,21 +148,15 @@ class _PageBasedCustomPageRoute<T> extends PageRoute<T>
   @override
   PageTransitionsBuilder get pageTransitionsBuilder =>
       _page.pageTransitionsBuilder;
+
+  @override
+  Duration get transitionDuration => _page.transitionDuration;
 }
 
 mixin CustomRouteTransitionMixin<T> on PageRoute<T> {
   /// Builds the primary contents of the route.
   @protected
   Widget buildContent(BuildContext context);
-
-  @override
-  Duration get transitionDuration => const Duration(milliseconds: 300);
-
-  @override
-  Color? get barrierColor => null;
-
-  @override
-  String? get barrierLabel => null;
 
   @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {

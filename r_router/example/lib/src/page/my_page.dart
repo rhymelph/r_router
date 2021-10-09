@@ -15,14 +15,19 @@ class _MyHomePageState extends State<MyHomePage> {
   void onNavigateToOne() async {
     final result = await RRouter.navigateTo('/one');
     if (result != null) {
-      ScaffoldMessenger.of(context).showMaterialBanner(
-          MaterialBanner(content: Text('我的返回值:$result'), actions: [
-        TextButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-            },
-            child: Text('确定')),
-      ]));
+      showRDialog(
+          builder: (BuildContext context) => AlertDialog(
+                title: Text('返回值'),
+                content: Text('我的返回值:$result'),
+              ));
+      // ScaffoldMessenger.of(context).showMaterialBanner(
+      //     MaterialBanner(content: Text('我的返回值:$result'), actions: [
+      //   TextButton(
+      //       onPressed: () {
+      //         ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+      //       },
+      //       child: Text('确定')),
+      // ]));
     }
   }
 
