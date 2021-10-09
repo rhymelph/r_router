@@ -31,6 +31,21 @@ part 'redirect.dart';
 
 RRouterBasic RRouter = RRouterBasic();
 
+typedef Page<dynamic> PageBuilder(Context ctx, WidgetBuilder builder,
+    PageTransitionsBuilder pageTransitionsBuilder);
+
+//Custom Page Builder
+PageBuilder _kDefaultCustomPageBuilder = (Context ctx, WidgetBuilder builder,
+        PageTransitionsBuilder pageTransitionsBuilder) =>
+    CustomPage<dynamic>(
+        child:
+            Builder(builder: (BuildContext context) => builder.call(context)),
+        pageTransitionsBuilder: pageTransitionsBuilder,
+        key: ValueKey(ctx.at.microsecondsSinceEpoch),
+        name: ctx.path,
+        arguments: ctx.toJson(),
+        restorationId: ctx.path);
+
 class RRouterBasic {
   final RRouterRegister _register = RRouterRegister();
   final RRouterObserver _observer = RRouterObserver();
@@ -73,14 +88,18 @@ class RRouterBasic {
 
   bool isDebugMode;
 
+  PageBuilder _pageBuilder;
+
   RRouterBasic({
     ErrorPage? errorPage,
     this.isUseNavigator2 = false,
     List<RouteInterceptor>? interceptor,
     this.isDebugMode = true,
+    PageBuilder? pageBuilder,
   })  : _errorPage = errorPage ?? DefaultErrorPage(),
         _defaultTransitionBuilder = const FadeUpwardsPageTransitionsBuilder(),
-        _interceptor = interceptor ?? <RouteInterceptor>[];
+        _interceptor = interceptor ?? <RouteInterceptor>[],
+        _pageBuilder = pageBuilder ?? _kDefaultCustomPageBuilder;
 
   /// Debug Mode
   ///
@@ -122,6 +141,14 @@ class RRouterBasic {
   /// [errorPage] found in ErrorPage Class
   RRouterBasic setErrorPage(ErrorPage errorPage) {
     this._errorPage = errorPage;
+    return this;
+  }
+
+  /// set default page builder
+  ///
+  /// [pageBuilder] generate page.
+  RRouterBasic setPageBuilder(PageBuilder pageBuilder) {
+    this._pageBuilder = pageBuilder;
     return this;
   }
 
@@ -292,14 +319,7 @@ class RRouterBasic {
 
   Page<dynamic> _pageNamed(Context ctx, WidgetBuilder builder,
       PageTransitionsBuilder pageTransitionsBuilder) {
-    return CustomPage<dynamic>(
-        child:
-            Builder(builder: (BuildContext context) => builder.call(context)),
-        pageTransitionsBuilder: pageTransitionsBuilder,
-        key: ValueKey(ctx.at.microsecondsSinceEpoch),
-        name: ctx.path,
-        arguments: ctx.toJson(),
-        restorationId: ctx.path);
+    return _pageBuilder(ctx, builder, pageTransitionsBuilder);
   }
 
   /// Pop the top-most route off the navigator.
