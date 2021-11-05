@@ -12,7 +12,6 @@ dependencies:
   path_tree: ^3.0.0
   flutter_web_plugins:
     sdk: flutter
-  collection: ^1.15.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
