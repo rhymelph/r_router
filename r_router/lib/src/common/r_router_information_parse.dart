@@ -7,11 +7,17 @@ class RRouterInformationParser extends RouteInformationParser<Page<dynamic>> {
     String path = routeInformation.location ?? '/';
     Object? body = routeInformation.state;
     PageTransitionsBuilder? _pageTransitions;
-    Context ctx = Context(
-      path,
-      body: body,
-      isDirectly: true,
-    );
+    Context ctx;
+    if(body != null && body is Map && body['at']!=null && body['path']!=null &&
+    body['pathParams']!= null && body['isDirectly']!=null){
+      ctx = Context.fromJson(body);
+    }else{
+      ctx = Context(
+        path,
+        body: body,
+        isDirectly: kIsWeb?false:true,
+      );
+    }
     WidgetBuilder? builder;
     NavigatorRoute? handler = RRouter._register.match(ctx.uri);
     if (handler != null) {
