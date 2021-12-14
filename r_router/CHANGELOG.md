@@ -1,3 +1,5 @@
+## [1.0.6] - adapter flutter 2.8 version.
+
 ## [1.0.5] - fix check ui will restart error.
 
 ## [1.0.4] - add fix pop error,add pageBuilder method.

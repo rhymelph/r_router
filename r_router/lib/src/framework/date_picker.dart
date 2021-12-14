@@ -30,6 +30,7 @@ class _DatePickerDialog extends StatefulWidget {
     this.errorInvalidText,
     this.fieldHintText,
     this.fieldLabelText,
+    this.restorationId,
   })  : assert(initialDate != null),
         assert(firstDate != null),
         assert(lastDate != null),
@@ -91,35 +92,45 @@ class _DatePickerDialog extends StatefulWidget {
 
   final String? fieldLabelText;
 
+  final String? restorationId;
+
   @override
   _DatePickerDialogState createState() => _DatePickerDialogState();
 }
 
-class _DatePickerDialogState extends State<_DatePickerDialog> {
-  late DatePickerEntryMode _entryMode;
-  late DateTime _selectedDate;
-  late bool _autoValidate;
+class _DatePickerDialogState extends State<_DatePickerDialog>
+    with RestorationMixin {
+  late final RestorableDateTime _selectedDate =
+      RestorableDateTime(widget.initialDate);
+  late final _RestorableDatePickerEntryMode _entryMode =
+      _RestorableDatePickerEntryMode(widget.initialEntryMode);
+  final _RestorableAutovalidateMode _autovalidateMode =
+      _RestorableAutovalidateMode(AutovalidateMode.disabled);
+
+  @override
+  String? get restorationId => widget.restorationId;
+
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(_selectedDate, 'selected_date');
+    registerForRestoration(_autovalidateMode, 'autovalidateMode');
+    registerForRestoration(_entryMode, 'calendar_entry_mode');
+  }
+
   final GlobalKey _calendarPickerKey = GlobalKey();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  @override
-  void initState() {
-    super.initState();
-    _entryMode = widget.initialEntryMode;
-    _selectedDate = widget.initialDate;
-    _autoValidate = false;
-  }
-
   void _handleOk() {
-    if (_entryMode == DatePickerEntryMode.input) {
+    if (_entryMode.value == DatePickerEntryMode.input ||
+        _entryMode.value == DatePickerEntryMode.inputOnly) {
       final FormState form = _formKey.currentState!;
       if (!form.validate()) {
-        setState(() => _autoValidate = true);
+        setState(() => _autovalidateMode.value = AutovalidateMode.always);
         return;
       }
       form.save();
     }
-    Navigator.pop(context, _selectedDate);
+    Navigator.pop(context, _selectedDate.value);
   }
 
   void _handleCancel() {
@@ -128,19 +139,17 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
 
   void _handleEntryModeToggle() {
     setState(() {
-      switch (_entryMode) {
+      switch (_entryMode.value) {
         case DatePickerEntryMode.calendar:
-          _autoValidate = false;
-          _entryMode = DatePickerEntryMode.input;
+          _autovalidateMode.value = AutovalidateMode.disabled;
+          _entryMode.value = DatePickerEntryMode.input;
           break;
         case DatePickerEntryMode.input:
           _formKey.currentState!.save();
-          _entryMode = DatePickerEntryMode.calendar;
+          _entryMode.value = DatePickerEntryMode.calendar;
           break;
+        case DatePickerEntryMode.calendarOnly:
         case DatePickerEntryMode.inputOnly:
-          assert(false, 'Can not change entry mode from _entryMode');
-          break;
-        default:
           assert(false, 'Can not change entry mode from _entryMode');
           break;
       }
@@ -148,12 +157,14 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
   }
 
   void _handleDateChanged(DateTime date) {
-    setState(() => _selectedDate = date);
+    setState(() {
+      _selectedDate.value = date;
+    });
   }
 
   Size _dialogSize(BuildContext context) {
     final Orientation orientation = MediaQuery.of(context).orientation;
-    switch (_entryMode) {
+    switch (_entryMode.value) {
       case DatePickerEntryMode.calendar:
       case DatePickerEntryMode.calendarOnly:
         switch (orientation) {
@@ -173,10 +184,10 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
     }
   }
 
-  static final Map<LogicalKeySet, Intent> _formShortcutMap =
-      <LogicalKeySet, Intent>{
+  static const Map<ShortcutActivator, Intent> _formShortcutMap =
+      <ShortcutActivator, Intent>{
     // Pressing enter on the field will move focus to the next field or control.
-    LogicalKeySet(LogicalKeyboardKey.enter): const NextFocusIntent(),
+    SingleActivator(LogicalKeyboardKey.enter): NextFocusIntent(),
   };
 
   @override
@@ -192,7 +203,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
     final double textScaleFactor =
         math.min(MediaQuery.of(context).textScaleFactor, 1.3);
 
-    final String dateText = localizations.formatMediumDate(_selectedDate);
+    final String dateText = localizations.formatMediumDate(_selectedDate.value);
     final Color onPrimarySurface = colorScheme.brightness == Brightness.light
         ? colorScheme.onPrimary
         : colorScheme.onSurface;
@@ -208,12 +219,12 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
         spacing: 8,
         children: <Widget>[
           TextButton(
-            child: Text(widget.cancelText ?? localizations.cancelButtonLabel),
             onPressed: _handleCancel,
+            child: Text(widget.cancelText ?? localizations.cancelButtonLabel),
           ),
           TextButton(
-            child: Text(widget.confirmText ?? localizations.okButtonLabel),
             onPressed: _handleOk,
+            child: Text(widget.confirmText ?? localizations.okButtonLabel),
           ),
         ],
       ),
@@ -222,7 +233,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
     CalendarDatePicker calendarDatePicker() {
       return CalendarDatePicker(
         key: _calendarPickerKey,
-        initialDate: _selectedDate,
+        initialDate: _selectedDate.value,
         firstDate: widget.firstDate,
         lastDate: widget.lastDate,
         currentDate: widget.currentDate,
@@ -235,7 +246,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
     Form inputDatePicker() {
       return Form(
         key: _formKey,
-        autovalidate: _autoValidate,
+        autovalidateMode: _autovalidateMode.value,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           height: orientation == Orientation.portrait
@@ -247,7 +258,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
               children: <Widget>[
                 const Spacer(),
                 InputDatePickerFormField(
-                  initialDate: _selectedDate,
+                  initialDate: _selectedDate.value,
                   firstDate: widget.firstDate,
                   lastDate: widget.lastDate,
                   onDateSubmitted: _handleDateChanged,
@@ -269,7 +280,7 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
 
     final Widget picker;
     final Widget? entryModeButton;
-    switch (_entryMode) {
+    switch (_entryMode.value) {
       case DatePickerEntryMode.calendar:
         picker = calendarDatePicker();
         entryModeButton = IconButton(
@@ -312,6 +323,9 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
 
     final Size dialogSize = _dialogSize(context) * textScaleFactor;
     return Dialog(
+      insetPadding:
+          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+      clipBehavior: Clip.antiAlias,
       child: AnimatedContainer(
         width: dialogSize.width,
         height: dialogSize.height,
@@ -355,11 +369,36 @@ class _DatePickerDialogState extends State<_DatePickerDialog> {
           }),
         ),
       ),
-      insetPadding:
-          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-      clipBehavior: Clip.antiAlias,
     );
   }
+}
+
+// A restorable [DatePickerEntryMode] value.
+//
+// This serializes each entry as a unique `int` value.
+class _RestorableDatePickerEntryMode
+    extends RestorableValue<DatePickerEntryMode> {
+  _RestorableDatePickerEntryMode(
+    DatePickerEntryMode defaultValue,
+  ) : _defaultValue = defaultValue;
+
+  final DatePickerEntryMode _defaultValue;
+
+  @override
+  DatePickerEntryMode createDefaultValue() => _defaultValue;
+
+  @override
+  void didUpdateValue(DatePickerEntryMode? oldValue) {
+    assert(debugIsSerializableForRestoration(value.index));
+    notifyListeners();
+  }
+
+  @override
+  DatePickerEntryMode fromPrimitives(Object? data) =>
+      DatePickerEntryMode.values[data! as int];
+
+  @override
+  Object? toPrimitives() => value.index;
 }
 
 /// Re-usable widget that displays the selected date (in large font) and the
