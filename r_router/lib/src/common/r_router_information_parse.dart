@@ -8,14 +8,18 @@ class RRouterInformationParser extends RouteInformationParser<Page<dynamic>> {
     Object? body = routeInformation.state;
     PageTransitionsBuilder? _pageTransitions;
     Context ctx;
-    if(body != null && body is Map && body['at']!=null && body['path']!=null &&
-    body['pathParams']!= null && body['isDirectly']!=null){
+    if (body != null &&
+        body is Map &&
+        body['at'] != null &&
+        body['path'] != null &&
+        body['pathParams'] != null &&
+        body['isDirectly'] != null) {
       ctx = Context.fromJson(body);
-    }else{
+    } else {
       ctx = Context(
         path,
         body: body,
-        isDirectly: kIsWeb?false:true,
+        isDirectly: kIsWeb ? false : true,
       );
     }
     WidgetBuilder? builder;

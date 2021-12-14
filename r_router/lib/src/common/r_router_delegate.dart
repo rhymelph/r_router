@@ -49,7 +49,7 @@ class RRouterDelegate extends RouterDelegate<Page<dynamic>>
   Future<void> setNewRoutePath(Page<dynamic> configuration) async {
     if (_routerStack.isNotEmpty) {
       final lastRouter = _routerStack.last;
-      if(configuration.name == lastRouter.name){
+      if (configuration.name == lastRouter.name) {
         return SynchronousFuture(null);
       }
     }
