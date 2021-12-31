@@ -31,6 +31,8 @@ part 'redirect.dart';
 
 RRouterBasic RRouter = RRouterBasic();
 
+typedef PopHome = Future<bool> Function();
+
 typedef Page<dynamic> PageBuilder(Context ctx, WidgetBuilder builder,
     PageTransitionsBuilder pageTransitionsBuilder);
 
@@ -45,6 +47,8 @@ PageBuilder _kDefaultCustomPageBuilder = (Context ctx, WidgetBuilder builder,
         name: ctx.path,
         arguments: ctx.toJson(),
         restorationId: ctx.path);
+
+Future<bool> Function() _kDefaultPopHome = () => Future.value(false);
 
 class RRouterBasic {
   final RRouterRegister _register = RRouterRegister();
@@ -90,16 +94,20 @@ class RRouterBasic {
 
   PageBuilder _pageBuilder;
 
-  RRouterBasic({
-    ErrorPage? errorPage,
-    this.isUseNavigator2 = false,
-    List<RouteInterceptor>? interceptor,
-    this.isDebugMode = true,
-    PageBuilder? pageBuilder,
-  })  : _errorPage = errorPage ?? DefaultErrorPage(),
+  PopHome _popHome;
+
+  RRouterBasic(
+      {ErrorPage? errorPage,
+      this.isUseNavigator2 = false,
+      List<RouteInterceptor>? interceptor,
+      this.isDebugMode = true,
+      PageBuilder? pageBuilder,
+      PopHome? popHome})
+      : _errorPage = errorPage ?? DefaultErrorPage(),
         _defaultTransitionBuilder = const FadeUpwardsPageTransitionsBuilder(),
         _interceptor = interceptor ?? <RouteInterceptor>[],
-        _pageBuilder = pageBuilder ?? _kDefaultCustomPageBuilder;
+        _pageBuilder = pageBuilder ?? _kDefaultCustomPageBuilder,
+        _popHome = popHome ?? _kDefaultPopHome;
 
   /// Debug Mode
   ///
@@ -152,9 +160,18 @@ class RRouterBasic {
     return this;
   }
 
+  /// set pop home method
+  ///
+  /// [popHome] if return false will did pop home.
+  ///           or if true will hold.
+  RRouterBasic setPopHome(PopHome popHome) {
+    this._popHome = popHome;
+    return this;
+  }
+
   /// add Routes
   ///
-  /// [routes] You want to registe routes.
+  /// [routes] You want to add routes.
   RRouterBasic addRoutes(Iterable<NavigatorRoute> routes) {
     _register.add(routes);
     return this;
@@ -309,6 +326,11 @@ class RRouterBasic {
     return SynchronousFuture(navigateResult);
   }
 
+  /// generate page route(Navigation1.0)
+  ///
+  /// [ctx] route context
+  /// [builder] widget builder
+  /// [pageTransitionsBuilder] page transactions builder
   PageRoute<T> _routeNamed<T extends Object?>(Context ctx,
       WidgetBuilder builder, PageTransitionsBuilder pageTransitionsBuilder) {
     return CustomPageRoute<T>(
@@ -317,6 +339,11 @@ class RRouterBasic {
         settings: RouteSettings(name: ctx.path, arguments: ctx.toJson()));
   }
 
+  /// generate page by name(Navigation2.0)
+  ///
+  /// [ctx] route context
+  /// [builder] widget builder
+  /// [pageTransitionsBuilder] page transactions builder
   Page<dynamic> _pageNamed(Context ctx, WidgetBuilder builder,
       PageTransitionsBuilder pageTransitionsBuilder) {
     return _pageBuilder(ctx, builder, pageTransitionsBuilder);
@@ -369,6 +396,10 @@ class RRouterBasic {
     }
   }
 
+  /// run route method
+  ///
+  /// [path] your register path.
+  /// [body] post body
   Future<WidgetBuilder?> runRoute(String path, dynamic body) async {
     final ctx = Context(
       path,
@@ -386,6 +417,10 @@ class RRouterBasic {
     return null;
   }
 
+  /// match path
+  ///
+  /// [registerPath] your register path.
+  /// [path] your want to match path.
   bool isMatchPath(String registerPath, String path) {
     PathTree<String> tree = PathTree<String>();
     tree.addPathAsSegments(pathToSegments(registerPath), registerPath);

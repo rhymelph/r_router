@@ -79,7 +79,10 @@ void initRouter() {
               name: ctx.path,
               arguments: ctx.toJson(),
               transitionDuration: Duration(milliseconds: 100),
-              restorationId: ctx.path));
+              restorationId: ctx.path))
+      .setPopHome(() {
+    return Future.value(true);
+  });
   // or
   // RRouter.addRoutes([
   //   NavigatorRoute('/', (ctx) => MyHomePage(title: 'Flutter Demo Home Page')),

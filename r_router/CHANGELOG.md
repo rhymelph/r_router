@@ -1,3 +1,5 @@
+## [1.0.7] - add [popHome] method,fixed pop only one page will black screen.
+
 ## [1.0.6] - adapter flutter 2.8 version.
 
 ## [1.0.5] - fix check ui will restart error.

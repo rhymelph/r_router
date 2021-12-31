@@ -176,6 +176,12 @@ RRouter.addRoute(NavigatorRoute('/showDialog', (ctx) async {
       }));
 ```
 
+## 11. 返回主屏幕（栈内只有一个路由栈点返回键的处理的方式）
+```dart
+RRouter.setPopHome(() {
+return Future.value(true);// true 不会返回 , false 将会返回
+})
+
 ## License
     Copyright 2021 rhymelph
 

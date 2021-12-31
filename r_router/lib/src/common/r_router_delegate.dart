@@ -100,13 +100,13 @@ class RRouterDelegate extends RouterDelegate<Page<dynamic>>
 
   @override
   Future<bool> popRoute() {
-    if (_routerStack.length > 0) {
+    if (_routerStack.length > 1) {
       final finder = _routerStack.removeLast();
       (finder as CustomPage).completerResult.complete(null);
       _markNeedsUpdate();
       return SynchronousFuture(true);
     }
-    return SynchronousFuture(false);
+    return RRouter._popHome();
   }
 
   void pop<T extends Object?>([T? result]) {

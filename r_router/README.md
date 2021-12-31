@@ -142,7 +142,7 @@ RRouter.navigator
     Context ctx = context.readCtx;
 ```
 
-$$ 10.redirect
+## 10.redirect
 ```dart
 RRouter.addRoute(NavigatorRoute('/showDialog', (ctx) async {
         return null;
@@ -167,6 +167,13 @@ RRouter.addRoute(NavigatorRoute('/showDialog', (ctx) async {
 RRouter.addRoute(NavigatorRoute('/showDialog', (ctx) async {
         return Redirect(path: '/');
       }));
+```
+
+## 11. pop home event
+```dart
+RRouter.setPopHome(() {
+return Future.value(true);// if true will hold ,or false will pop home
+})
 ```
 
 ## License
