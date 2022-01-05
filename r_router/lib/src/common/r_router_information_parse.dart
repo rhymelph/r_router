@@ -44,6 +44,7 @@ class RRouterInformationParser extends RouteInformationParser<Page<dynamic>> {
 
   @override
   RouteInformation? restoreRouteInformation(Page<dynamic> configuration) {
+    if (configuration.name == null) return null;
     return RouteInformation(
         location: configuration.name, state: configuration.arguments);
   }

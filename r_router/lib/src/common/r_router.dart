@@ -59,8 +59,10 @@ class RRouterBasic {
   final RRouterRegister _register = RRouterRegister();
   final RRouterObserver _observer = RRouterObserver();
   final RRouterDelegate _delegate = RRouterDelegate();
-  final RRouterInformationParser _informationParser =
+
+  late final RRouterInformationParser _informationParser =
       RRouterInformationParser();
+
   PageTransitionsBuilder _defaultTransitionBuilder;
   final List<RouteInterceptor> _interceptor;
 
@@ -458,14 +460,14 @@ class RRouterBasic {
                   pageTransitionsBuilder: DialogTransactionBuilder(
                       useSafeArea, themes, buildMaterialDialogTransitions)),
           key: ValueKey(DateTime.now().millisecondsSinceEpoch),
-          name: '${routeSettings?.name}',
+          name: routeSettings?.name,
           opaque: false,
           barrierDismissible: barrierDismissible,
           barrierColor: barrierColor,
           barrierLabel: barrierLabel,
           fullscreenDialog: true,
           arguments: routeSettings?.arguments,
-          restorationId: '${routeSettings?.name}'));
+          restorationId: routeSettings?.name));
     } else {
       return navigator.push(DialogRoute<dynamic>(
         context: context,
@@ -496,7 +498,7 @@ class RRouterBasic {
                   pageTransitionsBuilder: DialogTransactionBuilder(
                       useSafeArea, null, buildCupertinoDialogTransitions)),
           key: ValueKey(DateTime.now().millisecondsSinceEpoch),
-          name: '${routeSettings?.name}',
+          name: routeSettings?.name,
           opaque: false,
           barrierDismissible: barrierDismissible,
           barrierLabel: barrierLabel,
@@ -504,7 +506,7 @@ class RRouterBasic {
           barrierColor: CupertinoDynamicColor.resolve(
               kCupertinoModalBarrierColor, context),
           arguments: routeSettings?.arguments,
-          restorationId: '${routeSettings?.name}'));
+          restorationId: routeSettings?.name));
     } else {
       return navigator.push(CupertinoDialogRoute(
         builder: builder,
@@ -534,7 +536,7 @@ class RRouterBasic {
             return CupertinoModalPopupRoute2(page: page);
           },
           key: ValueKey(DateTime.now().millisecondsSinceEpoch),
-          name: '${routeSettings?.name}',
+          name: routeSettings?.name,
           opaque: false,
           barrierDismissible: barrierDismissible,
           barrierLabel: 'Dismiss',
@@ -542,7 +544,7 @@ class RRouterBasic {
           filter: filter,
           barrierColor: kCupertinoModalBarrierColor,
           arguments: routeSettings?.arguments,
-          restorationId: '${routeSettings?.name}'));
+          restorationId: routeSettings?.name));
     } else {
       return navigator.push(
         CupertinoModalPopupRoute(
@@ -790,7 +792,7 @@ class RRouterBasic {
               ..transitionBuilder = transitionBuilder;
           },
           key: ValueKey(DateTime.now().millisecondsSinceEpoch),
-          name: '${routeSettings?.name}',
+          name: routeSettings?.name,
           opaque: false,
           barrierDismissible: barrierDismissible,
           barrierLabel: barrierLabel,
@@ -798,7 +800,7 @@ class RRouterBasic {
           barrierColor: barrierColor,
           arguments: routeSettings?.arguments,
           transitionDuration: transitionDuration,
-          restorationId: '${routeSettings?.name}'));
+          restorationId: routeSettings?.name));
     } else {
       return navigator.push(RawDialogRoute(
         pageBuilder: pageBuilder,
@@ -849,7 +851,7 @@ class RRouterBasic {
               ..transitionAnimationController = transitionAnimationController;
           },
           key: ValueKey(DateTime.now().millisecondsSinceEpoch),
-          name: '${routeSettings?.name}',
+          name: routeSettings?.name,
           opaque: false,
           barrierDismissible: isDismissible,
           fullscreenDialog: true,
@@ -857,7 +859,7 @@ class RRouterBasic {
               MaterialLocalizations.of(context).modalBarrierDismissLabel,
           barrierColor: barrierColor,
           arguments: routeSettings?.arguments,
-          restorationId: '${routeSettings?.name}'));
+          restorationId: routeSettings?.name));
     } else {
       return navigator.push(ModalBottomSheetRoute(
         builder: builder,
@@ -900,13 +902,13 @@ class RRouterBasic {
                 page: page, pageTransitionsBuilder: _defaultTransitionBuilder);
           },
           key: ValueKey(DateTime.now().millisecondsSinceEpoch),
-          name: 'null',
+          name: null,
           opaque: false,
           fullscreenDialog: true,
           barrierLabel:
               MaterialLocalizations.of(context).modalBarrierDismissLabel,
           arguments: null,
-          restorationId: 'null'));
+          restorationId: null));
     } else {
       navigator.push(MaterialPageRoute<void>(
         builder: (BuildContext context) => LicensePage(
@@ -959,13 +961,13 @@ class RRouterBasic {
                   InheritedTheme.capture(from: context, to: navigator.context);
           },
           key: ValueKey(DateTime.now().millisecondsSinceEpoch),
-          name: 'null',
+          name: null,
           opaque: false,
           fullscreenDialog: true,
           barrierLabel:
               MaterialLocalizations.of(context).modalBarrierDismissLabel,
           arguments: null,
-          restorationId: 'null'));
+          restorationId: null));
     } else {
       return navigator.push(PopupMenuRoute(
         position: position,
@@ -1023,13 +1025,13 @@ class RRouterBasic {
             return SearchPageRoute2(page: page)..delegate = delegate;
           },
           key: ValueKey(DateTime.now().millisecondsSinceEpoch),
-          name: 'null',
+          name: null,
           opaque: false,
           fullscreenDialog: true,
           barrierLabel:
               MaterialLocalizations.of(context).modalBarrierDismissLabel,
           arguments: null,
-          restorationId: 'null'));
+          restorationId: null));
     } else {
       return navigator.push(SearchPageRoute<T>(
         delegate: delegate,
