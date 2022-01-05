@@ -55,7 +55,7 @@ void initRouter() {
       .addRoute(NavigatorRoute('/showDialog', (ctx) async {
         return null;
       }, responseProcessor: (c, p) async {
-        await showRDialog(
+        await RRouter.showDialog(
             routeSettings: RouteSettings(name: c.path, arguments: c.body),
             builder: (context) => AlertDialog(
                   title: Text('title'),
@@ -74,7 +74,11 @@ void initRouter() {
           CustomPage<dynamic>(
               child: Builder(
                   builder: (BuildContext context) => builder.call(context)),
-              pageTransitionsBuilder: pageTransitionsBuilder,
+              buildCustomRoute:
+                  (BuildContext context, CustomPage<dynamic> page) =>
+                      PageBasedCustomPageRoute(
+                          page: page,
+                          pageTransitionsBuilder: pageTransitionsBuilder),
               key: ValueKey(ctx.at.microsecondsSinceEpoch),
               name: ctx.path,
               arguments: ctx.toJson(),

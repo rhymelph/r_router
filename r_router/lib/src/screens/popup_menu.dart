@@ -1,7 +1,12 @@
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-part of 'dialog_override.dart';
+
+import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' hide DatePickerDialog, TimePickerDialog;
+import 'package:flutter/rendering.dart';
 
 // Examples can assume:
 // enum Commands { heroAndScholar, hurricaneCame }
@@ -65,6 +70,103 @@ class _RenderMenuItem extends RenderShiftedBox {
   }
 }
 
+class _PopupMenu2<T> extends StatelessWidget {
+  const _PopupMenu2({
+    Key? key,
+    this.route,
+    this.semanticLabel,
+  }) : super(key: key);
+
+  final PopupMenuRouteMixin<T>? route;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final double unit = 1.0 /
+        (route!.items.length +
+            1.5); // 1.0 for the width and 0.5 for the last item's fade.
+    final List<Widget> children = <Widget>[];
+    final PopupMenuThemeData popupMenuTheme = PopupMenuTheme.of(context);
+
+    for (int i = 0; i < route!.items.length; i += 1) {
+      final double start = (i + 1) * unit;
+      final double end = (start + 1.5 * unit).clamp(0.0, 1.0);
+      final CurvedAnimation opacity = CurvedAnimation(
+        parent: route!.animation!,
+        curve: Interval(start, end),
+      );
+      Widget item = route!.items[i];
+      if (route!.initialValue != null &&
+          route!.items[i].represents(route!.initialValue)) {
+        item = Container(
+          color: Theme.of(context).highlightColor,
+          child: item,
+        );
+      }
+      children.add(
+        _MenuItem(
+          onLayout: (Size size) {
+            route!.itemSizes[i] = size;
+          },
+          child: FadeTransition(
+            opacity: opacity,
+            child: item,
+          ),
+        ),
+      );
+    }
+
+    final CurveTween opacity =
+        CurveTween(curve: const Interval(0.0, 1.0 / 3.0));
+    final CurveTween width = CurveTween(curve: Interval(0.0, unit));
+    final CurveTween height =
+        CurveTween(curve: Interval(0.0, unit * route!.items.length));
+
+    final Widget child = ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: _kMenuMinWidth,
+        maxWidth: _kMenuMaxWidth,
+      ),
+      child: IntrinsicWidth(
+        stepWidth: _kMenuWidthStep,
+        child: Semantics(
+          scopesRoute: true,
+          namesRoute: true,
+          explicitChildNodes: true,
+          label: semanticLabel,
+          child: SingleChildScrollView(
+            padding:
+                const EdgeInsets.symmetric(vertical: _kMenuVerticalPadding),
+            child: ListBody(children: children),
+          ),
+        ),
+      ),
+    );
+
+    return AnimatedBuilder(
+      animation: route!.animation!,
+      builder: (BuildContext context, Widget? child) {
+        return Opacity(
+          opacity: opacity.evaluate(route!.animation!),
+          child: Material(
+            shape: route!.shape ?? popupMenuTheme.shape,
+            color: route!.color ?? popupMenuTheme.color,
+            type: MaterialType.card,
+            elevation: route!.elevation ?? popupMenuTheme.elevation ?? 8.0,
+            child: Align(
+              alignment: AlignmentDirectional.topEnd,
+              widthFactor: width.evaluate(route!.animation!),
+              heightFactor: height.evaluate(route!.animation!),
+              child: child,
+            ),
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+}
+
 class _PopupMenu<T> extends StatelessWidget {
   const _PopupMenu({
     Key? key,
@@ -72,7 +174,7 @@ class _PopupMenu<T> extends StatelessWidget {
     this.semanticLabel,
   }) : super(key: key);
 
-  final _PopupMenuRoute<T>? route;
+  final PopupMenuRoute<T>? route;
   final String? semanticLabel;
 
   @override
@@ -260,8 +362,63 @@ class _PopupMenuRouteLayout extends SingleChildLayoutDelegate {
   }
 }
 
-class _PopupMenuRoute<T> extends PopupRoute<T> {
-  _PopupMenuRoute({
+mixin PopupMenuRouteMixin<T> on PageRoute<T> {
+  RelativeRect? position;
+  late List<PopupMenuEntry<T>> items;
+  late List<Size?> itemSizes = List<Size?>.filled(items.length, null);
+  T? initialValue;
+  double? elevation;
+  late CapturedThemes capturedThemes;
+  String? semanticLabel;
+  ShapeBorder? shape;
+  Color? color;
+
+  Widget buildContent(BuildContext context);
+
+  @override
+  Animation<double> createAnimation() {
+    return CurvedAnimation(
+      parent: super.createAnimation(),
+      curve: Curves.linear,
+      reverseCurve: const Interval(0.0, _kMenuCloseIntervalEnd),
+    );
+  }
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
+    int? selectedItemIndex;
+    if (initialValue != null) {
+      for (int index = 0;
+          selectedItemIndex == null && index < items.length;
+          index += 1) {
+        if (items[index].represents(initialValue)) selectedItemIndex = index;
+      }
+    }
+
+    final Widget menu =
+        _PopupMenu2<T>(route: this, semanticLabel: semanticLabel);
+
+    return SafeArea(
+      child: Builder(
+        builder: (BuildContext context) {
+          return CustomSingleChildLayout(
+            delegate: _PopupMenuRouteLayout(
+              position,
+              itemSizes,
+              selectedItemIndex,
+              Directionality.of(context),
+            ),
+            child: capturedThemes.wrap(menu),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class PopupMenuRoute<T> extends PopupRoute<T> {
+  PopupMenuRoute({
     this.position,
     required this.items,
     this.initialValue,

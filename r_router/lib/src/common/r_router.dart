@@ -1,17 +1,20 @@
 library r_router;
 
 import 'dart:async';
+import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchDelegate;
 import 'package:path_tree/path_tree.dart';
 import 'package:r_router/r_router.dart';
-import 'package:r_router/src/screens/error_page.dart';
+import 'package:r_router/src/screens/bottom_sheet.dart';
+import 'package:r_router/src/screens/popup_menu.dart';
+import 'package:r_router/src/screens/search.dart';
 import 'package:r_router/src/utils/string.dart';
 
 import 'web_config/path_strategy_io.dart'
     if (dart.library.html) 'web_config/path_strategy_web.dart';
-import '../screens/custom_page_route.dart';
 
 part 'context.dart';
 
@@ -42,7 +45,9 @@ PageBuilder _kDefaultCustomPageBuilder = (Context ctx, WidgetBuilder builder,
     CustomPage<dynamic>(
         child:
             Builder(builder: (BuildContext context) => builder.call(context)),
-        pageTransitionsBuilder: pageTransitionsBuilder,
+        buildCustomRoute: (BuildContext context, CustomPage<dynamic> page) =>
+            PageBasedCustomPageRoute(
+                page: page, pageTransitionsBuilder: pageTransitionsBuilder),
         key: ValueKey(ctx.at.microsecondsSinceEpoch),
         name: ctx.path,
         arguments: ctx.toJson(),
@@ -76,14 +81,14 @@ class RRouterBasic {
     return _informationParser;
   }
 
-  NavigatorState? get navigator {
+  NavigatorState get navigator {
     assert(_observer.navigator != null, 'please add the observer into app');
-    return _observer.navigator;
+    return _observer.navigator!;
   }
 
   BuildContext get context {
     assert(_observer.navigator != null, 'please add the observer into app');
-    return navigator!.context;
+    return navigator.context;
   }
 
   ErrorPage _errorPage;
@@ -104,7 +109,7 @@ class RRouterBasic {
       PageBuilder? pageBuilder,
       PopHome? popHome})
       : _errorPage = errorPage ?? DefaultErrorPage(),
-        _defaultTransitionBuilder = const FadeUpwardsPageTransitionsBuilder(),
+        _defaultTransitionBuilder = const ZoomPageTransitionsBuilder(),
         _interceptor = interceptor ?? <RouteInterceptor>[],
         _pageBuilder = pageBuilder ?? _kDefaultCustomPageBuilder,
         _popHome = popHome ?? _kDefaultPopHome;
@@ -312,14 +317,14 @@ class RRouterBasic {
       }
     } else {
       if (clearTrace == true) {
-        navigateResult = await navigator!.pushAndRemoveUntil<T>(
+        navigateResult = await navigator.pushAndRemoveUntil<T>(
             _routeNamed<T>(ctx, builder, _pageTransitions), (check) => false);
       } else {
         navigateResult = replace == true
-            ? await navigator!.pushReplacement<T?, TO>(
+            ? await navigator.pushReplacement<T?, TO>(
                 _routeNamed<T>(ctx, builder, _pageTransitions),
                 result: result)
-            : await navigator!
+            : await navigator
                 .push<T>(_routeNamed<T>(ctx, builder, _pageTransitions));
       }
     }
@@ -356,7 +361,7 @@ class RRouterBasic {
     if (isUseNavigator2 == true) {
       return _delegate.pop<T>(result);
     } else {
-      return navigator!.pop<T>(result);
+      return navigator.pop<T>(result);
     }
   }
 
@@ -372,7 +377,7 @@ class RRouterBasic {
     if (isUseNavigator2 == true) {
       return _delegate.canPop();
     } else {
-      return navigator!.canPop();
+      return navigator.canPop();
     }
   }
 
@@ -392,7 +397,7 @@ class RRouterBasic {
     if (isUseNavigator2 == true) {
       return _delegate.maybePop<T>(result);
     } else {
-      return navigator!.maybePop<T>(result);
+      return navigator.maybePop<T>(result);
     }
   }
 
@@ -426,6 +431,610 @@ class RRouterBasic {
     tree.addPathAsSegments(pathToSegments(registerPath), registerPath);
     String? result = tree.match(pathToSegments(path), 'GET');
     return result == registerPath;
+  }
+
+  Future<dynamic> showDialog({
+    required WidgetBuilder builder,
+    bool barrierDismissible = true,
+    Color? barrierColor = Colors.black54,
+    String? barrierLabel,
+    bool useSafeArea = true,
+    RouteSettings? routeSettings,
+  }) {
+    assert(debugCheckHasMaterialLocalizations(context));
+    final CapturedThemes themes = InheritedTheme.capture(
+      from: context,
+      to: Navigator.of(
+        context,
+        rootNavigator: false,
+      ).context,
+    );
+    if (isUseNavigator2 == true) {
+      return _delegate.push(CustomPage<dynamic>(
+          child: Builder(builder: builder),
+          buildCustomRoute: (BuildContext context, CustomPage<dynamic> page) =>
+              PageBasedCustomPageRoute(
+                  page: page,
+                  pageTransitionsBuilder: DialogTransactionBuilder(
+                      useSafeArea, themes, buildMaterialDialogTransitions)),
+          key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+          name: '${routeSettings?.name}',
+          opaque: false,
+          barrierDismissible: barrierDismissible,
+          barrierColor: barrierColor,
+          barrierLabel: barrierLabel,
+          fullscreenDialog: true,
+          arguments: routeSettings?.arguments,
+          restorationId: '${routeSettings?.name}'));
+    } else {
+      return navigator.push(DialogRoute<dynamic>(
+        context: context,
+        builder: builder,
+        barrierColor: barrierColor,
+        barrierDismissible: barrierDismissible,
+        barrierLabel: barrierLabel,
+        useSafeArea: useSafeArea,
+        settings: routeSettings,
+        themes: themes,
+      ));
+    }
+  }
+
+  Future<dynamic> showCupertinoDialog({
+    required WidgetBuilder builder,
+    String? barrierLabel,
+    bool barrierDismissible = false,
+    RouteSettings? routeSettings,
+    bool useSafeArea = true,
+  }) {
+    if (isUseNavigator2 == true) {
+      return _delegate.push(CustomPage<dynamic>(
+          child: Builder(builder: builder),
+          buildCustomRoute: (BuildContext context, CustomPage<dynamic> page) =>
+              PageBasedCustomPageRoute(
+                  page: page,
+                  pageTransitionsBuilder: DialogTransactionBuilder(
+                      useSafeArea, null, buildCupertinoDialogTransitions)),
+          key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+          name: '${routeSettings?.name}',
+          opaque: false,
+          barrierDismissible: barrierDismissible,
+          barrierLabel: barrierLabel,
+          fullscreenDialog: true,
+          barrierColor: CupertinoDynamicColor.resolve(
+              kCupertinoModalBarrierColor, context),
+          arguments: routeSettings?.arguments,
+          restorationId: '${routeSettings?.name}'));
+    } else {
+      return navigator.push(CupertinoDialogRoute(
+        builder: builder,
+        context: context,
+        barrierDismissible: barrierDismissible,
+        barrierLabel: barrierLabel,
+        barrierColor:
+            CupertinoDynamicColor.resolve(kCupertinoModalBarrierColor, context),
+        settings: routeSettings,
+      ));
+    }
+  }
+
+  Future<dynamic> showCupertinoModalPopup({
+    required WidgetBuilder builder,
+    ImageFilter? filter,
+    Color barrierColor = kCupertinoModalBarrierColor,
+    bool barrierDismissible = true,
+    bool useRootNavigator = true,
+    bool? semanticsDismissible,
+    RouteSettings? routeSettings,
+  }) {
+    if (isUseNavigator2 == true) {
+      return _delegate.push(CustomPage<dynamic>(
+          child: Builder(builder: builder),
+          buildCustomRoute: (BuildContext context, CustomPage<dynamic> page) {
+            return CupertinoModalPopupRoute2(page: page);
+          },
+          key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+          name: '${routeSettings?.name}',
+          opaque: false,
+          barrierDismissible: barrierDismissible,
+          barrierLabel: 'Dismiss',
+          fullscreenDialog: true,
+          filter: filter,
+          barrierColor: kCupertinoModalBarrierColor,
+          arguments: routeSettings?.arguments,
+          restorationId: '${routeSettings?.name}'));
+    } else {
+      return navigator.push(
+        CupertinoModalPopupRoute(
+          builder: builder,
+          filter: filter,
+          barrierColor: CupertinoDynamicColor.resolve(barrierColor, context),
+          barrierDismissible: barrierDismissible,
+          semanticsDismissible: semanticsDismissible,
+          settings: routeSettings,
+        ),
+      );
+    }
+  }
+
+  Future<DateTime?> showDatePicker({
+    required DateTime initialDate,
+    required DateTime firstDate,
+    required DateTime lastDate,
+    DateTime? currentDate,
+    DatePickerEntryMode initialEntryMode = DatePickerEntryMode.calendar,
+    SelectableDayPredicate? selectableDayPredicate,
+    String? helpText,
+    String? cancelText,
+    String? confirmText,
+    Locale? locale,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+    TextDirection? textDirection,
+    TransitionBuilder? builder,
+    DatePickerMode initialDatePickerMode = DatePickerMode.day,
+    String? errorFormatText,
+    String? errorInvalidText,
+    String? fieldHintText,
+    String? fieldLabelText,
+  }) async {
+    BuildContext context = RRouter.context;
+    assert(initialDate != null);
+    assert(firstDate != null);
+    assert(lastDate != null);
+    initialDate = DateUtils.dateOnly(initialDate);
+    firstDate = DateUtils.dateOnly(firstDate);
+    lastDate = DateUtils.dateOnly(lastDate);
+    assert(!lastDate.isBefore(firstDate),
+        'lastDate $lastDate must be on or after firstDate $firstDate.');
+    assert(!initialDate.isBefore(firstDate),
+        'initialDate $initialDate must be on or after firstDate $firstDate.');
+    assert(!initialDate.isAfter(lastDate),
+        'initialDate $initialDate must be on or before lastDate $lastDate.');
+    assert(
+        selectableDayPredicate == null || selectableDayPredicate(initialDate),
+        'Provided initialDate $initialDate must satisfy provided selectableDayPredicate.');
+    assert(initialEntryMode != null);
+    assert(useRootNavigator != null);
+    assert(initialDatePickerMode != null);
+    assert(debugCheckHasMaterialLocalizations(context));
+
+    Widget dialog = DatePickerDialog(
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      currentDate: currentDate,
+      initialEntryMode: initialEntryMode,
+      selectableDayPredicate: selectableDayPredicate,
+      helpText: helpText,
+      cancelText: cancelText,
+      confirmText: confirmText,
+      initialCalendarMode: initialDatePickerMode,
+      errorFormatText: errorFormatText,
+      errorInvalidText: errorInvalidText,
+      fieldHintText: fieldHintText,
+      fieldLabelText: fieldLabelText,
+    );
+
+    if (textDirection != null) {
+      dialog = Directionality(
+        textDirection: textDirection,
+        child: dialog,
+      );
+    }
+
+    if (locale != null) {
+      dialog = Localizations.override(
+        context: context,
+        locale: locale,
+        child: dialog,
+      );
+    }
+    return (await showDialog(
+      routeSettings: routeSettings,
+      builder: (BuildContext context) {
+        return builder == null ? dialog : builder(context, dialog);
+      },
+    )) as DateTime?;
+  }
+
+  Future<DateTimeRange?> showDateRangePicker({
+    DateTimeRange? initialDateRange,
+    required DateTime firstDate,
+    required DateTime lastDate,
+    DateTime? currentDate,
+    DatePickerEntryMode initialEntryMode = DatePickerEntryMode.calendar,
+    String? helpText,
+    String? cancelText,
+    String? confirmText,
+    String? saveText,
+    String? errorFormatText,
+    String? errorInvalidText,
+    String? errorInvalidRangeText,
+    String? fieldStartHintText,
+    String? fieldEndHintText,
+    String? fieldStartLabelText,
+    String? fieldEndLabelText,
+    Locale? locale,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+    TextDirection? textDirection,
+    TransitionBuilder? builder,
+  }) async {
+    BuildContext context = RRouter.context;
+    assert(
+        initialDateRange == null ||
+            (initialDateRange.start != null && initialDateRange.end != null),
+        'initialDateRange must be null or have non-null start and end dates.');
+    assert(
+        initialDateRange == null ||
+            !initialDateRange.start.isAfter(initialDateRange.end),
+        'initialDateRange\'s start date must not be after it\'s end date.');
+    initialDateRange =
+        initialDateRange == null ? null : DateUtils.datesOnly(initialDateRange);
+    assert(firstDate != null);
+    firstDate = DateUtils.dateOnly(firstDate);
+    assert(lastDate != null);
+    lastDate = DateUtils.dateOnly(lastDate);
+    assert(!lastDate.isBefore(firstDate),
+        'lastDate $lastDate must be on or after firstDate $firstDate.');
+    assert(
+        initialDateRange == null || !initialDateRange.start.isBefore(firstDate),
+        'initialDateRange\'s start date must be on or after firstDate $firstDate.');
+    assert(
+        initialDateRange == null || !initialDateRange.end.isBefore(firstDate),
+        'initialDateRange\'s end date must be on or after firstDate $firstDate.');
+    assert(
+        initialDateRange == null || !initialDateRange.start.isAfter(lastDate),
+        'initialDateRange\'s start date must be on or before lastDate $lastDate.');
+    assert(initialDateRange == null || !initialDateRange.end.isAfter(lastDate),
+        'initialDateRange\'s end date must be on or before lastDate $lastDate.');
+    currentDate = DateUtils.dateOnly(currentDate ?? DateTime.now());
+    assert(initialEntryMode != null);
+    assert(useRootNavigator != null);
+    assert(debugCheckHasMaterialLocalizations(context));
+
+    Widget dialog = DateRangePickerDialog(
+      initialDateRange: initialDateRange,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      currentDate: currentDate,
+      initialEntryMode: initialEntryMode,
+      helpText: helpText,
+      cancelText: cancelText,
+      confirmText: confirmText,
+      saveText: saveText,
+      errorFormatText: errorFormatText,
+      errorInvalidText: errorInvalidText,
+      errorInvalidRangeText: errorInvalidRangeText,
+      fieldStartHintText: fieldStartHintText,
+      fieldEndHintText: fieldEndHintText,
+      fieldStartLabelText: fieldStartLabelText,
+      fieldEndLabelText: fieldEndLabelText,
+    );
+
+    if (textDirection != null) {
+      dialog = Directionality(
+        textDirection: textDirection,
+        child: dialog,
+      );
+    }
+
+    if (locale != null) {
+      dialog = Localizations.override(
+        context: context,
+        locale: locale,
+        child: dialog,
+      );
+    }
+    return (await showDialog(
+      routeSettings: routeSettings,
+      useSafeArea: false,
+      builder: (BuildContext context) {
+        return builder == null ? dialog : builder(context, dialog);
+      },
+    )) as DateTimeRange?;
+  }
+
+  Future<TimeOfDay?> showTimePicker({
+    required TimeOfDay initialTime,
+    TransitionBuilder? builder,
+    bool useRootNavigator = true,
+    TimePickerEntryMode initialEntryMode = TimePickerEntryMode.dial,
+    String? cancelText,
+    String? confirmText,
+    String? helpText,
+    RouteSettings? routeSettings,
+  }) async {
+    BuildContext context = RRouter.context;
+    assert(initialTime != null);
+    assert(useRootNavigator != null);
+    assert(initialEntryMode != null);
+    assert(debugCheckHasMaterialLocalizations(context));
+
+    final Widget dialog = TimePickerDialog(
+      initialTime: initialTime,
+      initialEntryMode: initialEntryMode,
+      cancelText: cancelText,
+      confirmText: confirmText,
+      helpText: helpText,
+    );
+
+    return (await showDialog(
+      builder: (BuildContext context) {
+        return builder == null ? dialog : builder(context, dialog);
+      },
+      routeSettings: routeSettings,
+    )) as TimeOfDay?;
+  }
+
+  Future<dynamic> showGeneralDialog({
+    required RoutePageBuilder pageBuilder,
+    bool barrierDismissible = false,
+    String? barrierLabel,
+    Color barrierColor = const Color(0x80000000),
+    Duration transitionDuration = const Duration(milliseconds: 200),
+    RouteTransitionsBuilder? transitionBuilder,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+  }) {
+    assert(pageBuilder != null);
+    assert(useRootNavigator != null);
+    assert(!barrierDismissible || barrierLabel != null);
+    if (isUseNavigator2 == true) {
+      return _delegate.push(CustomPage<dynamic>(
+          child: Container(),
+          buildCustomRoute: (BuildContext context, CustomPage<dynamic> page) {
+            return RawDialogRoute2(page: page)
+              ..pageBuilder = pageBuilder
+              ..transitionBuilder = transitionBuilder;
+          },
+          key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+          name: '${routeSettings?.name}',
+          opaque: false,
+          barrierDismissible: barrierDismissible,
+          barrierLabel: barrierLabel,
+          fullscreenDialog: true,
+          barrierColor: barrierColor,
+          arguments: routeSettings?.arguments,
+          transitionDuration: transitionDuration,
+          restorationId: '${routeSettings?.name}'));
+    } else {
+      return navigator.push(RawDialogRoute(
+        pageBuilder: pageBuilder,
+        barrierDismissible: barrierDismissible,
+        barrierLabel: barrierLabel,
+        barrierColor: barrierColor,
+        transitionDuration: transitionDuration,
+        transitionBuilder: transitionBuilder,
+        settings: routeSettings,
+      ));
+    }
+  }
+
+  Future<dynamic> showModalBottomSheet({
+    required WidgetBuilder builder,
+    Color? backgroundColor,
+    double? elevation,
+    ShapeBorder? shape,
+    Clip? clipBehavior,
+    Color? barrierColor = Colors.black54,
+    bool isScrollControlled = false,
+    bool useRootNavigator = false,
+    bool isDismissible = true,
+    bool enableDrag = true,
+    RouteSettings? routeSettings,
+    AnimationController? transitionAnimationController,
+  }) {
+    assert(builder != null);
+    assert(isScrollControlled != null);
+    assert(useRootNavigator != null);
+    assert(isDismissible != null);
+    assert(enableDrag != null);
+    assert(debugCheckHasMediaQuery(context));
+    assert(debugCheckHasMaterialLocalizations(context));
+    if (isUseNavigator2 == true) {
+      return _delegate.push(CustomPage<dynamic>(
+          child: Builder(builder: builder),
+          buildCustomRoute: (BuildContext context, CustomPage<dynamic> page) {
+            return ModalBottomSheetRoute2(page: page)
+              ..capturedThemes =
+                  InheritedTheme.capture(from: context, to: navigator.context)
+              ..isScrollControlled = isScrollControlled
+              ..backgroundColor = backgroundColor
+              ..elevation = elevation
+              ..shape = shape
+              ..clipBehavior = clipBehavior
+              ..enableDrag = enableDrag
+              ..transitionAnimationController = transitionAnimationController;
+          },
+          key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+          name: '${routeSettings?.name}',
+          opaque: false,
+          barrierDismissible: isDismissible,
+          fullscreenDialog: true,
+          barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          barrierColor: barrierColor,
+          arguments: routeSettings?.arguments,
+          restorationId: '${routeSettings?.name}'));
+    } else {
+      return navigator.push(ModalBottomSheetRoute(
+        builder: builder,
+        capturedThemes:
+            InheritedTheme.capture(from: context, to: navigator.context),
+        isScrollControlled: isScrollControlled,
+        barrierLabel:
+            MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        backgroundColor: backgroundColor,
+        elevation: elevation,
+        shape: shape,
+        clipBehavior: clipBehavior,
+        isDismissible: isDismissible,
+        modalBarrierColor: barrierColor,
+        enableDrag: enableDrag,
+        settings: routeSettings,
+        transitionAnimationController: transitionAnimationController,
+      ));
+    }
+  }
+
+  void showLicensePage({
+    String? applicationName,
+    String? applicationVersion,
+    Widget? applicationIcon,
+    String? applicationLegalese,
+    bool useRootNavigator = false,
+  }) {
+    if (isUseNavigator2 == true) {
+      _delegate.push(CustomPage<dynamic>(
+          child: Builder(
+              builder: (BuildContext context) => LicensePage(
+                    applicationName: applicationName,
+                    applicationVersion: applicationVersion,
+                    applicationIcon: applicationIcon,
+                    applicationLegalese: applicationLegalese,
+                  )),
+          buildCustomRoute: (BuildContext context, CustomPage<dynamic> page) {
+            return PageBasedCustomPageRoute(
+                page: page, pageTransitionsBuilder: _defaultTransitionBuilder);
+          },
+          key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+          name: 'null',
+          opaque: false,
+          fullscreenDialog: true,
+          barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          arguments: null,
+          restorationId: 'null'));
+    } else {
+      navigator.push(MaterialPageRoute<void>(
+        builder: (BuildContext context) => LicensePage(
+          applicationName: applicationName,
+          applicationVersion: applicationVersion,
+          applicationIcon: applicationIcon,
+          applicationLegalese: applicationLegalese,
+        ),
+      ));
+    }
+  }
+
+  Future<dynamic> showMenu<T>({
+    required RelativeRect position,
+    required List<PopupMenuEntry<T>> items,
+    T? initialValue,
+    double? elevation,
+    String? semanticLabel,
+    ShapeBorder? shape,
+    Color? color,
+    bool useRootNavigator = false,
+  }) {
+    BuildContext context = RRouter.context;
+    assert(items.isNotEmpty);
+    assert(debugCheckHasMaterialLocalizations(context));
+
+    switch (Theme.of(context).platform) {
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+        break;
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+        semanticLabel ??= MaterialLocalizations.of(context).popupMenuLabel;
+    }
+    if (isUseNavigator2 == true) {
+      return _delegate.push(CustomPage<dynamic>(
+          child: Container(),
+          buildCustomRoute: (BuildContext context, CustomPage<dynamic> page) {
+            return PopupMenuRoute2(page: page)
+              ..capturedThemes =
+                  InheritedTheme.capture(from: context, to: navigator.context)
+              ..position = position
+              ..items = items
+              ..elevation = elevation
+              ..shape = shape
+              ..semanticLabel = semanticLabel
+              ..capturedThemes =
+                  InheritedTheme.capture(from: context, to: navigator.context);
+          },
+          key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+          name: 'null',
+          opaque: false,
+          fullscreenDialog: true,
+          barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          arguments: null,
+          restorationId: 'null'));
+    } else {
+      return navigator.push(PopupMenuRoute(
+        position: position,
+        items: items,
+        initialValue: initialValue,
+        elevation: elevation,
+        semanticLabel: semanticLabel,
+        barrierLabel:
+            MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        shape: shape,
+        color: color,
+        capturedThemes:
+            InheritedTheme.capture(from: context, to: navigator.context),
+      ));
+    }
+  }
+
+  void showAboutDialog({
+    String? applicationName,
+    String? applicationVersion,
+    Widget? applicationIcon,
+    String? applicationLegalese,
+    List<Widget>? children,
+    bool useRootNavigator = true,
+    RouteSettings? routeSettings,
+  }) {
+    showDialog(
+      builder: (BuildContext context) {
+        return AboutDialog(
+          applicationName: applicationName,
+          applicationVersion: applicationVersion,
+          applicationIcon: applicationIcon,
+          applicationLegalese: applicationLegalese,
+          children: children,
+        );
+      },
+      routeSettings: routeSettings,
+    );
+  }
+
+  Future<dynamic> showSearch<T>({
+    required SearchDelegate<T> delegate,
+    String? query = '',
+    bool useRootNavigator = false,
+  }) {
+    assert(delegate != null);
+    assert(context != null);
+    assert(useRootNavigator != null);
+    delegate.query = query ?? delegate.query;
+    delegate.currentBody = SearchBody.suggestions;
+    if (isUseNavigator2 == true) {
+      return _delegate.push(CustomPage<dynamic>(
+          child: Container(),
+          buildCustomRoute: (BuildContext context, CustomPage<dynamic> page) {
+            return SearchPageRoute2(page: page)..delegate = delegate;
+          },
+          key: ValueKey(DateTime.now().millisecondsSinceEpoch),
+          name: 'null',
+          opaque: false,
+          fullscreenDialog: true,
+          barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          arguments: null,
+          restorationId: 'null'));
+    } else {
+      return navigator.push(SearchPageRoute<T>(
+        delegate: delegate,
+      ));
+    }
   }
 }
 

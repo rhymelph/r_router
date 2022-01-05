@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchDelegate;
 import 'package:r_router/r_router.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -15,7 +15,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void onNavigateToOne() async {
     final result = await RRouter.navigateTo('/one');
     if (result != null) {
-      showRDialog(
+      RRouter.showDialog(
           builder: (BuildContext context) => AlertDialog(
                 title: Text('返回值'),
                 content: Text('我的返回值:$result'),
@@ -53,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onShowDialog() {
-    showRDialog(
+    RRouter.showDialog(
         builder: (BuildContext context) => AlertDialog(
               title: Text('标题'),
               content: Text('内容'),
@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onShowCupertinoDialog() {
-    showRCupertinoDialog(
+    RRouter.showCupertinoDialog(
         builder: (BuildContext context) => CupertinoAlertDialog(
               title: Text('标题'),
               content: Text('内容'),
@@ -85,27 +85,32 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onShowDatePickerDialog() {
-    showRDatePicker(
-        initialDate: DateTime.now(),
-        firstDate: DateTime(1990, 1, 1),
-        lastDate: DateTime(2050, 12, 31));
+    RRouter.showDatePicker(
+            initialDate: DateTime.now(),
+            firstDate: DateTime(1990, 1, 1),
+            lastDate: DateTime(2050, 12, 31))
+        .then((value) {
+      print(value);
+    });
   }
 
   void onShowDateTimeDialog() {
-    showRTimePicker(
+    RRouter.showTimePicker(
       initialTime: TimeOfDay.now(),
-    );
+    ).then((value) {
+      print(value);
+    });
   }
 
   void onShowDateTimeRangeDialog() {
-    showRDateRangePicker(
+    RRouter.showDateRangePicker(
         firstDate: DateTime(1990, 1, 1),
         lastDate: DateTime(2050, 12, 31),
         initialEntryMode: DatePickerEntryMode.calendarOnly);
   }
 
   void onShowBottomDialog() {
-    showRModalBottomSheet(
+    RRouter.showModalBottomSheet(
         builder: (BuildContext context) => Center(
               child: ElevatedButton(
                 child: Text('按钮A'),
@@ -117,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onShowCupertinoBottomDialog() {
-    showRCupertinoModalPopup(
+    RRouter.showCupertinoModalPopup(
         builder: (BuildContext context) => CupertinoActionSheet(
               title: Text('标题'),
               message: Text('内容'),
@@ -137,11 +142,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onShowLicensePage() {
-    showRLicensePage();
+    RRouter.showLicensePage();
   }
 
   void onShowAboutPage() {
-    showRAboutDialog();
+    RRouter.showAboutDialog();
   }
 
   void onUsePrint() async {
@@ -167,7 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       Offset.zero & overlay.size,
     );
-    showRMenu(position: position, items: <PopupMenuEntry>[
+    RRouter.showMenu(position: position, items: <PopupMenuEntry>[
       PopupMenuItem(
         child: Text('Item 1'),
       ),
@@ -184,6 +189,10 @@ class _MyHomePageState extends State<MyHomePage> {
         checked: true,
       ),
     ]);
+  }
+
+  void onShowSearchDialog() {
+    RRouter.showSearch(delegate: MySearchDelegate());
   }
 
   GlobalKey _menuKey = GlobalKey();
@@ -223,8 +232,37 @@ class _MyHomePageState extends State<MyHomePage> {
               key: _menuKey, onPressed: onShowMenu, child: Text('弹出菜单')),
           ElevatedButton(onPressed: onUsePrint, child: Text('调用打印')),
           ElevatedButton(onPressed: onShowNavigatorDialog, child: Text('弹窗路由')),
+          ElevatedButton(onPressed: onShowSearchDialog, child: Text('弹出搜索框')),
         ],
       ),
+    );
+  }
+}
+
+class MySearchDelegate extends SearchDelegate {
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(onPressed: () {}, icon: Icon(Icons.clear)),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return BackButton();
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return Container(
+      child: Text('result'),
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return Container(
+      child: Text('suggestions'),
     );
   }
 }

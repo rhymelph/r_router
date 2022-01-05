@@ -34,7 +34,7 @@ class RRouterInformationParser extends RouteInformationParser<Page<dynamic>> {
       }
       _pageTransitions = handler.defaultPageTransaction;
     }
-    _pageTransitions ??= const OpenUpwardsPageTransitionsBuilder();
+    _pageTransitions ??= RRouter._defaultTransitionBuilder;
 
     builder ??=
         (BuildContext context) => RRouter._errorPage.notFoundPage(context, ctx);

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of 'dialog_override.dart';
+import 'package:flutter/material.dart';
 
 const Duration _bottomSheetEnterDuration = Duration(milliseconds: 250);
 const Duration _bottomSheetExitDuration = Duration(milliseconds: 200);
@@ -40,8 +40,71 @@ class _ModalBottomSheetLayout extends SingleChildLayoutDelegate {
   }
 }
 
-class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
-  _ModalBottomSheetRoute({
+mixin ModalBottomSheetRouteMixin<T> on PageRoute<T> {
+  AnimationController? _animationController;
+
+  Color? backgroundColor;
+
+  double? elevation;
+
+  ShapeBorder? shape;
+
+  Clip? clipBehavior;
+
+  bool isScrollControlled = false;
+
+  bool enableDrag = true;
+
+  late CapturedThemes capturedThemes;
+
+  AnimationController? transitionAnimationController;
+
+  Widget buildContent(BuildContext context);
+
+  @override
+  AnimationController createAnimationController() {
+    assert(_animationController == null);
+    _animationController = transitionAnimationController ??
+        BottomSheet.createAnimationController(navigator!.overlay!);
+    return _animationController!;
+  }
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
+    // By definition, the bottom sheet is aligned to the bottom of the page
+    // and isn't exposed to the top padding of the MediaQuery.
+    final Widget bottomSheet = MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: Builder(
+        builder: (BuildContext context) {
+          final BottomSheetThemeData sheetTheme =
+              Theme.of(context).bottomSheetTheme;
+          return ModalBottomSheet<T>(
+            backgroundColor: backgroundColor ??
+                sheetTheme.modalBackgroundColor ??
+                sheetTheme.backgroundColor,
+            elevation:
+                elevation ?? sheetTheme.modalElevation ?? sheetTheme.elevation,
+            shape: shape,
+            clipBehavior: clipBehavior,
+            isScrollControlled: isScrollControlled,
+            enableDrag: enableDrag,
+            animation: animation,
+            isCurrent: isCurrent,
+            builder: buildContent,
+            animationController: _animationController,
+          );
+        },
+      ),
+    );
+    return capturedThemes.wrap(bottomSheet);
+  }
+}
+
+class ModalBottomSheetRoute<T> extends PopupRoute<T> {
+  ModalBottomSheetRoute({
     this.builder,
     required this.capturedThemes,
     this.barrierLabel,
@@ -106,8 +169,7 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
         builder: (BuildContext context) {
           final BottomSheetThemeData sheetTheme =
               Theme.of(context).bottomSheetTheme;
-          return _ModalBottomSheet<T>(
-            route: this,
+          return ModalBottomSheet<T>(
             backgroundColor: backgroundColor ??
                 sheetTheme.modalBackgroundColor ??
                 sheetTheme.backgroundColor,
@@ -117,6 +179,10 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
             clipBehavior: clipBehavior,
             isScrollControlled: isScrollControlled,
             enableDrag: enableDrag,
+            animation: animation,
+            isCurrent: isCurrent,
+            builder: builder,
+            animationController: _animationController,
           );
         },
       ),
@@ -125,19 +191,24 @@ class _ModalBottomSheetRoute<T> extends PopupRoute<T> {
   }
 }
 
-class _ModalBottomSheet<T> extends StatefulWidget {
-  const _ModalBottomSheet({
+class ModalBottomSheet<T> extends StatefulWidget {
+  const ModalBottomSheet({
     Key? key,
-    this.route,
     this.backgroundColor,
     this.elevation,
     this.shape,
     this.clipBehavior,
     this.isScrollControlled = false,
     this.enableDrag = true,
+    this.animation,
+    this.isCurrent = false,
+    this.builder,
+    this.animationController,
   }) : super(key: key);
-
-  final _ModalBottomSheetRoute<T>? route;
+  final AnimationController? animationController;
+  final Animation<double>? animation;
+  final WidgetBuilder? builder;
+  final bool isCurrent;
   final bool isScrollControlled;
   final Color? backgroundColor;
   final double? elevation;
@@ -149,7 +220,7 @@ class _ModalBottomSheet<T> extends StatefulWidget {
   _ModalBottomSheetState<T> createState() => _ModalBottomSheetState<T>();
 }
 
-class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
+class _ModalBottomSheetState<T> extends State<ModalBottomSheet<T>> {
   String? _getRouteLabel(MaterialLocalizations localizations) {
     switch (Theme.of(context).platform) {
       case TargetPlatform.iOS:
@@ -173,13 +244,12 @@ class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
     final String? routeLabel = _getRouteLabel(localizations);
 
     return AnimatedBuilder(
-      animation: widget.route!.animation!,
+      animation: widget.animation!,
       builder: (BuildContext context, Widget? child) {
         // Disable the initial animation when accessible navigation is on so
         // that the semantics are added to the tree at the correct time.
-        final double animationValue = mediaQuery.accessibleNavigation
-            ? 1.0
-            : widget.route!.animation!.value;
+        final double animationValue =
+            mediaQuery.accessibleNavigation ? 1.0 : widget.animation!.value;
         return Semantics(
           scopesRoute: true,
           namesRoute: true,
@@ -190,13 +260,13 @@ class _ModalBottomSheetState<T> extends State<_ModalBottomSheet<T>> {
               delegate: _ModalBottomSheetLayout(
                   animationValue, widget.isScrollControlled),
               child: BottomSheet(
-                animationController: widget.route!._animationController,
+                animationController: widget.animationController,
                 onClosing: () {
-                  if (widget.route!.isCurrent) {
+                  if (widget.isCurrent) {
                     Navigator.pop(context);
                   }
                 },
-                builder: widget.route!.builder!,
+                builder: widget.builder!,
                 backgroundColor: widget.backgroundColor,
                 elevation: widget.elevation,
                 shape: widget.shape,

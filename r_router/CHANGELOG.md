@@ -1,3 +1,5 @@
+## [1.1.0] - fixed select widget mode and select one,the dialog will pop.fixed first page have transaction animation.
+
 ## [1.0.7] - add [popHome] method,fixed pop only one page will black screen.
 
 ## [1.0.6] - adapter flutter 2.8 version.
