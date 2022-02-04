@@ -19,7 +19,7 @@ class RRouterInformationParser extends RouteInformationParser<Page<dynamic>> {
       ctx = Context(
         path,
         body: body,
-        isDirectly: kIsWeb ? false : true,
+        isDirectly: true,
       );
     }
     WidgetBuilder? builder;
