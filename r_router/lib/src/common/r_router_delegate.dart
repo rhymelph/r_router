@@ -52,6 +52,12 @@ class RRouterDelegate extends RouterDelegate<Page<dynamic>>
       if (configuration.name == lastRouter.name) {
         return SynchronousFuture(null);
       }
+      if (configuration is CustomPage) {
+        final newParams = configuration.arguments as Map;
+        if (lastRouter.name == null && newParams['isDirectly']) {
+          return SynchronousFuture(null);
+        }
+      }
     }
     _routerStack.clear();
     _routerStack.add(configuration);

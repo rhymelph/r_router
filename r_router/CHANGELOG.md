@@ -1,3 +1,5 @@
+## [1.1.2] - fix check dialog ui will pop , Flutter 2.10.0 version.
+
 ## [1.1.1] - fix dialog will add in router information error.
 
 ## [1.1.0] - fixed select widget mode and select one,the dialog will pop.fixed first page have transaction animation.
