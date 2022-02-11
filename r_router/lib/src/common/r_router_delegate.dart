@@ -133,5 +133,5 @@ class RRouterDelegate extends RouterDelegate<Page<dynamic>>
     return SynchronousFuture(false);
   }
 
-  bool canPop() => _routerStack.length > 0;
+  bool canPop() => _routerStack.length > 1;
 }
