@@ -23,6 +23,15 @@ class RRouterDelegate extends RouterDelegate<Page<dynamic>>
   }
 
   bool _isDisposed = false;
+  GlobalKey<NavigatorState> _navigatorKey = GlobalKey();
+
+  BuildContext? get overlayContext {
+    BuildContext? overlay;
+    _navigatorKey.currentState?.overlay?.context.visitChildElements((element) {
+      overlay = element;
+    });
+    return overlay;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +39,7 @@ class RRouterDelegate extends RouterDelegate<Page<dynamic>>
     if (_routerStack.isEmpty) return Container();
 
     return Navigator(
+      key: _navigatorKey,
       pages: List.from(_routerStack),
       onPopPage: _onPopPage,
       observers: [

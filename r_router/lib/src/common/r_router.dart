@@ -66,6 +66,8 @@ class RRouterBasic {
   PageTransitionsBuilder _defaultTransitionBuilder;
   final List<RouteInterceptor> _interceptor;
 
+  BuildContext? get overlayContext => _delegate.overlayContext;
+
   NavigatorObserver get observer {
     isUseNavigator2 = false;
     addComplete();
@@ -431,7 +433,8 @@ class RRouterBasic {
   bool isMatchPath(String registerPath, String path) {
     PathTree<String> tree = PathTree<String>();
     tree.addPathAsSegments(pathToSegments(registerPath), registerPath);
-    String? result = tree.match(pathToSegments(path), 'GET');
+    Uri uri = Uri.parse(path);
+    String? result = tree.match(uri.pathSegments, 'GET');
     return result == registerPath;
   }
 

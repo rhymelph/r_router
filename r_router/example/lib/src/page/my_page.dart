@@ -233,6 +233,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ElevatedButton(onPressed: onUsePrint, child: Text('调用打印')),
           ElevatedButton(onPressed: onShowNavigatorDialog, child: Text('弹窗路由')),
           ElevatedButton(onPressed: onShowSearchDialog, child: Text('弹出搜索框')),
+          ElevatedButton(onPressed: onShowOverlay, child: Text('Overlay')),
         ],
       ),
     );
@@ -248,6 +249,28 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     super.dispose();
     print('dispose');
+  }
+
+  OverlayEntry _entry;
+
+  void onShowOverlay() {
+    Overlay.of(RRouter.overlayContext).insert(_entry = OverlayEntry(
+        builder: (BuildContext context) => Center(
+              child: Material(
+                child: Container(
+                  color: Colors.blue,
+                  width: 100,
+                  height: 100,
+                  alignment: Alignment.center,
+                  child: IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      _entry?.remove();
+                    },
+                  ),
+                ),
+              ),
+            )));
   }
 }
 
