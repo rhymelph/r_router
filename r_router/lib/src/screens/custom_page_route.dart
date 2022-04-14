@@ -3,10 +3,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:r_router/r_router.dart';
-import 'package:r_router/src/screens/popup_menu.dart';
-import 'package:r_router/src/screens/search.dart';
-
-import 'bottom_sheet.dart';
 
 /// navigate1.0
 class CustomPageRoute<T extends Object?> extends PageRoute<T> {
@@ -291,8 +287,15 @@ mixin RawDialogRouteMixin<T> on PageRoute<T> {
   }
 }
 
-class ModalBottomSheetRoute2 = CustomPageRoute2 with ModalBottomSheetRouteMixin;
+class ModalBottomSheetRoute2 extends CustomPageRoute2
+    with ModalBottomSheetRouteMixin {
+  ModalBottomSheetRoute2({required CustomPage page}) : super(page: page);
+}
 
-class PopupMenuRoute2 = CustomPageRoute2 with PopupMenuRouteMixin;
+class PopupMenuRoute2 extends CustomPageRoute2 with PopupMenuRouteMixin {
+  PopupMenuRoute2({required CustomPage page}) : super(page: page);
+}
 
-class SearchPageRoute2 = CustomPageRoute2 with SearchPageRouteMixin;
+class SearchPageRoute2 extends CustomPageRoute2 with SearchPageRouteMixin {
+  SearchPageRoute2({required CustomPage page}) : super(page: page);
+}

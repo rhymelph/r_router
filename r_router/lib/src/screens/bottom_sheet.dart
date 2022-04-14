@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:r_router/r_router.dart';
 
 const Duration _bottomSheetEnterDuration = Duration(milliseconds: 250);
 const Duration _bottomSheetExitDuration = Duration(milliseconds: 200);
@@ -153,7 +154,7 @@ class ModalBottomSheetRoute<T> extends PopupRoute<T> {
   AnimationController createAnimationController() {
     assert(_animationController == null);
     _animationController = transitionAnimationController ??
-        BottomSheet.createAnimationController(navigator!.overlay!);
+        BottomSheet.createAnimationController(RRouter.navigator.overlay!);
     return _animationController!;
   }
 

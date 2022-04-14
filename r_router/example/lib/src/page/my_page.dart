@@ -111,12 +111,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void onShowBottomDialog() {
     RRouter.showModalBottomSheet(
-        builder: (BuildContext context) => Center(
-              child: ElevatedButton(
-                child: Text('按钮A'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+        builder: (BuildContext context) => SizedBox(
+              height: 100,
+              child: Center(
+                child: ElevatedButton(
+                  child: Text('按钮A'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
               ),
             ));
   }

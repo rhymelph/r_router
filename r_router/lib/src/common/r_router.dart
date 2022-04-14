@@ -1,6 +1,7 @@
 library r_router;
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -8,8 +9,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide SearchDelegate;
 import 'package:path_tree/path_tree.dart';
 import 'package:r_router/r_router.dart';
-import 'package:r_router/src/screens/bottom_sheet.dart';
-import 'package:r_router/src/screens/popup_menu.dart';
 import 'package:r_router/src/screens/search.dart';
 import 'package:r_router/src/utils/string.dart';
 
@@ -113,10 +112,25 @@ class RRouterBasic {
       PageBuilder? pageBuilder,
       PopHome? popHome})
       : _errorPage = errorPage ?? DefaultErrorPage(),
-        _defaultTransitionBuilder = const ZoomPageTransitionsBuilder(),
+        _defaultTransitionBuilder = _defaultTransitionsBuilder(),
         _interceptor = interceptor ?? <RouteInterceptor>[],
         _pageBuilder = pageBuilder ?? _kDefaultCustomPageBuilder,
         _popHome = popHome ?? _kDefaultPopHome;
+
+  static PageTransitionsBuilder _defaultTransitionsBuilder() {
+    if (kIsWeb) return NoTransitionBuilder();
+    switch (Platform.operatingSystem) {
+      case 'android':
+      case 'fuchsia':
+      case 'windows':
+        return OpenUpwardsPageTransitionsBuilder();
+      case 'ios':
+      case 'macos':
+      case 'linux':
+        return CupertinoPageTransitionsBuilder();
+    }
+    return const OpenUpwardsPageTransitionsBuilder();
+  }
 
   /// Debug Mode
   ///

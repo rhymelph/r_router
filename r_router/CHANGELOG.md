@@ -1,3 +1,5 @@
+## [1.1.4] - fix show bottom sheet error from web , adapter default transitions builder.
+
 ## [1.1.3] - fixed Toggle select widget mode will rebuild, add overlayContext.
 
 ## [1.1.2+1] - fixed [RRouter.canPop].
