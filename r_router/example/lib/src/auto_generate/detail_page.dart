@@ -19,7 +19,8 @@ FutureOr<bool> onInterceptor(Context ctx) {
     processor: onProcessor,
     interceptors: [onInterceptor])
 class DetailPage extends StatelessWidget {
-  const DetailPage({Key key, this.id, this.content, this.personal}) : super(key: key);
+  const DetailPage({Key key, this.id, this.content, this.personal})
+      : super(key: key);
 
   @RRouterPathMeta(name: "id")
   final int id;

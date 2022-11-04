@@ -3,8 +3,8 @@ part of 'r_router.dart';
 typedef RouteInterceptor = FutureOr<bool> Function(Context ctx);
 
 /// Function that modifies [context]
-typedef ResponseProcessor = FutureOr<dynamic> Function(Context context, dynamic result);
-
+typedef ResponseProcessor = FutureOr<dynamic> Function(
+    Context context, dynamic result);
 
 typedef RouteHandler = FutureOr<dynamic> Function(Context context);
 

@@ -9,7 +9,7 @@ FutureOr<bool> onInterceptor(Context ctx) {
   return false;
 }
 
-class User{
+class User {
   int id;
 }
 
@@ -31,14 +31,20 @@ class HomePage extends StatelessWidget {
   @RRouterQueryMeta()
   final DateTime now;
 
-
   @RRouterQueryMeta()
   final List<String> personalList;
 
   @RRouterBodyMeta()
   final User user;
 
-  const HomePage({Key key, this.name, this.age, this.userName, this.now, this.personalList, this.user})
+  const HomePage(
+      {Key key,
+      this.name,
+      this.age,
+      this.userName,
+      this.now,
+      this.personalList,
+      this.user})
       : super(key: key);
 
   @override

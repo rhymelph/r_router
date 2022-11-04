@@ -1,7 +1,1 @@
-
-
-
-class Personal{
-  
-  
-}
+class Personal {}

@@ -467,7 +467,9 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
               hintStyle: theme.inputDecorationTheme.hintStyle,
             ),
           ),
-          actions: widget.delegate!.buildActions(context), toolbarTextStyle: theme.primaryTextTheme.bodyText2, titleTextStyle: theme.primaryTextTheme.headline6,
+          actions: widget.delegate!.buildActions(context),
+          toolbarTextStyle: theme.primaryTextTheme.bodyText2,
+          titleTextStyle: theme.primaryTextTheme.headline6,
         ),
         body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
