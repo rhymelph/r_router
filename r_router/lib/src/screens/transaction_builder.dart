@@ -16,6 +16,7 @@ class TransactionPageBuilderWrapper extends PageTransitionsBuilder {
   }
 }
 
+/// if run web, this transition will be default.
 class NoTransitionBuilder extends PageTransitionsBuilder {
   const NoTransitionBuilder();
 
@@ -30,10 +31,11 @@ class NoTransitionBuilder extends PageTransitionsBuilder {
   }
 }
 
+/// dialog scale tween  use in [buildCupertinoDialogTransitions].
 final Animatable<double> _dialogScaleTween = Tween<double>(begin: 1.3, end: 1.0)
     .chain(CurveTween(curve: Curves.linearToEaseOut));
 
-/// cupertino dialog style
+/// cupertino dialog style, use in [showCupertinoDialog]
 /// [context] BuildContext
 /// [animation] animation
 /// [secondaryAnimation] Secondary Animation
@@ -81,6 +83,9 @@ Widget buildMaterialDialogTransitions(
   );
 }
 
+/// dialog transaction builder
+///
+/// use in [showDialog] and [showCupertinoDialog]
 class DialogTransactionBuilder extends PageTransitionsBuilder {
   final bool useSafeArea;
   final CapturedThemes? themes;

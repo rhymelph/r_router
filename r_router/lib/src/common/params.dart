@@ -195,6 +195,7 @@ class CastableStringMap extends DelegatingMap<String, String> {
     return defaultValue;
   }
 
+  /// Retrieve a value from this map
   DateTime? getDateTime(String key, {DateTime? defaultValue}) {
     final micros = getInt(key);
     if (micros == null) return defaultValue;
@@ -202,9 +203,37 @@ class CastableStringMap extends DelegatingMap<String, String> {
     return DateTime.fromMicrosecondsSinceEpoch(micros, isUtc: true);
   }
 
-  List<String> getList(String key, [Pattern separator = ","]) {
-    if (!containsKey(key)) return [];
-    return this[key]!.split(separator);
+  /// Retrieve a value from this map
+  List<T> getList<T>(String key,
+      [List<T>? defaultValue, Pattern separator = ","]) {
+    if (!containsKey(key)) return defaultValue ?? [];
+    assert(
+        T.toString() == 'int' ||
+            T.toString() == 'double' ||
+            T.toString() == 'num' ||
+            T.toString() == 'bool' ||
+            T.toString() == 'String' ||
+            T.toString() == 'DateTime',
+        "Not support Object List, please use [getEntity]");
+
+    if (T.toString() == 'DateTime') {
+      return this[key]!
+          .split(separator)
+          .cast<int>()
+          .map((e) => DateTime.fromMicrosecondsSinceEpoch(e, isUtc: true))
+          .toList() as List<T>;
+    }
+    return this[key]!.split(separator).cast<T>();
+  }
+
+  /// Retrieve a value from this map
+  T? getEntity<T>(String key, [T? defaultValue]) {
+    if (!containsKey(key)) {
+      return defaultValue;
+    }
+    final value = get(key);
+    if (value == null) return defaultValue;
+    return RRouter.convert.decode<T>(value);
   }
 }
 

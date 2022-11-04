@@ -1,13 +1,14 @@
 part of 'r_router.dart';
 
-typedef FutureOr<bool> RouteInterceptor(Context ctx);
+typedef RouteInterceptor = FutureOr<bool> Function(Context ctx);
 
 /// Function that modifies [context]
-typedef FutureOr<void> ResponseProcessor(Context context, dynamic result);
+typedef ResponseProcessor = FutureOr<dynamic> Function(Context context, dynamic result);
 
-typedef FutureOr<RespType> RouteHandler<RespType>(Context context);
 
-/// Registe this Navigator Route
+typedef RouteHandler = FutureOr<dynamic> Function(Context context);
+
+/// Register this Navigator Route
 ///
 /// [path] you want registe path, such as: /user/:id   or /user/*
 /// [pathRegEx] Map of regular expression matchers for specific path segment
@@ -23,7 +24,7 @@ class NavigatorRoute {
 
   RouteHandler handler;
 
-  final List<RouteInterceptor> _interceptor;
+  final List<RouteInterceptor> _interceptors;
 
   final _pathVarMapping = <String, int>{};
 
@@ -41,9 +42,9 @@ class NavigatorRoute {
       {this.pathRegEx,
       this.responseProcessor,
       this.defaultPageTransaction,
-      List<RouteInterceptor>? interceptor})
+      List<RouteInterceptor>? interceptors})
       : pathSegments = pathToSegments(path),
-        _interceptor = interceptor ?? [] {
+        _interceptors = interceptors ?? [] {
     for (int i = 0; i < pathSegments.length; i++) {
       String seg = pathSegments.elementAt(i);
       if (seg.startsWith(':')) {
@@ -69,12 +70,12 @@ class NavigatorRoute {
     return await ctx.execute(this);
   }
 
-  List<RouteInterceptor> getInterceptor() => _interceptor.toList();
+  List<RouteInterceptor> getInterceptor() => _interceptors.toList();
 
   /// Add [interceptor] and optionally
   /// [handler] in the route chain.
   void addInterceptor(RouteInterceptor interceptor) {
-    _interceptor.add(interceptor);
+    _interceptors.add(interceptor);
   }
 
   String toString() => '$path';

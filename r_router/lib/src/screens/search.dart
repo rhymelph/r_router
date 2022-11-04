@@ -127,16 +127,13 @@ abstract class SearchDelegate<T> {
   ///
   ///  * [AppBar.backgroundColor], which is set to [ThemeData.primaryColor].
   ///  * [AppBar.iconTheme], which is set to [ThemeData.primaryIconTheme].
-  ///  * [AppBar.textTheme], which is set to [ThemeData.primaryTextTheme].
-  ///  * [AppBar.brightness], which is set to [ThemeData.primaryColorBrightness].
+  ///  * [AppBar.titleTextStyle], which is set to [ThemeData.primaryTextTheme].
+  ///  * [AppBar.systemOverlayStyle].
   ThemeData appBarTheme(BuildContext context) {
-    assert(context != null);
     final ThemeData theme = Theme.of(context);
-    assert(theme != null);
     return theme.copyWith(
       primaryColor: Colors.white,
       primaryIconTheme: theme.primaryIconTheme.copyWith(color: Colors.grey),
-      primaryColorBrightness: Brightness.light,
       primaryTextTheme: theme.textTheme,
     );
   }
@@ -150,7 +147,6 @@ abstract class SearchDelegate<T> {
   String get query => _queryTextController.text;
 
   set query(String value) {
-    assert(query != null);
     _queryTextController.text = value;
   }
 
@@ -306,7 +302,7 @@ mixin SearchPageRouteMixin<T> on PageRoute<T> {
 class SearchPageRoute<T> extends PageRoute<T> with SearchPageRouteMixin<T> {
   SearchPageRoute({
     required this.delegate,
-  }) : assert(delegate != null) {
+  }) {
     assert(
       delegate._route == null,
       'The ${delegate.runtimeType} instance is currently used by another active '
@@ -419,7 +415,7 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
     final String searchFieldLabel = widget.delegate!.searchFieldLabel ??
         MaterialLocalizations.of(context).searchFieldLabel;
     Widget? body;
-    switch (widget.delegate!.currentBody) {
+    switch (widget.delegate!.currentBody!) {
       case SearchBody.suggestions:
         body = KeyedSubtree(
           key: const ValueKey<SearchBody>(SearchBody.suggestions),
@@ -455,8 +451,6 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
         appBar: AppBar(
           backgroundColor: theme.primaryColor,
           iconTheme: theme.primaryIconTheme,
-          textTheme: theme.primaryTextTheme,
-          brightness: theme.primaryColorBrightness,
           leading: widget.delegate!.buildLeading(context),
           title: TextField(
             controller: widget.delegate!._queryTextController,
@@ -473,7 +467,7 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
               hintStyle: theme.inputDecorationTheme.hintStyle,
             ),
           ),
-          actions: widget.delegate!.buildActions(context),
+          actions: widget.delegate!.buildActions(context), toolbarTextStyle: theme.primaryTextTheme.bodyText2, titleTextStyle: theme.primaryTextTheme.headline6,
         ),
         body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),

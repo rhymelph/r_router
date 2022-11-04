@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide SearchDelegate;
 import 'package:path_tree/path_tree.dart';
 import 'package:r_router/r_router.dart';
+import 'package:r_router/src/common/r_router_params_conver.dart';
 import 'package:r_router/src/screens/search.dart';
 import 'package:r_router/src/utils/string.dart';
 
@@ -94,6 +95,8 @@ class RRouterBasic {
     return navigator.context;
   }
 
+  RRouterParamsConvert get convert => _convert;
+
   ErrorPage _errorPage;
 
   bool isUseNavigator2;
@@ -104,18 +107,22 @@ class RRouterBasic {
 
   PopHome _popHome;
 
+  RRouterParamsConvert _convert;
+
   RRouterBasic(
       {ErrorPage? errorPage,
       this.isUseNavigator2 = false,
       List<RouteInterceptor>? interceptor,
       this.isDebugMode = true,
       PageBuilder? pageBuilder,
-      PopHome? popHome})
+      PopHome? popHome,
+      RRouterParamsConvert? convert})
       : _errorPage = errorPage ?? DefaultErrorPage(),
         _defaultTransitionBuilder = _defaultTransitionsBuilder(),
         _interceptor = interceptor ?? <RouteInterceptor>[],
         _pageBuilder = pageBuilder ?? _kDefaultCustomPageBuilder,
-        _popHome = popHome ?? _kDefaultPopHome;
+        _popHome = popHome ?? _kDefaultPopHome,
+        _convert = convert ?? DefaultParamsConvert();
 
   static PageTransitionsBuilder _defaultTransitionsBuilder() {
     if (kIsWeb) return NoTransitionBuilder();
@@ -172,6 +179,14 @@ class RRouterBasic {
   /// [errorPage] found in ErrorPage Class
   RRouterBasic setErrorPage(ErrorPage errorPage) {
     this._errorPage = errorPage;
+    return this;
+  }
+
+  /// set Params Convert
+  ///
+  /// [convert] found in RRouterParamsConvert class
+  RRouterBasic setParamsConvert(RRouterParamsConvert convert) {
+    this._convert = convert;
     return this;
   }
 
@@ -251,6 +266,65 @@ class RRouterBasic {
                 _errorPage.errorPage(context, flutterErrorDetails)),
       );
     };
+  }
+
+  /// format params
+  String _formatParamItem(dynamic params) {
+    String _addPathValue = "";
+    if (params is String) {
+      _addPathValue = params;
+    } else if (params is bool ||
+        params is int ||
+        params is double ||
+        params is num) {
+      _addPathValue = '${params}';
+    } else if (params is List<String> ||
+        params is List<int> ||
+        params is List<double> ||
+        params is List<bool> ||
+        params is List<num>) {
+      _addPathValue = params.join(",");
+    } else if (params is DateTime) {
+      _addPathValue = '${params.microsecondsSinceEpoch}';
+    } else if (params is List<DateTime>) {
+      _addPathValue =
+          params.map((e) => '${e.microsecondsSinceEpoch}').join(',');
+    } else if (params.runtimeType.toString().startsWith('List')) {
+      _addPathValue = (params as List).map((e) => _convert.encode(e)).join(',');
+    } else {
+      _addPathValue = _convert.encode(params);
+    }
+    return _addPathValue;
+  }
+
+  /// if you has query params or path Params,path format.
+  String formatPath(String path,
+      {Map<String, dynamic>? pathParams, Map<String, dynamic>? queryParams}) {
+    if (pathParams != null) {
+      final pathList = path.split('/');
+      List<String> result = [];
+      for (final i in pathList) {
+        if (i.startsWith(':')) {
+          String keyName = i.substring(1, i.length);
+          if (keyName.isNotEmpty && pathParams[keyName] != null) {
+            String _addPathValue = _formatParamItem(pathParams[keyName]!);
+            result.add(_addPathValue);
+          }
+        } else {
+          result.add(i);
+        }
+      }
+      path = result.join('/');
+    }
+    if (queryParams != null) {
+      List<String> queryList = [];
+      for (final i in queryParams.entries) {
+        queryList.add('${i.key}=${_formatParamItem(i.value)}');
+      }
+      path += "?";
+      path += queryList.join("&");
+    }
+    return path;
   }
 
   /// Navigate to Route
@@ -598,9 +672,6 @@ class RRouterBasic {
     String? fieldLabelText,
   }) async {
     BuildContext context = RRouter.context;
-    assert(initialDate != null);
-    assert(firstDate != null);
-    assert(lastDate != null);
     initialDate = DateUtils.dateOnly(initialDate);
     firstDate = DateUtils.dateOnly(firstDate);
     lastDate = DateUtils.dateOnly(lastDate);
@@ -613,9 +684,6 @@ class RRouterBasic {
     assert(
         selectableDayPredicate == null || selectableDayPredicate(initialDate),
         'Provided initialDate $initialDate must satisfy provided selectableDayPredicate.');
-    assert(initialEntryMode != null);
-    assert(useRootNavigator != null);
-    assert(initialDatePickerMode != null);
     assert(debugCheckHasMaterialLocalizations(context));
 
     Widget dialog = DatePickerDialog(
@@ -681,9 +749,7 @@ class RRouterBasic {
     TransitionBuilder? builder,
   }) async {
     BuildContext context = RRouter.context;
-    assert(
-        initialDateRange == null ||
-            (initialDateRange.start != null && initialDateRange.end != null),
+    assert(initialDateRange == null,
         'initialDateRange must be null or have non-null start and end dates.');
     assert(
         initialDateRange == null ||
@@ -691,9 +757,7 @@ class RRouterBasic {
         'initialDateRange\'s start date must not be after it\'s end date.');
     initialDateRange =
         initialDateRange == null ? null : DateUtils.datesOnly(initialDateRange);
-    assert(firstDate != null);
     firstDate = DateUtils.dateOnly(firstDate);
-    assert(lastDate != null);
     lastDate = DateUtils.dateOnly(lastDate);
     assert(!lastDate.isBefore(firstDate),
         'lastDate $lastDate must be on or after firstDate $firstDate.');
@@ -709,8 +773,6 @@ class RRouterBasic {
     assert(initialDateRange == null || !initialDateRange.end.isAfter(lastDate),
         'initialDateRange\'s end date must be on or before lastDate $lastDate.');
     currentDate = DateUtils.dateOnly(currentDate ?? DateTime.now());
-    assert(initialEntryMode != null);
-    assert(useRootNavigator != null);
     assert(debugCheckHasMaterialLocalizations(context));
 
     Widget dialog = DateRangePickerDialog(
@@ -766,9 +828,6 @@ class RRouterBasic {
     RouteSettings? routeSettings,
   }) async {
     BuildContext context = RRouter.context;
-    assert(initialTime != null);
-    assert(useRootNavigator != null);
-    assert(initialEntryMode != null);
     assert(debugCheckHasMaterialLocalizations(context));
 
     final Widget dialog = TimePickerDialog(
@@ -797,8 +856,6 @@ class RRouterBasic {
     bool useRootNavigator = true,
     RouteSettings? routeSettings,
   }) {
-    assert(pageBuilder != null);
-    assert(useRootNavigator != null);
     assert(!barrierDismissible || barrierLabel != null);
     if (isUseNavigator2 == true) {
       return _delegate.push(CustomPage<dynamic>(
@@ -845,11 +902,6 @@ class RRouterBasic {
     RouteSettings? routeSettings,
     AnimationController? transitionAnimationController,
   }) {
-    assert(builder != null);
-    assert(isScrollControlled != null);
-    assert(useRootNavigator != null);
-    assert(isDismissible != null);
-    assert(enableDrag != null);
     assert(debugCheckHasMediaQuery(context));
     assert(debugCheckHasMaterialLocalizations(context));
     if (isUseNavigator2 == true) {
@@ -1030,9 +1082,6 @@ class RRouterBasic {
     String? query = '',
     bool useRootNavigator = false,
   }) {
-    assert(delegate != null);
-    assert(context != null);
-    assert(useRootNavigator != null);
     delegate.query = query ?? delegate.query;
     delegate.currentBody = SearchBody.suggestions;
     if (isUseNavigator2 == true) {

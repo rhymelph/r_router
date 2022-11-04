@@ -1,3 +1,5 @@
+## [1.1.5] - add meta ,support plugin generate page.
+
 ## [1.1.4] - fix show bottom sheet error from web , adapter default transitions builder.
 
 ## [1.1.3] - fixed Toggle select widget mode will rebuild, add overlayContext.

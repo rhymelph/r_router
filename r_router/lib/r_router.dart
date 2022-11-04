@@ -9,3 +9,4 @@ export 'src/screens/error_page.dart';
 export 'src/screens/popup_menu.dart';
 export 'src/screens/search.dart' hide SearchPageRoute, SearchBody;
 export 'src/screens/bottom_sheet.dart';
+export 'src/meta/meta.dart';

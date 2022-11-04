@@ -32,8 +32,7 @@ class _MenuItem extends SingleChildRenderObjectWidget {
     Key? key,
     required this.onLayout,
     Widget? child,
-  })  : assert(onLayout != null),
-        super(key: key, child: child);
+  })  : super(key: key, child: child);
 
   final ValueChanged<Size> onLayout;
 
@@ -51,8 +50,7 @@ class _MenuItem extends SingleChildRenderObjectWidget {
 
 class _RenderMenuItem extends RenderShiftedBox {
   _RenderMenuItem(this.onLayout, [RenderBox? child])
-      : assert(onLayout != null),
-        super(child);
+      :super(child);
 
   ValueChanged<Size> onLayout;
 
@@ -304,7 +302,7 @@ class _PopupMenuRouteLayout extends SingleChildLayoutDelegate {
 
     // Find the ideal vertical position.
     double y = position!.top;
-    if (selectedItemIndex != null && itemSizes != null) {
+    if (selectedItemIndex != null) {
       double selectedItemOffset = _kMenuVerticalPadding;
       for (int index = 0; index < selectedItemIndex!; index += 1)
         selectedItemOffset += itemSizes[index]!.height;
@@ -324,7 +322,6 @@ class _PopupMenuRouteLayout extends SingleChildLayoutDelegate {
       x = position!.left;
     } else {
       // Menu button is equidistant from both edges, so grow in reading direction.
-      assert(textDirection != null);
       switch (textDirection) {
         case TextDirection.rtl:
           x = size.width - position!.right - childSize.width;
@@ -585,11 +582,7 @@ class PopupMenuButton<T> extends StatefulWidget {
     this.shape,
     this.color,
     this.captureInheritedThemes = true,
-  })  : assert(itemBuilder != null),
-        assert(offset != null),
-        assert(enabled != null),
-        assert(captureInheritedThemes != null),
-        assert(!(child != null && icon != null),
+  })  : assert(!(child != null && icon != null),
             'You can only pass [child] or [icon], not both.'),
         super(key: key);
 
@@ -716,7 +709,6 @@ class _PopupMenuButtonState<T> extends State<PopupMenuButton<T>> {
   }
 
   Icon? _getIcon(TargetPlatform platform) {
-    assert(platform != null);
     switch (platform) {
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
@@ -727,7 +719,6 @@ class _PopupMenuButtonState<T> extends State<PopupMenuButton<T>> {
       case TargetPlatform.macOS:
         return const Icon(Icons.more_horiz);
     }
-    return null;
   }
 
   @override

@@ -85,7 +85,7 @@ void initRouter() {
               restorationId: ctx.path))
       .setPopHome(() {
     return Future.value(true);
-  });
+  }).addInterceptor((ctx) => null);
   // or
   // RRouter.addRoutes([
   //   NavigatorRoute('/', (ctx) => MyHomePage(title: 'Flutter Demo Home Page')),
