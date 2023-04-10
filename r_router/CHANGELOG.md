@@ -1,3 +1,5 @@
+## [1.1.6] - fix ModalBottomSheetRoute error.
+
 ## [1.1.5] - add meta ,support plugin generate page.
 
 ## [1.1.4] - fix show bottom sheet error from web , adapter default transitions builder.

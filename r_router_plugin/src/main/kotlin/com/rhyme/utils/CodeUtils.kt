@@ -63,8 +63,9 @@ object CodeUtils {
     //创建路由
     internal fun createRouters(
         importList: List<String>, //导入文件列表
-        paramsList: List<String>, // 参数列表
-        routerRegisterList: List<String> // 路由注册列表
+        paramsList: List<String?>, // 参数列表
+        routerRegisterList: List<String>, // 路由注册列表
+        toRoute: List<String?> // 路由注册列表
     ): String {
         return "import 'package:r_router/r_router.dart';\n" +
                 "import 'package:flutter/material.dart';\n" +
@@ -76,15 +77,14 @@ object CodeUtils {
                 "\n/// [Email]     rhymelph@gmail.com" +
                 "\n/// [QQGroup]   129380453" +
                 "\n/// [WeChatSub] Dart客栈" +
-                "\nclass RRouterProviders{\n" +
+                "\nclass RRouterPageGen{\n" +
                 "  ${paramsList.joinToString("\n  ")}\n" +
                 "\n" +
-                "  void initRouters() {\n" +
+                "  static void mount() {\n" +
                 "    ${routerRegisterList.joinToString("\n    ")}" +
                 "  \n" +
                 "   }\n" +
+                "  ${toRoute.joinToString("\n  ")}" +
                 "}"
     }
-
-
 }

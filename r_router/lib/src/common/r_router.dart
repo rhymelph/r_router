@@ -6,7 +6,8 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide SearchDelegate;
+import 'package:flutter/material.dart'
+    hide SearchDelegate, ModalBottomSheetRoute;
 import 'package:path_tree/path_tree.dart';
 import 'package:r_router/r_router.dart';
 import 'package:r_router/src/common/r_router_params_conver.dart';

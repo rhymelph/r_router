@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>rhymelph.r_router_plugin</id>
-    <name>RRouterGenerate</name>
+    <name>Flutter RRouter</name>
     <vendor email="rhymelph@gmail.com" url="https://github.com/rhymelph">Rhyme.li</vendor>
 
     <description><![CDATA[

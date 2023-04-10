@@ -15,24 +15,12 @@ object FileUtils {
         return PubRoot.forFile(getProjectIdeaFile(project))?.lib
     }
 
-
-    //获取到page文件夹
-    // ../src/page/
-    internal fun getPageDirectory(project: Project): VirtualFile {
-        return getLibDirectory(project)?.let {
-            return@let (it.findChild("src") ?: it.createChildDirectory(this, "src")).run {
-                return@run (findChild("page")) ?: createChildDirectory(this, "page")
-            }
-        }!!
-    }
-
-
     //获取到router文件夹
     // ../src/router_gen/
     internal fun getRouterDirectory(project: Project): VirtualFile {
         return getLibDirectory(project)?.let {
-            return@let (it.findChild("src") ?: it.createChildDirectory(this, "src")).run {
-                return@run (findChild("router_gen")) ?: createChildDirectory(this, "router_gen")
+            return@let (it.findChild("generated") ?: it.createChildDirectory(this, "generated")).run {
+                return@run (findChild("r_router")) ?: createChildDirectory(this, "r_router")
             }
         }!!
     }
@@ -63,11 +51,7 @@ object FileUtils {
      * 获取项目.idea目录的一个文件
      */
     private fun getProjectIdeaFile(project: Project): VirtualFile? {
-        val ideaFile = project.projectFile ?: project.workspaceFile ?: project.guessProjectDir()?.children?.first()
-        if (ideaFile == null) {
-//            project.showErrorMessage("Missing .idea/misc.xml or .idea/workspace.xml file")
-        }
-        return ideaFile
+        return project.projectFile ?: project.workspaceFile ?: project.guessProjectDir()?.children?.first()
     }
 
     internal fun getPubSpecConfig(project: Project): PubSpecConfig? {
@@ -91,7 +75,6 @@ object FileUtils {
         val name: String = ((if (map[PROJECT_NAME] == "null") null else map[PROJECT_NAME]) ?: project.name).toString(),
         val isFlutterModule: Boolean = FlutterModuleUtils.hasFlutterModule(project)
     )
-
 }
 
 
