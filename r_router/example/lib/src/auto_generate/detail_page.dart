@@ -19,16 +19,16 @@ FutureOr<bool> onInterceptor(Context ctx) {
     processor: onProcessor,
     interceptors: [onInterceptor])
 class DetailPage extends StatelessWidget {
-  const DetailPage({Key key, this.id, this.content, this.personal})
+  const DetailPage({Key? key, this.id, this.content, this.personal})
       : super(key: key);
 
   @RRouterPathMeta(name: "id")
-  final int id;
+  final int? id;
 
   @RRouterQueryMeta(name: "content")
-  final String content;
+  final String? content;
 
-  final Personal personal;
+  final Personal? personal;
 
   @override
   Widget build(BuildContext context) {

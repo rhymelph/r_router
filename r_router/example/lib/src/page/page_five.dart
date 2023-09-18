@@ -9,16 +9,21 @@ class PageFive extends StatefulWidget {
 class _PageFiveState extends State<PageFive> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('拦截跳转:${context.readCtx.pathParams.getInt('id', 0)}'),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.clear),
-        onPressed: () {
-          var data = 'test';
-          RRouter.maybePop(data);
-        },
+    return WillPopScope(
+      onWillPop: () {
+        return Future.value(false);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('拦截跳转:${context.readCtx.pathParams.getInt('id', 0)}'),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.clear),
+          onPressed: () {
+            var data = 'test';
+            RRouter.maybePop(data);
+          },
+        ),
       ),
     );
   }

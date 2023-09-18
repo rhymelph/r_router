@@ -36,11 +36,11 @@ class RRouterPageGen {
 
   static Future<dynamic> toHomePage(
       {dynamic body,
-      bool replace,
-      bool clearTrace,
-      bool isSingleTop,
+      bool? replace,
+      bool? clearTrace,
+      bool? isSingleTop,
       dynamic result,
-      PageTransitionsBuilder pageTransitions}) {
+      PageTransitionsBuilder? pageTransitions}) {
     return RRouter.navigateTo(
       homePage,
       body: body,
@@ -54,11 +54,11 @@ class RRouterPageGen {
 
   static Future<dynamic> toDetailPage(String id,
       {dynamic body,
-      bool replace,
-      bool clearTrace,
-      bool isSingleTop,
+      bool? replace,
+      bool? clearTrace,
+      bool? isSingleTop,
       dynamic result,
-      PageTransitionsBuilder pageTransitions}) {
+      PageTransitionsBuilder? pageTransitions}) {
     return RRouter.navigateTo(
       RRouter.formatPath(detailPage, pathParams: {'id': id}),
       body: body,

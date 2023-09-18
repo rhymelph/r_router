@@ -1,3 +1,5 @@
+## [1.1.7] - fix use the web back can not load issues,and adapter new sdk version.
+
 ## [1.1.6] - fix ModalBottomSheetRoute error.
 
 ## [1.1.5] - add meta ,support plugin generate page.

@@ -1,6 +1,7 @@
 library r_router;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
@@ -618,7 +619,7 @@ class RRouterBasic {
     Color barrierColor = kCupertinoModalBarrierColor,
     bool barrierDismissible = true,
     bool useRootNavigator = true,
-    bool? semanticsDismissible,
+    bool semanticsDismissible = false,
     RouteSettings? routeSettings,
   }) {
     if (isUseNavigator2 == true) {

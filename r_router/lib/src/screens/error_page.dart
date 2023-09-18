@@ -34,7 +34,7 @@ class DefaultErrorPage implements ErrorPage {
       body: Center(
         child: Text(
           'Page Not Found:${ctx.uri.toString()}',
-          style: Theme.of(context).textTheme.headline3,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
       ),
     );

@@ -10,7 +10,7 @@ FutureOr<bool> onInterceptor(Context ctx) {
 }
 
 class User {
-  int id;
+  int? id;
 }
 
 @RRouterPageMeta(
@@ -20,25 +20,25 @@ class User {
     processor: onProcessor,
     interceptors: [onInterceptor])
 class HomePage extends StatelessWidget {
-  final String name;
+  final String? name;
 
   @RRouterQueryMeta(def: 1)
-  final int age;
+  final int? age;
 
   @RRouterBodyMeta(name: "user_name")
-  final String userName;
+  final String? userName;
 
   @RRouterQueryMeta()
-  final DateTime now;
+  final DateTime? now;
 
   @RRouterQueryMeta()
-  final List<String> personalList;
+  final List<String>? personalList;
 
   @RRouterBodyMeta()
-  final User user;
+  final User? user;
 
   const HomePage(
-      {Key key,
+      {Key? key,
       this.name,
       this.age,
       this.userName,

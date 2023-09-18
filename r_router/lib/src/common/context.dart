@@ -30,14 +30,18 @@ class Context {
     };
   }
 
-  factory Context.fromJson(Map map) {
+  factory Context.fromJson(dynamic map) {
     Context ctx = Context(
       map['path'],
       body: map['body'],
       at: DateTime.fromMicrosecondsSinceEpoch(map['at']),
       isDirectly: map['isDirectly'],
     );
-    ctx.pathParams.addAll(map['pathParams']);
+    try {
+      ctx.pathParams.addAll(map['pathParams']);
+    } catch (e) {
+      //
+    }
     return ctx;
   }
 
@@ -62,14 +66,12 @@ class Context {
       } else if (res is WidgetBuilder || res is Redirect) {
         result = res;
       } else {
-        if (result == null) {
-          if (info.responseProcessor != null) {
-            maybeFuture = info.responseProcessor!(this, res);
-            if (maybeFuture is Future) {
-              result = await maybeFuture;
-            } else {
-              result = maybeFuture;
-            }
+        if (info.responseProcessor != null) {
+          maybeFuture = info.responseProcessor!(this, res);
+          if (maybeFuture is Future) {
+            result = await maybeFuture;
+          } else {
+            result = maybeFuture;
           }
         }
       }

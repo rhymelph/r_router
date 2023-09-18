@@ -17,7 +17,7 @@ FutureOr<bool> onInterceptor(Context ctx) {
     interceptors: [onInterceptor])
 class UserPage extends StatelessWidget {
   const UserPage({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override

@@ -455,7 +455,7 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
           title: TextField(
             controller: widget.delegate!._queryTextController,
             focusNode: focusNode,
-            style: theme.textTheme.headline6,
+            style: theme.textTheme.titleLarge,
             textInputAction: widget.delegate!.textInputAction,
             keyboardType: widget.delegate!.keyboardType,
             onSubmitted: (String _) {
@@ -468,8 +468,8 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
             ),
           ),
           actions: widget.delegate!.buildActions(context),
-          toolbarTextStyle: theme.primaryTextTheme.bodyText2,
-          titleTextStyle: theme.primaryTextTheme.headline6,
+          toolbarTextStyle: theme.primaryTextTheme.bodyMedium,
+          titleTextStyle: theme.primaryTextTheme.titleLarge,
         ),
         body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),

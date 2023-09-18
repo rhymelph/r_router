@@ -3,9 +3,9 @@ import 'package:flutter/material.dart' hide SearchDelegate;
 import 'package:r_router/r_router.dart';
 
 class MyHomePage extends StatefulWidget {
-  final String title;
+  final String? title;
 
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -164,16 +164,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void onShowMenu() {
     //获取点击的button
-    final RenderBox btnBox = _menuKey.currentContext.findRenderObject();
+    final RenderBox? btnBox =
+        _menuKey.currentContext?.findRenderObject() as RenderBox?;
     //获取父布局的位置
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
+    final RenderBox? overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox?;
     final RelativeRect position = RelativeRect.fromRect(
       Rect.fromPoints(
-        btnBox.localToGlobal(Offset.zero, ancestor: overlay),
+        btnBox!.localToGlobal(Offset.zero, ancestor: overlay),
         btnBox.localToGlobal(btnBox.size.bottomRight(Offset.zero),
             ancestor: overlay),
       ),
-      Offset.zero & overlay.size,
+      Offset.zero & overlay!.size,
     );
     RRouter.showMenu(position: position, items: <PopupMenuEntry>[
       PopupMenuItem(
@@ -204,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title ?? ''),
       ),
       body: ListView(
         children: <Widget>[
@@ -254,10 +256,10 @@ class _MyHomePageState extends State<MyHomePage> {
     print('dispose');
   }
 
-  OverlayEntry _entry;
+  OverlayEntry? _entry;
 
   void onShowOverlay() {
-    Overlay.of(RRouter.overlayContext).insert(_entry = OverlayEntry(
+    Overlay.of(RRouter.overlayContext!).insert(_entry = OverlayEntry(
         builder: (BuildContext context) => Center(
               child: Material(
                 child: Container(

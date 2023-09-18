@@ -37,7 +37,7 @@ void initRouter() {
       .addRoute(NavigatorRoute(
           '/two',
           (ctx) => PageTwo(
-                param: ctx?.body != null ? ctx.body['param'] : '',
+                param: ctx.body != null ? ctx.body['param'] : '',
               )))
       .addRoute(NavigatorRoute('/three', (ctx) => PageThree(),
           defaultPageTransaction: CupertinoPageTransitionsBuilder()))
@@ -85,7 +85,7 @@ void initRouter() {
               restorationId: ctx.path))
       .setPopHome(() {
     return Future.value(true);
-  }).addInterceptor((ctx) => null);
+  });
   // or
   // RRouter.addRoutes([
   //   NavigatorRoute('/', (ctx) => MyHomePage(title: 'Flutter Demo Home Page')),
