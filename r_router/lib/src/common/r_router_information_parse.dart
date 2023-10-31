@@ -4,18 +4,8 @@ class RRouterInformationParser extends RouteInformationParser<Page<dynamic>> {
   @override
   Future<Page<dynamic>> parseRouteInformation(
       RouteInformation routeInformation) async {
-    String path = Uri.decodeComponent(
-      Uri(
-        path:
-            routeInformation.uri.path.isEmpty ? '/' : routeInformation.uri.path,
-        queryParameters: routeInformation.uri.queryParametersAll.isEmpty
-            ? null
-            : routeInformation.uri.queryParametersAll,
-        fragment: routeInformation.uri.fragment.isEmpty
-            ? null
-            : routeInformation.uri.fragment,
-      ).toString(),
-    );
+    routeInformation.location;
+    String path = routeInformation.location ?? '/';
     Object? body = routeInformation.state;
     PageTransitionsBuilder? _pageTransitions;
     Context ctx;
@@ -41,7 +31,7 @@ class RRouterInformationParser extends RouteInformationParser<Page<dynamic>> {
         builder = result;
       } else if (result is Redirect) {
         return parseRouteInformation(
-            RouteInformation(uri: Uri.parse(result.path), state: body));
+            RouteInformation(location: result.path, state: body));
       }
       _pageTransitions = handler.defaultPageTransaction;
     }
@@ -57,7 +47,6 @@ class RRouterInformationParser extends RouteInformationParser<Page<dynamic>> {
   RouteInformation? restoreRouteInformation(Page<dynamic> configuration) {
     if (configuration.name == null) return null;
     return RouteInformation(
-        uri: Uri.parse(configuration.name ?? '/'),
-        state: configuration.arguments);
+        location: configuration.name, state: configuration.arguments);
   }
 }
