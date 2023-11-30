@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:r_router/r_router.dart';
-import 'package:r_router_example/src/auto_generate/detail_page.dart'
+import 'package:example/src/auto_generate/detail_page.dart'
     as detail_page;
-import 'package:r_router_example/src/auto_generate/home_page.dart' as home_page;
+import 'package:example/src/auto_generate/home_page.dart' as home_page;
 
 class RRouterPageGen {
   static const String homePage = '/';

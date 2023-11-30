@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:r_router/r_router.dart';
-import 'package:r_router_example/src/page/page_five.dart';
-import 'package:r_router_example/src/page/page_four.dart';
+import 'package:example/src/page/page_five.dart';
+import 'package:example/src/page/page_four.dart';
 import 'src/page/my_page.dart';
 import 'src/page/page_one.dart';
 import 'src/page/page_three.dart';
