@@ -1,3 +1,5 @@
+## [1.2.0] - fix new flutter version issues.
+
 ## [1.1.8] - fix new flutter version issues.
 
 ## [1.1.7] - fix use the web back can not load issues,and adapter new sdk version.
